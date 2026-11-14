@@ -48,7 +48,7 @@ Part 1 is supported by this data: Intents usage moves independently of the NEAR 
 
 ## Limits
 
-- The one command rebuild uses free public APIs only: DefiLlama, NearBlocks and CoinGecko. The Intents Explorer API was not used (it needs a partner token). BigQuery is the optional path, run by hand (see `docs/BIGQUERY.md`). A cross check on the BigQuery public dataset (`queries/01_receipt_actions_daily.sql`, run by hand in the free sandbox) counted 2,968,076 to 5,144,507 receipt actions a day from 2026-11-08 to 2026-11-13 ([data/bigquery/receipt_actions_daily.csv](data/bigquery/receipt_actions_daily.csv)). It is a 7 day snapshot, so it cannot test a trend yet.
+- The one command rebuild uses free public APIs only: DefiLlama, NearBlocks and CoinGecko. The Intents Explorer API was not used (it needs a partner token). BigQuery is the optional path, run by hand (see `docs/BIGQUERY.md`). A cross check on the BigQuery public dataset (`queries/01_receipt_actions_daily.sql`, run by hand in the free sandbox) counted 2,968,076 to 5,144,507 receipt actions a day from 2026-11-08 to 2026-11-13 ([data/bigquery/receipt_actions_daily.csv](https://github.com/henrysammarfo/near-settlement-thesis/blob/main/data/bigquery/receipt_actions_daily.csv)). It is a 7 day snapshot, so it cannot test a trend yet.
 - Correlations of weekly changes over about two years are noisy. The early Intents weeks are tiny, so log changes there are large.
 - NearBlocks active accounts can miss signers hidden behind relayers.
 - CoinGecko's free tier gives 365 days, so the Bitcoin test covers fewer weeks than the NEAR test.
