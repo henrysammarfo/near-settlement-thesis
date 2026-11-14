@@ -17,9 +17,21 @@ from .schema import SchemaError
 from .stats import StatsError
 
 
+def _stable(x):
+    """Round floats to 12 significant digits so results.json is byte identical across numpy and pandas versions."""
+    if isinstance(x, float):
+        return float(f"{x:.12g}")
+    if isinstance(x, dict):
+        return {k: _stable(v) for k, v in x.items()}
+    if isinstance(x, list):
+        return [_stable(v) for v in x]
+    return x
+
+
 def build(cfg) -> dict:
     logger = log.get()
     R, frames = analyse(cfg)
+    R = _stable(R)
     cfg.paths.results.mkdir(parents=True, exist_ok=True)
     (cfg.paths.results / "results.json").write_text(json.dumps(R, indent=2, sort_keys=False) + "\n")
     logger.info("results.json: %d keys, window %s to %s, %d weeks", len(R), R["window_start"], R["window_end"], R["weeks"])
