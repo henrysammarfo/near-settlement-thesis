@@ -11,6 +11,8 @@ with sync_playwright() as p:
     }.items():
         for scheme in ("light", "dark"):
             pg = b.new_page(color_scheme=scheme, **opts)
+            errs_js = []
+            pg.on("pageerror", lambda e: errs_js.append(str(e)))
             pg.goto(url, wait_until="networkidle")
             h = pg.evaluate("document.body.scrollHeight")
             for y in range(0, h, 400):
@@ -20,6 +22,8 @@ with sync_playwright() as p:
             pg.screenshot(path=f"{prefix}_{name}_{scheme}_full.png", full_page=True)
             errs = pg.evaluate("[...document.images].filter(i=>!i.complete||i.naturalWidth===0).map(i=>i.src)")
             ov = pg.evaluate("document.documentElement.scrollWidth>window.innerWidth")
-            print(name, scheme, "broken images:", errs, "horizontal overflow:", ov)
+            small = pg.evaluate("[...document.querySelectorAll('body *')].filter(e=>e.childNodes.length&&[...e.childNodes].some(n=>n.nodeType===3&&n.textContent.trim())&&e.offsetParent!==null&&parseFloat(getComputedStyle(e).fontSize)<12.5).map(e=>e.tagName+':'+e.textContent.trim().slice(0,30))")
+            wide = pg.evaluate("[...document.querySelectorAll('body *')].filter(e=>{const r=e.getBoundingClientRect();return r.width&&r.right>document.documentElement.clientWidth+1&&!e.closest('.term')}).map(e=>e.tagName+'.'+e.className).slice(0,5)")
+            print(name, scheme, "broken images:", errs, "overflow:", ov, wide, "js errors:", errs_js, "small text:", small[:6])
             pg.close()
     b.close()

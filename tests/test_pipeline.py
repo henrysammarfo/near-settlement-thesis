@@ -93,3 +93,18 @@ def test_committed_results_match_a_fresh_build(out):
     _, R, _ = out
     committed = json.loads((ROOT / "results/results.json").read_text())
     assert committed == json.loads(json.dumps(R))
+
+
+def test_site_data_matches_results(out):
+    """The interactive charts read site/data.json; it must agree with results.json."""
+    _, R, o = out
+    d = json.loads((o / "site" / "data.json").read_text())
+    w = d["weekly"]
+    assert len(w["date"]) == R["weeks"] == len(w["intents_volume_usd"]) == len(w["near_price_usd"])
+    first4 = sum(w["intents_volume_usd"][:4]) / 4
+    assert first4 == pytest.approx(R["intents_weekly_volume_first_4w"], rel=1e-6)
+    assert d["value_capture_365d"]["Intents revenue"] == pytest.approx(R["intents_revenue_365d"])
+    html = (o / "site" / "index.html").read_text()
+    assert (o / "site" / "app.js").exists() and 'src="app.js"' in html
+    assert f"{R['intents_weekly_volume_last_4w'] / 1e6:.1f}" in html
+    assert (o / "site" / "brand" / "fonts" / "inter.woff2").exists()

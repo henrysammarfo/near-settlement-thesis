@@ -12,7 +12,7 @@ from .analysis import analyse
 from .charts import draw_all
 from .config import ConfigError, load_config
 from .http import FetchError
-from .render import render_all
+from .render import render_all, write_site_data
 from .schema import SchemaError
 from .stats import StatsError
 
@@ -25,6 +25,7 @@ def build(cfg) -> dict:
     logger.info("results.json: %d keys, window %s to %s, %d weeks", len(R), R["window_start"], R["window_end"], R["weeks"])
     files = draw_all(frames, R, cfg.paths.charts, cfg.paths.site / "charts")
     logger.info("charts: %d files", len(files))
+    write_site_data(cfg, frames, R)
     render_all(cfg)
     logger.info("rendered %s and %s", cfg.paths.thesis.name, cfg.paths.site / "index.html")
     return R

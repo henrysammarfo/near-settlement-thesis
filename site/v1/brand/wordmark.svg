@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 196 40" width="196" height="40" role="img" aria-label="Settlemark">
+  <defs>
+    <linearGradient id="sw-g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7C92FF"/>
+      <stop offset="1" stop-color="#3D5AFE"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(4 4)">
+    <rect x="0.5" y="0.5" width="31" height="31" rx="8.5" fill="#0B1020" stroke="#2A3352"/>
+    <g fill="none" stroke="url(#sw-g)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M7.5 9.5 C12 9.5 13.5 16 17.5 16"/>
+      <path d="M7.5 16 H17.5"/>
+      <path d="M7.5 22.5 C12 22.5 13.5 16 17.5 16"/>
+      <path d="M17.5 16 H22"/>
+    </g>
+    <circle cx="24.5" cy="16" r="2.6" fill="#3DD6A3"/>
+  </g>
+  <text x="46" y="27" font-family="Inter, -apple-system, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="21" font-weight="650" letter-spacing="-0.6" fill="#0B1020">Settlemark</text>
+</svg>

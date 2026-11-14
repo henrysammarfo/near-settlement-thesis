@@ -4,7 +4,7 @@
 
 **In plain words:** people now use NEAR Intents to move and swap money across many blockchains, and that use keeps growing whether the NEAR price goes up or down. But very little of that money reaches NEAR holders yet. This project tests both statements against public data, gives the evidence against as much room as the evidence for, and lets anyone rebuild every number and chart with one command.
 
-* Live page: https://near-settlement-thesis.vercel.app/
+* Live page: https://near-settlement-thesis.vercel.app/ (interactive charts drawn from `site/data.json`, which the rebuild writes; the first version stays at /v1)
 * The thesis, every number linked to its source: [THESIS.md](THESIS.md)
 * Built for NEAR HACKATHON 2026, track `thesis`. Not financial advice.
 
@@ -34,7 +34,7 @@ Needs Python 3.11 or newer. No API keys. No accounts. No cost.
 1. `git clone https://github.com/henrysammarfo/near-settlement-thesis && cd near-settlement-thesis`
 2. `npm run setup` (or `make setup`). You see the Python packages install into `.venv`.
 3. `npm run rebuild` (or `sh rebuild.sh`, or `make rebuild`). You see one log line per dataset, for example `intents_volume 704 rows DefiLlama`, then `results.json`, `charts: 24 files` and `rendered THESIS.md`. It took about 12 seconds on our machine.
-4. `npm test` (or `make test`). You see `37 passed`, with no network needed.
+4. `npm test` (or `make test`). You see `38 passed`, with no network needed.
 5. `make lint`. You see ruff report no problems.
 6. Open `site/index.html`. You see the same page as the live site.
 7. To check any number: find its key in `results/results.json`, look up which CSV it came from in the `provenance` block of the same file, and open that CSV in `data/`. Every row carries its `source_url` and `fetched_at_utc`.
@@ -51,7 +51,8 @@ settlemark/
   stats.py             Pearson correlation, bootstrap interval, lead and lag, log changes, weekly resampling
   analysis.py          every number and the five falsifiers, with provenance for each key
   charts.py            six charts in light and dark, deterministic output (no timestamps embedded)
-  render.py            THESIS.md and the live page from results.json
+  render.py            THESIS.md, the live page and site/data.json for its interactive charts
+templates/app.js       the page script: hand written SVG charts with tooltips, reveals and counters
   __main__.py          the command line: python -m settlemark fetch | build | rebuild
 templates/             THESIS.md and page templates (no numbers in them, only placeholders)
 brand/                 the Settlemark mark and wordmark, hand written SVG

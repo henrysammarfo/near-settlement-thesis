@@ -87,7 +87,7 @@ def bigquery_note_html(path: Path, repo: str) -> str:
     url = html.escape(f"{repo}/blob/main/data/bigquery/receipt_actions_daily.csv")
     return (
         f"A by hand cross check on the NEAR BigQuery public dataset counted {min(counts):,} to {max(counts):,} receipt actions a day "
-        f'from {rows[0]["day"]} to {rows[-1]["day"]} (<a class="src" href="{url}" rel="noopener">CSV</a>). It is a 7 day snapshot, not a trend.'
+        f'from {rows[0]["day"]} to {rows[-1]["day"]} (<a class="lnk" href="{url}" rel="noopener">CSV</a>). It is a 7 day snapshot, not a trend.'
     )
 
 
@@ -175,7 +175,7 @@ def render_thesis(cfg: Config, R: dict) -> str:
 
 
 def _a(text: str, url: str) -> str:
-    return f'<a class="src" href="{html.escape(url)}" rel="noopener">{html.escape(text)}</a>'
+    return f'<a class="lnk" href="{html.escape(url)}" rel="noopener">{html.escape(text)}</a>'
 
 
 def render_site(cfg: Config, R: dict) -> str:
@@ -189,10 +189,11 @@ def render_site(cfg: Config, R: dict) -> str:
     }
     rows = []
     for f in R["falsifiers"]:
-        status = '<span class="pill bad">Met</span>' if f["met"] else '<span class="pill ok">Not met</span>'
+        chip = '<span class="chip bad">Met</span>' if f["met"] else '<span class="chip ok">Not met</span>'
+        val = html.escape(falsifier_value(f["id"], f["value"]).replace("-", chr(0x2212)))
         rows.append(
-            f"<tr><td><b>{f['id']}</b> {html.escape(f['name'])}</td><td>{html.escape(f['test'])}</td>"
-            f'<td class="num">{html.escape(falsifier_value(f["id"], f["value"]).replace("-", chr(0x2212)))}</td><td>{status}</td></tr>'
+            f'<li class="frow r"><span class="fid">{f["id"]}</span><span class="fname"><b>{html.escape(f["name"])}</b>'
+            f'<small>{html.escape(f["test"])}</small></span><span class="fval num">{val}</span>{chip}</li>'
         )
     met = sum(f["met"] for f in R["falsifiers"])
     ci_lo, ci_hi = R["corr_ci90"]
@@ -202,6 +203,14 @@ def render_site(cfg: Config, R: dict) -> str:
         "lag1": signed(R["lag_price_leads_intents"]),
         "lag2": signed(R["lag_intents_leads_price"]),
         "falsifier_rows": "\n".join(rows),
+        "x_growth": f"{R['intents_weekly_volume_last_4w'] / R['intents_weekly_volume_first_4w']:,.0f}",
+        "x_aa_drop": f"{(R['near_active_accounts_last_13w'] / R['near_active_accounts_first_13w'] - 1) * 100:.0f}".replace("-", "\u2212"),
+        "x_st_drop": f"{(R['near_stablecoins_now'] / R['near_stablecoins_1y_ago'] - 1) * 100:.0f}".replace("-", "\u2212"),
+        "x_bps": f"{R['revenue_take_rate_bps']:.1f}",
+        "x_btc": signed(R["corr_weekly_change_intents_vs_btc"]),
+        "x_lag": signed(R["lag_price_leads_intents"]),
+        "x_share0": f"{R['share_first_13w_pct']:.3f}%",
+        "x_lvl": signed(R["corr_levels_log_intents_vs_log_price"]),
         "met": str(met),
         "nf": str(len(R["falsifiers"])),
         "weeks": str(R["weeks"]),
@@ -238,7 +247,39 @@ def render_all(cfg: Config) -> None:
     (site / "index.html").write_text(render_site(cfg, R))
     brand_src = cfg.paths.root / "brand"
     if brand_src.exists():
-        dest = site / "brand"
-        dest.mkdir(exist_ok=True)
-        for f in sorted(brand_src.glob("*.svg")):
-            shutil.copy(f, dest / f.name)
+        shutil.copytree(brand_src, site / "brand", dirs_exist_ok=True)
+    shutil.copy(cfg.paths.root / "templates" / "app.js", site / "app.js")
+
+
+def write_site_data(cfg: Config, frames, R: dict) -> Path:
+    """site/data.json: the series the interactive charts draw, straight from the analysis frames."""
+    w, chg = frames.weekly, frames.changes
+    st = frames.stablecoins.resample(cfg.analysis.week_rule).last().dropna()
+
+    def r(x, n=6):
+        return [round(float(v), n) for v in x]
+
+    data = {
+        "fetched_at_utc": R["fetched_at_utc"],
+        "weekly": {
+            "date": [d.strftime("%Y-%m-%d") for d in w.index],
+            "intents_volume_usd": r(w.iv, 2),
+            "near_price_usd": r(w.p, 4),
+            "share_pct": r(w.share * 100, 4),
+            "active_accounts": r(w.aa, 1),
+        },
+        "weekly_changes": {
+            "near_price_pct": r(chg.p * 100, 3),
+            "intents_volume_pct": r(chg.iv * 100, 3),
+            "date": [d.strftime("%Y-%m-%d") for d in chg.index],
+        },
+        "stablecoins": {"date": [d.strftime("%Y-%m-%d") for d in st.index], "usd": r(st, 0)},
+        "value_capture_365d": frames.value_capture,
+        "sources": R["sources"],
+    }
+    site = cfg.paths.site
+    site.mkdir(parents=True, exist_ok=True)
+    out = site / "data.json"
+    out.write_text(json.dumps(data, separators=(",", ":")) + "\n")
+    shutil.copy(cfg.paths.results / "results.json", site / "results.json")
+    return out
