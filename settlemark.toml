@@ -1,0 +1,55 @@
+# Settlemark configuration. Every tunable used by the pipeline lives here.
+# Changing a value here and running `npm run rebuild` changes the outputs; nothing else is hidden in code.
+
+[project]
+name = "Settlemark"
+tagline = "Onchain settlement research"
+repo = "https://github.com/henrysammarfo/near-settlement-thesis"
+live_url = "https://near-settlement-thesis.vercel.app/"
+other_project = "https://github.com/henrysammarfo/pocket"
+
+[paths]
+data = "data"
+cache = ".cache/http"
+results = "results"
+charts = "charts"
+site = "site"
+template = "templates/THESIS.md.tmpl"
+site_template = "templates/site.html.tmpl"
+thesis = "THESIS.md"
+bigquery_csv = "data/bigquery/receipt_actions_daily.csv"
+
+[http]
+timeout_seconds = 60
+retries = 4
+backoff_seconds = 3.0
+cache_ttl_hours = 6
+user_agent = "settlemark/2.0 (+https://github.com/henrysammarfo/near-settlement-thesis)"
+pause_between_coingecko_calls_seconds = 2.0
+
+[analysis]
+week_rule = "W-SUN"         # weeks end on Sunday, UTC
+compare_weeks = 13          # one quarter, for share and active account comparisons
+endpoint_weeks = 4          # first and last month, for level comparisons
+year_days = 364             # trailing year window ends on the last date with Intents volume
+bootstrap_resamples = 2000
+bootstrap_seed = 7
+ci_level = 0.90
+lag_weeks = 1
+
+[falsifiers]
+price_corr_max = 0.5        # F1: weekly change correlation with NEAR price above this
+lag_corr_max = 0.3          # F3: price leading Intents above this
+btc_corr_max = 0.5          # F4: weekly change correlation with Bitcoin above this
+mcap_to_revenue_min = 50    # F5: market cap below this multiple of yearly Intents revenue
+
+[sources]
+intents_volume = "https://api.llama.fi/summary/dexs/near-intents?dataType=dailyVolume"
+intents_fees = "https://api.llama.fi/summary/fees/near-intents?dataType=dailyFees"
+intents_revenue = "https://api.llama.fi/summary/fees/near-intents?dataType=dailyRevenue"
+all_dex_volume = "https://api.llama.fi/overview/dexs?excludeTotalDataChartBreakdown=true&excludeTotalDataChart=false"
+near_stablecoins = "https://stablecoins.llama.fi/stablecoincharts/Near"
+near_tvl = "https://api.llama.fi/v2/historicalChainTvl/Near"
+near_chain = "https://api.nearblocks.io/v1/charts"
+near_price = "https://api.coingecko.com/api/v3/coins/near/market_chart?vs_currency=usd&days=365&interval=daily"
+btc_price = "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=365&interval=daily"

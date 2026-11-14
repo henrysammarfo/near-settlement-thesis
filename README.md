@@ -1,15 +1,27 @@
-# NEAR Settlement Thesis
+<p align="left"><img src="brand/wordmark.svg" alt="Settlemark" width="196" height="40"></p>
 
-**In plain words:** people now use NEAR Intents to move and swap money across many blockchains, and that use keeps growing whether the NEAR price goes up or down. But very little of that money reaches NEAR holders yet. This project checks both statements against public data, shows the evidence for and against, and lets anyone rebuild every chart with one command.
+# Settlemark research note 01: the NEAR settlement thesis
 
-* Thesis with every number linked to its source: [THESIS.md](THESIS.md)
+**In plain words:** people now use NEAR Intents to move and swap money across many blockchains, and that use keeps growing whether the NEAR price goes up or down. But very little of that money reaches NEAR holders yet. This project tests both statements against public data, gives the evidence against as much room as the evidence for, and lets anyone rebuild every number and chart with one command.
+
 * Live page: https://near-settlement-thesis.vercel.app/
+* The thesis, every number linked to its source: [THESIS.md](THESIS.md)
 * Built for NEAR HACKATHON 2026, track `thesis`. Not financial advice.
 
-Headline results (current build, see THESIS.md for links): weekly Intents volume changes correlate -0.05 with NEAR price changes; Intents share of all onchain DEX volume rose from 0.003% to 1.46% (first versus latest 13 weeks); NEAR's market cap is 477x yearly Intents revenue.
+**Settlemark** is the name of this research product: ongoing, reproducible research on where onchain money settles, written for funds and serious holders. This repo is note 01.
+
+## Headline results
+
+Numbers from the current build. They change only when the public data changes. See [THESIS.md](THESIS.md) for links to each source.
+
+| Question | Answer |
+|---|---|
+| Does Intents usage move with the NEAR price? | No. Weekly changes correlate at about zero (see THESIS.md for the value and its 90% interval). |
+| Is Intents taking share of onchain trading? | Yes. Its share of all DEX volume rose from almost nothing to over 1%. |
+| Do holders capture the flow? | Not yet. NEAR's market cap is hundreds of times yearly Intents revenue. |
+| How many of our five falsifiers are met? | Shown live in THESIS.md and on the page. |
 
 ![Intents volume and NEAR price](charts/01_volume_vs_price.png)
-![Intents share of DEX volume](charts/02_share_of_dex_volume.png)
 
 ## Other project by the same builder
 
@@ -17,16 +29,44 @@ Henry Sam Marfo also submitted **Pocket** (https://github.com/henrysammarfo/pock
 
 ## For reviewers: do X, see Y
 
-Needs Python 3.10 or newer. No API keys. No cost.
+Needs Python 3.11 or newer. No API keys. No accounts. No cost.
 
 1. `git clone https://github.com/henrysammarfo/near-settlement-thesis && cd near-settlement-thesis`
-2. `python3 -m venv .venv && .venv/bin/pip install -r requirements.txt` (or `npm run setup`). You see matplotlib, pandas, numpy and pytest install.
-3. `npm run rebuild` (or `sh rebuild.sh`, or `make rebuild`). You see one line per source, for example `intents_volume: 704 rows`, then `rendered THESIS.md and site/index.html`. This refetches all data into `data/`, recomputes `results/results.json`, redraws all six charts in `charts/` and rewrites `THESIS.md` and `site/index.html`.
-4. `npm test` (or `.venv/bin/python -m pytest -q`). You see `4 passed`. The tests check that every CSV has rows, sorted unique dates, a fetch time and a source URL, and that deleting the charts and rebuilding brings all six back with a complete THESIS.md.
-5. Open `site/index.html` in a browser. You see the thesis with all charts.
-6. To check one number, open `results/results.json`, find the key, and compare with the CSV in `data/` named after it. Every CSV row carries `source_url` and `fetched_at_utc`.
+2. `npm run setup` (or `make setup`). You see the Python packages install into `.venv`.
+3. `npm run rebuild` (or `sh rebuild.sh`, or `make rebuild`). You see one log line per dataset, for example `intents_volume 704 rows DefiLlama`, then `results.json`, `charts: 24 files` and `rendered THESIS.md`. It took about 12 seconds on our machine.
+4. `npm test` (or `make test`). You see `37 passed`, with no network needed.
+5. `make lint`. You see ruff report no problems.
+6. Open `site/index.html`. You see the same page as the live site.
+7. To check any number: find its key in `results/results.json`, look up which CSV it came from in the `provenance` block of the same file, and open that CSV in `data/`. Every row carries its `source_url` and `fetched_at_utc`.
 
-## Data sources (free path, used)
+## How it is built
+
+```
+settlemark.toml        every tunable: windows, bootstrap seed, falsifier thresholds, source URLs
+settlemark/
+  http.py              JSON fetch with retries, exponential backoff, no retry on 4xx, and a local cache
+  sources.py           the nine datasets: URL, parser and schema for each; atomic CSV writes
+  schema.py            validation: header, ISO dates sorted and unique, finite numbers, bounds, provenance
+  fetch.py             fetch, validate and write every dataset
+  stats.py             Pearson correlation, bootstrap interval, lead and lag, log changes, weekly resampling
+  analysis.py          every number and the five falsifiers, with provenance for each key
+  charts.py            six charts in light and dark, deterministic output (no timestamps embedded)
+  render.py            THESIS.md and the live page from results.json
+  __main__.py          the command line: python -m settlemark fetch | build | rebuild
+templates/             THESIS.md and page templates (no numbers in them, only placeholders)
+brand/                 the Settlemark mark and wordmark, hand written SVG
+tests/                 unit tests for the statistics, schema, parsers and HTTP layer, plus integration tests
+queries/, docs/        the optional BigQuery cross check
+```
+
+Design choices that matter for a thesis:
+
+* **Weekly changes, not levels.** Two trending series always look correlated. We correlate weekly log changes, and report the levels correlation separately as evidence against.
+* **Uncertainty is shown.** The main correlation comes with a 90% bootstrap interval (2,000 resamples, fixed seed, so it repeats exactly).
+* **Falsifiers are code.** Five tests that would prove the thesis wrong are checked on every rebuild and shown whether or not they help.
+* **No hand typed numbers.** Templates hold placeholders only. A test recomputes key numbers straight from the CSVs, another checks that two builds produce byte identical files, and another checks the committed results match a fresh build.
+
+## Data sources
 
 | File | Source |
 |---|---|
@@ -37,13 +77,11 @@ Needs Python 3.10 or newer. No API keys. No cost.
 | data/near_stablecoins.csv, data/near_tvl.csv | DefiLlama stablecoins and TVL on NEAR |
 | data/near_price.csv, data/btc_price.csv | CoinGecko, 365 days |
 
-**BigQuery is the optional path.** The track prompt suggests the NEAR BigQuery public dataset and the Intents Explorer API. The one command rebuild uses only the free sources above, so anyone can rerun it without an account. The exact BigQuery SQL is in `queries/`, runs in the free BigQuery sandbox, and one result is saved in `data/bigquery/` (see `docs/BIGQUERY.md`). The Explorer API needs a partner token and was not used.
+**BigQuery is the optional path.** The track suggests the NEAR BigQuery public dataset and the Intents Explorer API. The one command rebuild uses only the free sources above so anyone can rerun it without an account. The BigQuery SQL is in `queries/`, runs in the free sandbox, and one result is saved in `data/bigquery/` (see `docs/BIGQUERY.md`). The Explorer API needs a partner token and was not used.
 
-## How it is built
+## Brand
 
-* `scripts/fetch.py` pulls the data. `scripts/build.py` computes every number and chart. `scripts/render.py` fills `scripts/THESIS.template.md` and writes the site. No number in THESIS.md is typed by hand.
-* Falsifiers are fixed in `scripts/build.py` and reported in THESIS.md whether or not they help the claim.
-* The live page is `site/`, deployed as a static site on Vercel.
+The Settlemark mark shows three lines from different chains meeting in one point and settling into a single dot. Ink `#0B1020`, signal blue `#3D5AFE`, settled green `#3DD6A3`, with red `#E5484D` kept for evidence against. Files: `brand/mark.svg`, `brand/wordmark.svg`.
 
 ## License
 

@@ -1,44 +1,347 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>NEAR Settlement Thesis</title><style>body{font:16px/1.6 system-ui,sans-serif;max-width:900px;margin:2rem auto;padding:0 1rem;color:#1a202c}
-img{max-width:100%;border:1px solid #e2e8f0;border-radius:8px;margin:.5rem 0}table{border-collapse:collapse;width:100%;font-size:14px}td{border:1px solid #e2e8f0;padding:6px}
-a{color:#2b6cb0}h1{line-height:1.2}</style></head><body>
-<p><small>Data fetched 2026-11-14T22:40:33Z. Rebuilt by <code>make rebuild</code>. Repo: <a href="https://github.com/henrysammarfo/near-settlement-thesis">henrysammarfo/near-settlement-thesis</a></small></p>
-<h1>THESIS: NEAR is becoming a settlement layer, and its token has not caught up</h1>
-<p>Every number below is computed by `scripts/build.py` from the CSV files in `data/` and written into this file by `scripts/render.py`. Each linked number points at the public API it came from. Data fetched 2026-11-14T22:40:33Z. Window: 2024-12-10 to 2026-11-13 (99 full weeks). Not financial advice.</p>
-<h2>The claim</h2>
-<p>NEAR Intents has turned NEAR into a cross chain settlement layer whose usage grows on its own, independent of the NEAR price. The long term case for NEAR rests on that flow. The weak point today is that the token captures very little of it.</p>
-<p>Two parts, tested separately:</p>
-<p>1. <b>Usage is independent of price.</b> If Intents were just NEAR speculation, its weekly volume would rise and fall with the NEAR price. We expect it not to.</p>
-<p>2. <b>Value capture is small.</b> The flow is large next to the fees that reach the network and its holders.</p>
-<h2>Evidence for</h2>
-<li>Weekly NEAR Intents volume went from <a href="https://api.llama.fi/summary/dexs/near-intents?dataType=dailyVolume">$0.8M</a> a week (first 4 weeks) to <a href="https://api.llama.fi/summary/dexs/near-intents?dataType=dailyVolume">$859.7M</a> a week (last 4 weeks). Over the same span the NEAR price went from <a href="https://api.nearblocks.io/v1/charts">$5.30</a> to <a href="https://api.nearblocks.io/v1/charts">$4.38</a>. <img alt="chart 1" src="charts/01_volume_vs_price.png"></li>
-<li>Intents share of all onchain DEX volume tracked by DefiLlama: <a href="https://api.llama.fi/overview/dexs?excludeTotalDataChartBreakdown=true&amp;excludeTotalDataChart=false">0.003%</a> in the first 13 weeks, <a href="https://api.llama.fi/overview/dexs?excludeTotalDataChartBreakdown=true&amp;excludeTotalDataChart=false">1.03%</a> in the 13 weeks before the latest, <a href="https://api.llama.fi/overview/dexs?excludeTotalDataChartBreakdown=true&amp;excludeTotalDataChart=false">1.46%</a> in the latest 13 weeks. <img alt="chart 2" src="charts/02_share_of_dex_volume.png"></li>
-<li>Correlation between weekly changes in Intents volume and weekly NEAR price changes is <a href="https://api.llama.fi/summary/dexs/near-intents?dataType=dailyVolume">-0.05</a> over 99 weeks (90% bootstrap interval -0.21 to +0.12). That is close to zero. <img alt="chart 3" src="charts/03_weekly_changes_scatter.png"></li>
-<li>Neither leads the other: last week&#x27;s NEAR price change against this week&#x27;s Intents change gives +0.06, and the reverse gives +0.05.</li>
-<li>It is not just crypto beta either: correlation of weekly Intents changes with Bitcoin weekly returns is <a href="https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&amp;days=365&amp;interval=daily">-0.08</a> over 51 weeks. It does follow the overall DEX market somewhat (<a href="https://api.llama.fi/overview/dexs?excludeTotalDataChartBreakdown=true&amp;excludeTotalDataChart=false">+0.34</a>), which is what a settlement venue should do.</li>
-<li>Over the last 365 days Intents settled <a href="https://api.llama.fi/summary/dexs/near-intents?dataType=dailyVolume">$32.97B</a> and charged <a href="https://api.llama.fi/summary/fees/near-intents?dataType=dailyFees">$54.3M</a> in total fees.</li>
-<h2>Evidence against</h2>
-<li><b>Holders capture little.</b> Over the last 365 days the Intents protocol kept <a href="https://api.llama.fi/summary/fees/near-intents?dataType=dailyRevenue">$9.4M</a> as revenue (about 2.8 basis points of volume; all fees were 16.5 basis points). NEAR chain gas fees were <a href="https://api.nearblocks.io/v1/charts">$1.1M</a>. NEAR&#x27;s market cap is <a href="https://api.nearblocks.io/v1/charts">$4.48B</a>: 477x yearly Intents revenue and 3,906x yearly chain fees. <img alt="chart 4" src="charts/04_value_capture.png"></li>
-<li><b>Levels point the wrong way for holders.</b> The correlation of log weekly Intents volume with log NEAR price is <a href="https://api.nearblocks.io/v1/charts">-0.52</a>: usage grew while the price fell. Usage alone has not supported the price.</li>
-<li><b>The base chain shrank while Intents grew.</b> NearBlocks daily active accounts averaged <a href="https://api.nearblocks.io/v1/charts">775,618</a> in the first 13 weeks of the window and <a href="https://api.nearblocks.io/v1/charts">70,872</a> in the latest 13 weeks. Part of that drop may be bot or airdrop traffic leaving, and relayed signers are undercounted, but it is not the picture of a busier chain. Weekly changes correlate <a href="https://api.nearblocks.io/v1/charts">-0.12</a> with price changes. <img alt="chart 5" src="charts/05_active_accounts.png"></li>
-<li><b>Stablecoins on NEAR shrank:</b> <a href="https://stablecoins.llama.fi/stablecoincharts/Near">$164.5M</a> a year ago, <a href="https://stablecoins.llama.fi/stablecoincharts/Near">$133.4M</a> now. A settlement layer for money should hold more dollars, not fewer. <img alt="chart 6" src="charts/06_stablecoins.png"></li>
-<li>Volume counts can flatter. DefiLlama may count both legs or confidential flow; another entry in this track, <a href="https://github.com/soldanoandrea/near-thesis">near-thesis</a>, found public swaps match only part of DefiLlama&#x27;s reported volume on sampled days. Our share numbers inherit that.</li>
-<h2>What would change our mind</h2>
-<p>These tests are fixed in `scripts/build.py`. They were written on 2026-11-14, the day of the analysis, so they are not a pre registration made weeks in advance. Met: 0 of 5.</p>
-<table>
-<tr><td>Falsifier</td><td>Test</td><td>Result now</td></tr>
-<tr><td>F1 Intents usage moves with NEAR price</td><td>weekly change correlation above 0.5</td><td>not met</td></tr>
-<tr><td>F2 Intents is losing ground</td><td>share of all DEX volume, last 13 weeks below the 13 weeks before</td><td>not met</td></tr>
-<tr><td>F3 NEAR price leads Intents usage</td><td>lagged correlation above 0.3</td><td>not met</td></tr>
-<tr><td>F4 Intents is just crypto beta</td><td>weekly change correlation with Bitcoin above 0.5</td><td>not met</td></tr>
-<tr><td>F5 Holders capture the flow</td><td>market cap below 50x yearly Intents revenue (if met, the &#x27;small capture&#x27; half is wrong)</td><td>not met</td></tr>
-</table>
-<p>We would also change our mind if Intents share of DEX volume falls for two quarters in a row, if the weekly correlation with NEAR price rises above 0.5 over any 26 week window, or if a fee switch or buyback raises holder capture so that market cap falls below 50x yearly revenue (that would make the case bullish rather than conditional).</p>
-<h2>Verdict</h2>
-<p>Part 1 is supported by this data: Intents usage moves independently of the NEAR price and has taken a growing share of onchain DEX volume. Part 2 is also supported, and it is the bear case: the token captures a small slice of that flow, stablecoins on NEAR shrank, and the base chain shows no matching growth. NEAR is a long term buy only if value capture improves. Watch the revenue line in chart 4, not the price.</p>
-<h2>Limits</h2>
-<li>The one command rebuild uses free public APIs only: DefiLlama, NearBlocks and CoinGecko. The Intents Explorer API was not used (it needs a partner token). BigQuery is the optional path, run by hand (see `docs/BIGQUERY.md`). A cross check on the BigQuery public dataset (`queries/01_receipt_actions_daily.sql`, run by hand in the free sandbox) counted 2,968,076 to 5,144,507 receipt actions a day from 2026-11-08 to 2026-11-13 (<a href="https://github.com/henrysammarfo/near-settlement-thesis/blob/main/data/bigquery/receipt_actions_daily.csv">data/bigquery/receipt_actions_daily.csv</a>). It is a 7 day snapshot, so it cannot test a trend yet.</li>
-<li>Correlations of weekly changes over about two years are noisy. The early Intents weeks are tiny, so log changes there are large.</li>
-<li>NearBlocks active accounts can miss signers hidden behind relayers.</li>
-<li>CoinGecko&#x27;s free tier gives 365 days, so the Bitcoin test covers fewer weeks than the NEAR test.</li>
-<li>If a source changes its methodology, rerunning `make rebuild` changes the numbers. That is intended: nothing here is frozen by hand.</li></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Settlemark · NEAR is becoming a settlement layer. Its token has not caught up.</title>
+<meta name="description" content="Settlemark research note 01. NEAR Intents usage grows whatever the NEAR price does, but holders capture little of it. Every number is rebuilt from public data with one command.">
+<meta name="theme-color" content="#F7F8FB" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#080B14" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+<meta property="og:title" content="Settlemark · NEAR settlement thesis">
+<meta property="og:description" content="Intents grows whatever NEAR's price does. Holders barely capture it. Every number rebuilt from public data.">
+<meta property="og:url" content="https://near-settlement-thesis.vercel.app/">
+<link rel="icon" href="brand/favicon.svg" type="image/svg+xml">
+<style>
+:root{
+  --bg:#F7F8FB;--surface:#FFFFFF;--surface-2:#F1F3F8;--ink:#0B1020;--ink-2:#30384D;--muted:#6B7280;--line:#E6E8EF;
+  --accent:#3D5AFE;--accent-soft:rgba(61,90,254,.09);--good:#0E9F6E;--good-soft:rgba(14,159,110,.10);--bad:#E5484D;--bad-soft:rgba(229,72,77,.09);--amber:#C98A1E;
+  --shadow:0 1px 2px rgba(11,16,32,.04),0 8px 24px -12px rgba(11,16,32,.12);
+  --radius:20px;--max:1120px;
+  --spring:linear(0,.006,.025 2.8%,.101 6.1%,.539 18.9%,.721 25.3%,.849 31.5%,.937 38.1%,.968 41.8%,.991 45.7%,1.006 50.1%,1.015 55%,1.017 63.9%,1.001 85.9%,1);
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  --sans:"Inter",-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#080B14;--surface:#0F1424;--surface-2:#141A2D;--ink:#EEF1F8;--ink-2:#C3C9D8;--muted:#8A93A6;--line:#1E2539;
+  --accent:#7C92FF;--accent-soft:rgba(124,146,255,.12);--good:#3DD6A3;--good-soft:rgba(61,214,163,.10);--bad:#FF6B6F;--bad-soft:rgba(255,107,111,.10);--amber:#F2B65A;
+  --shadow:0 1px 0 rgba(255,255,255,.03) inset,0 10px 30px -14px rgba(0,0,0,.6);
+}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:80px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 var(--sans);font-feature-settings:"cv11","ss01";-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden}
+a{color:inherit}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 max(20px,env(safe-area-inset-left))}
+.num,.kpi b,td.num{font-variant-numeric:tabular-nums}
+
+/* header */
+header.top{position:sticky;top:0;z-index:20;backdrop-filter:saturate(180%) blur(14px);-webkit-backdrop-filter:saturate(180%) blur(14px);background:color-mix(in srgb,var(--bg) 78%,transparent);border-bottom:1px solid transparent;transition:border-color .3s}
+header.top.scrolled{border-bottom-color:var(--line)}
+.bar{display:flex;align-items:center;justify-content:space-between;height:60px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:650;letter-spacing:-.02em;font-size:17px}
+.brand img{width:28px;height:28px;display:block}
+nav.links{display:flex;gap:4px;align-items:center}
+nav.links a{text-decoration:none;color:var(--ink-2);font-size:14px;padding:7px 12px;border-radius:999px;transition:background .2s,color .2s}
+nav.links a:hover{background:var(--surface-2);color:var(--ink)}
+nav.links a.gh{background:var(--ink);color:var(--bg);font-weight:550}
+nav.links a.gh:hover{background:var(--ink);opacity:.88}
+@media (max-width:640px){nav.links a:not(.gh){display:none}}
+
+/* hero */
+.hero{position:relative;padding:72px 0 40px;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:-20% -10% auto -10%;height:620px;background:radial-gradient(48% 55% at 70% 20%,var(--accent-soft),transparent 70%),radial-gradient(35% 40% at 15% 35%,var(--good-soft),transparent 70%);pointer-events:none;z-index:-1}
+.hero::after{content:"";position:absolute;inset:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(60% 60% at 50% 0%,#000 30%,transparent 75%);-webkit-mask-image:radial-gradient(60% 60% at 50% 0%,#000 30%,transparent 75%);opacity:.55;pointer-events:none;z-index:-1}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-2);background:var(--surface);border:1px solid var(--line);padding:5px 12px 5px 8px;border-radius:999px;box-shadow:var(--shadow)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--good);box-shadow:0 0 0 4px var(--good-soft)}
+h1{font-size:clamp(2.3rem,6.4vw,4.6rem);line-height:1.02;letter-spacing:-.045em;font-weight:700;margin:22px 0 18px;max-width:17ch;text-wrap:balance}
+h1 .soft{color:var(--muted)}
+.lede{font-size:clamp(1.05rem,2.1vw,1.25rem);color:var(--ink-2);max-width:62ch;margin:0 0 28px;text-wrap:pretty}
+.cta{display:flex;flex-wrap:wrap;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-weight:600;font-size:15px;padding:12px 18px;border-radius:999px;border:1px solid var(--line);background:var(--surface);transition:transform .35s var(--spring),box-shadow .25s,background .2s}
+.btn:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--accent);border-color:transparent;color:#fff}
+.btn svg{width:16px;height:16px}
+
+/* kpis */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:48px}
+@media (max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px 20px 18px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:transform .5s var(--spring),border-color .25s}
+.kpi:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
+.kpi .lab{font-size:13px;color:var(--muted);display:block;margin-bottom:10px;line-height:1.35}
+.kpi b{display:block;font-size:clamp(1.65rem,3.6vw,2.4rem);letter-spacing:-.035em;font-weight:700;line-height:1}
+.kpi .sub{display:block;font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.4}
+.kpi .sub a{color:var(--muted);text-decoration-color:var(--line);text-underline-offset:3px}
+.kpi.good b{color:var(--good)}.kpi.bad b{color:var(--bad)}.kpi.acc b{color:var(--accent)}
+@media (max-width:420px){.kpi{padding:16px}.kpi b{font-size:1.6rem}}
+
+/* sections */
+section{padding:56px 0}
+.kicker{font:600 12px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;display:block}
+h2{font-size:clamp(1.65rem,3.6vw,2.5rem);letter-spacing:-.035em;line-height:1.1;margin:0 0 14px;font-weight:700;text-wrap:balance;max-width:24ch}
+.intro{color:var(--ink-2);max-width:64ch;margin:0 0 28px}
+
+/* verdict */
+.verdict{background:var(--ink);color:var(--bg);border-radius:28px;padding:clamp(24px,5vw,44px);display:grid;grid-template-columns:1.5fr 1fr;gap:28px;align-items:center;position:relative;overflow:hidden}
+.verdict::after{content:"";position:absolute;right:-80px;top:-80px;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(124,146,255,.35),transparent 70%)}
+.verdict h2{color:inherit;max-width:none}
+.verdict p{margin:0;opacity:.82;max-width:58ch}
+.score{position:relative;z-index:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:22px}
+@media (prefers-color-scheme:dark){.btn.primary{color:#0B1020}.verdict{background:linear-gradient(135deg,#141B33,#0F1424);color:var(--ink);border:1px solid var(--line)}.score{background:rgba(255,255,255,.03)}}
+.score .big{font-size:44px;font-weight:700;letter-spacing:-.04em;line-height:1}
+.score .meter{display:flex;gap:6px;margin:14px 0 10px}
+.score .meter i{flex:1;height:8px;border-radius:4px;background:#3DD6A3;transform-origin:left;}
+.score .meter i.m{background:#FF6B6F}
+.score small{opacity:.75;font-size:13px}
+@media (max-width:800px){.verdict{grid-template-columns:1fr}}
+
+/* claims */
+.claims{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.claim{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px;box-shadow:var(--shadow)}
+.claim .n{font:600 13px var(--mono);color:var(--muted)}
+.claim h3{font-size:1.3rem;letter-spacing:-.02em;margin:8px 0 8px;line-height:1.25}
+.claim p{margin:0;color:var(--ink-2)}
+.tag{display:inline-block;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;margin-top:16px}
+.tag.ok{background:var(--good-soft);color:var(--good)}.tag.no{background:var(--bad-soft);color:var(--bad)}
+@media (max-width:760px){.claims{grid-template-columns:1fr}}
+
+/* for and against */
+.ledger{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.col{border-radius:var(--radius);padding:24px;border:1px solid var(--line);background:var(--surface);box-shadow:var(--shadow)}
+.col h3{display:flex;align-items:center;gap:10px;margin:0 0 6px;font-size:1.15rem;letter-spacing:-.02em}
+.col h3 .ic{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-size:15px;font-weight:700}
+.col.for h3 .ic{background:var(--good-soft);color:var(--good)}.col.against h3 .ic{background:var(--bad-soft);color:var(--bad)}
+.col ul{list-style:none;margin:0;padding:0}
+.col li{padding:14px 0;border-top:1px solid var(--line);color:var(--ink-2);font-size:15.5px}
+.col li:first-child{border-top:0}
+.col li b{color:var(--ink)}
+a.src{color:var(--ink);font-weight:600;text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--accent) 45%,transparent);text-decoration-thickness:2px;text-underline-offset:3px;transition:text-decoration-color .2s}
+a.src:hover{text-decoration-color:var(--accent)}
+@media (max-width:860px){.ledger{grid-template-columns:1fr}}
+
+/* charts */
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.charts figure.wide{grid-column:1/-1}
+figure{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);overflow:hidden}
+figure picture,figure img{display:block;width:100%;height:auto;border-radius:10px}
+a.zoom{display:block;cursor:zoom-in;border-radius:10px;outline-offset:4px}
+figcaption{font-size:14px;color:var(--ink-2);padding:12px 6px 4px;line-height:1.5}
+figcaption b{color:var(--ink)}
+@media (max-width:860px){.charts{grid-template-columns:1fr}}
+
+/* table */
+.table{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:640px}
+th{text-align:left;font-weight:600;color:var(--muted);font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:14px 18px;background:var(--surface-2)}
+td{padding:16px 18px;border-top:1px solid var(--line);vertical-align:top;color:var(--ink-2)}
+td b{color:var(--ink)}
+.pill{display:inline-block;font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;white-space:nowrap}
+.pill.ok{background:var(--good-soft);color:var(--good)}.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.note{font-size:14px;color:var(--muted);margin-top:14px;max-width:72ch}
+
+/* method */
+.method{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.code{white-space:pre;background:#0B1020;color:#E6E9F2;border-radius:var(--radius);padding:20px 20px 18px;font:14px/1.75 var(--mono);position:relative;overflow-x:auto;border:1px solid var(--line)}
+.code .c{color:#7E879C}.code .p{color:#7C92FF;user-select:none}
+.copy{position:absolute;top:12px;right:12px;font:600 12px var(--sans);color:#E6E9F2;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:6px 12px;cursor:pointer;transition:background .2s,transform .3s var(--spring)}
+.copy:hover{background:rgba(255,255,255,.14)}.copy:active{transform:scale(.94)}
+.steps{list-style:none;margin:0;padding:0;counter-reset:s}
+.steps li{counter-increment:s;padding:12px 0 12px 44px;position:relative;border-top:1px solid var(--line);color:var(--ink-2);font-size:15px}
+.steps li:first-child{border-top:0}
+.steps li::before{content:counter(s);position:absolute;left:0;top:12px;width:28px;height:28px;border-radius:9px;background:var(--accent-soft);color:var(--accent);font:600 13px/28px var(--sans);text-align:center}
+code{font:13.5px var(--mono);background:var(--surface-2);padding:2px 6px;border-radius:6px}
+@media (max-width:860px){.method{grid-template-columns:1fr}}
+.limits{columns:2;column-gap:32px;color:var(--ink-2);font-size:15px;padding-left:18px}
+.limits li{break-inside:avoid;margin-bottom:10px}
+@media (max-width:760px){.limits{columns:1}}
+
+footer{border-top:1px solid var(--line);padding:36px 0 calc(48px + env(safe-area-inset-bottom));color:var(--muted);font-size:14px}
+footer .f{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;align-items:center}
+footer a{color:var(--ink-2)}
+
+/* motion: only when JS is on and the reader allows it */
+@keyframes rise{from{opacity:0;transform:translate3d(0,18px,0)}to{opacity:1;transform:none}}
+.js .h{animation:rise .9s var(--spring) both;animation-delay:var(--d,0ms)}
+.js .r{opacity:0;transform:translate3d(0,18px,0)}
+.js .r.in{opacity:1;transform:none;transition:opacity .7s var(--ease-out),transform .9s var(--spring);transition-delay:var(--d,0ms)}
+.js figure.r picture{clip-path:inset(0 100% 0 0)}
+.js figure.r.in picture{clip-path:inset(0 0 0 0);transition:clip-path 1.2s var(--ease-out) .15s}
+.js .score .meter i{transform:scaleX(0)}
+.js .score.in .meter i{transform:scaleX(1);transition:transform .8s var(--spring);transition-delay:calc(var(--i)*90ms + 200ms)}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .js .h,.js .r,.js figure.r picture,.js .score .meter i{opacity:1!important;transform:none!important;clip-path:none!important;transition:none!important;animation:none!important}
+  .btn,.kpi{transition:none}
+}
+</style>
+</head>
+<body>
+<script>document.documentElement.classList.add("js")</script>
+<header class="top" id="top">
+  <div class="wrap bar">
+    <a class="brand" href="#" aria-label="Settlemark home"><img src="brand/mark.svg" alt="" width="28" height="28">Settlemark</a>
+    <nav class="links" aria-label="Sections">
+      <a href="#evidence">Evidence</a><a href="#tests">Tests</a><a href="#method">Method</a>
+      <a class="gh" href="https://github.com/henrysammarfo/near-settlement-thesis" rel="noopener">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<div class="hero">
+  <div class="wrap">
+    <span class="eyebrow h"><span class="dot"></span>Research note 01 · NEAR Intents</span>
+    <h1 class="h" style="--d:60ms">NEAR is becoming a settlement layer. <span class="soft">Its token has not caught up.</span></h1>
+    <p class="lede h" style="--d:120ms">People now use NEAR Intents to move and swap money across many chains, and that use keeps growing whatever the NEAR price does. Very little of that money reaches NEAR holders yet. We test both halves on public data, give the bad news as much room as the good, and rebuild every number with one command.</p>
+    <div class="cta h" style="--d:180ms">
+      <a class="btn primary" href="#evidence">Read the evidence <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 3v10M3.5 8.5 8 13l4.5-4.5"/></svg></a>
+      <a class="btn" href="#method">Rebuild it yourself</a>
+    </div>
+    <div class="kpis">
+      <div class="kpi acc r" style="--d:0ms"><span class="lab">Intents weekly volume, last 4 weeks</span><b data-count="859.7" data-dec="1" data-pre="$" data-suf="M">$859.7M</b><span class="sub">from <a class="src" href="https://api.llama.fi/summary/dexs/near-intents?dataType=dailyVolume" rel="noopener">$0.8M</a> in its first 4 weeks · <a href="https://api.llama.fi/summary/dexs/near-intents?dataType=dailyVolume" rel="noopener">DefiLlama</a></span></div>
+      <div class="kpi good r" style="--d:70ms"><span class="lab">Share of all onchain DEX volume</span><b data-count="1.46" data-dec="2" data-suf="%">1.46%</b><span class="sub">latest 13 weeks, up from <a class="src" href="https://api.llama.fi/overview/dexs?excludeTotalDataChartBreakdown=true&amp;excludeTotalDataChart=false" rel="noopener">0.003%</a> · <a href="https://api.llama.fi/overview/dexs?excludeTotalDataChartBreakdown=true&amp;excludeTotalDataChart=false" rel="noopener">DefiLlama</a></span></div>
+      <div class="kpi r" style="--d:140ms"><span class="lab">Correlation with NEAR price, weekly changes</span><b data-count="-0.05" data-dec="2" data-sign="1">−0.05</b><span class="sub">90% interval −0.21 to +0.12 over 99 weeks</span></div>
+      <div class="kpi bad r" style="--d:210ms"><span class="lab">NEAR market cap to yearly Intents revenue</span><b data-count="477" data-dec="0" data-suf="x">477x</b><span class="sub">holders capture little · <a href="https://api.llama.fi/summary/fees/near-intents?dataType=dailyRevenue" rel="noopener">DefiLlama</a></span></div>
+    </div>
+  </div>
+</div>
+
+<section>
+  <div class="wrap">
+    <div class="verdict r">
+      <div>
+        <span class="kicker" style="color:#9DB0FF">Verdict</span>
+        <h2>The use is real. The value capture is not there yet.</h2>
+        <p>Intents usage moves on its own and keeps taking share of onchain trading. But the token keeps a thin slice of that flow, stablecoins on NEAR shrank and the base chain got quieter. NEAR is a long term buy only if value capture improves. Watch revenue, not price.</p>
+      </div>
+      <div class="score r" style="--d:120ms" aria-label="0 of 5 falsifiers met">
+        <div class="big">0 <span style="opacity:.5;font-size:24px">of 5</span></div>
+        <div class="meter" aria-hidden="true"><i style="--i:0"></i><i style="--i:1"></i><i style="--i:2"></i><i style="--i:3"></i><i style="--i:4"></i></div>
+        <small>pre stated tests that would prove us wrong have been met. Each one is checked in code on every rebuild.</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <span class="kicker r">The claim, in two parts</span>
+    <h2 class="r">We test each half separately, so one cannot hide the other.</h2>
+    <div class="claims">
+      <div class="claim r"><span class="n">01</span><h3>Usage is independent of price</h3><p>If Intents were just NEAR speculation, its weekly volume would rise and fall with the NEAR price. It does not.</p><span class="tag ok">Supported by the data</span></div>
+      <div class="claim r" style="--d:80ms"><span class="n">02</span><h3>Holders capture little of the flow</h3><p>The money moving through Intents is large next to the fees that reach the network and its token holders.</p><span class="tag no">Supported, and it is the bear case</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="evidence">
+  <div class="wrap">
+    <span class="kicker r">Evidence</span>
+    <h2 class="r">The case for, and the case against, side by side.</h2>
+    <p class="intro r">Every underlined number links to the public API it was computed from. Window 2024-12-10 to 2026-11-13, 99 full weeks.</p>
+    <div class="ledger">
+      <div class="col for r">
+        <h3><span class="ic">+</span>Evidence for</h3>
+        <ul>
+          <li>Weekly Intents volume went from <b><a class="src" href="https://api.llama.fi/summary/dexs/near-intents?dataType=dailyVolume" rel="noopener">$0.8M</a></b> to <b><a class="src" href="https://api.llama.fi/summary/dexs/near-intents?dataType=dailyVolume" rel="noopener">$859.7M</a></b> (first versus last 4 weeks). The NEAR price went from <a class="src" href="https://api.nearblocks.io/v1/charts" rel="noopener">$5.30</a> to <a class="src" href="https://api.nearblocks.io/v1/charts" rel="noopener">$4.38</a> over the same span.</li>
+          <li>Intents share of all onchain DEX volume: <a class="src" href="https://api.llama.fi/overview/dexs?excludeTotalDataChartBreakdown=true&amp;excludeTotalDataChart=false" rel="noopener">0.003%</a>, then <a class="src" href="https://api.llama.fi/overview/dexs?excludeTotalDataChartBreakdown=true&amp;excludeTotalDataChart=false" rel="noopener">1.03%</a>, then <a class="src" href="https://api.llama.fi/overview/dexs?excludeTotalDataChartBreakdown=true&amp;excludeTotalDataChart=false" rel="noopener">1.46%</a> (first, previous and latest 13 weeks).</li>
+          <li>Weekly changes in Intents volume and NEAR price correlate at <a class="src" href="https://api.llama.fi/summary/dexs/near-intents?dataType=dailyVolume" rel="noopener">−0.05</a> (90% bootstrap interval −0.21 to +0.12). Close to zero.</li>
+          <li>Neither leads the other: price last week against Intents this week gives +0.06; the reverse gives +0.05.</li>
+          <li>Not crypto beta: correlation with weekly Bitcoin returns is <a class="src" href="https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&amp;days=365&amp;interval=daily" rel="noopener">−0.08</a> over 51 weeks. It does follow the overall DEX market (<a class="src" href="https://api.llama.fi/overview/dexs?excludeTotalDataChartBreakdown=true&amp;excludeTotalDataChart=false" rel="noopener">+0.34</a>), as a trading venue should.</li>
+          <li>Over the last 365 days Intents settled <a class="src" href="https://api.llama.fi/summary/dexs/near-intents?dataType=dailyVolume" rel="noopener">$32.97B</a> and charged <a class="src" href="https://api.llama.fi/summary/fees/near-intents?dataType=dailyFees" rel="noopener">$54.3M</a> in fees.</li>
+        </ul>
+      </div>
+      <div class="col against r" style="--d:90ms">
+        <h3><span class="ic">&minus;</span>Evidence against</h3>
+        <ul>
+          <li><b>Holders capture little.</b> Intents kept <a class="src" href="https://api.llama.fi/summary/fees/near-intents?dataType=dailyRevenue" rel="noopener">$9.4M</a> as revenue in the last 365 days, about 2.8 basis points of volume. NEAR gas fees were <a class="src" href="https://api.nearblocks.io/v1/charts" rel="noopener">$1.1M</a>. Market cap <a class="src" href="https://api.nearblocks.io/v1/charts" rel="noopener">$4.48B</a> is 477x yearly Intents revenue and 3,906x yearly chain fees.</li>
+          <li><b>Levels point the wrong way.</b> Log weekly Intents volume against log NEAR price correlates at <a class="src" href="https://api.nearblocks.io/v1/charts" rel="noopener">−0.52</a>: usage grew while price fell.</li>
+          <li><b>The base chain got quieter.</b> Daily active accounts averaged <a class="src" href="https://api.nearblocks.io/v1/charts" rel="noopener">775,618</a> in the first 13 weeks and <a class="src" href="https://api.nearblocks.io/v1/charts" rel="noopener">70,872</a> in the latest 13. Some of that may be bots leaving.</li>
+          <li><b>Stablecoins on NEAR shrank</b> from <a class="src" href="https://stablecoins.llama.fi/stablecoincharts/Near" rel="noopener">$164.5M</a> a year ago to <a class="src" href="https://stablecoins.llama.fi/stablecoincharts/Near" rel="noopener">$133.4M</a> now. A settlement layer for money should hold more dollars, not fewer.</li>
+          <li><b>Volume can flatter.</b> Another entry in this track, <a class="src" href="https://github.com/soldanoandrea/near-thesis" rel="noopener">near-thesis</a>, found public swaps match only part of the reported volume on sampled days. Our share numbers inherit that.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="charts">
+      <figure class="wide r"><a class="zoom" href="charts/01_volume_vs_price-light.svg" target="_blank" rel="noopener" aria-label="Open chart full size"><picture><source srcset="charts/01_volume_vs_price-dark.svg" media="(prefers-color-scheme: dark)"><img src="charts/01_volume_vs_price-light.svg" alt="Bar chart of weekly NEAR Intents volume rising, with the NEAR price line falling" width="1296" height="662" loading="lazy" decoding="async"></picture></a><figcaption><b>1.</b> Intents volume (bars) climbed while the NEAR price (line) fell.</figcaption></figure>
+      <figure class="r"><a class="zoom" href="charts/02_share_of_dex_volume-light.svg" target="_blank" rel="noopener" aria-label="Open chart full size"><picture><source srcset="charts/02_share_of_dex_volume-dark.svg" media="(prefers-color-scheme: dark)"><img src="charts/02_share_of_dex_volume-light.svg" alt="Line chart of NEAR Intents share of all onchain DEX volume rising" width="778" height="590" loading="lazy" decoding="async"></picture></a><figcaption><b>2.</b> Intents keeps taking share of all onchain DEX volume.</figcaption></figure>
+      <figure class="r" style="--d:80ms"><a class="zoom" href="charts/03_weekly_changes_scatter-light.svg" target="_blank" rel="noopener" aria-label="Open chart full size"><picture><source srcset="charts/03_weekly_changes_scatter-dark.svg" media="(prefers-color-scheme: dark)"><img src="charts/03_weekly_changes_scatter-light.svg" alt="Scatter plot of weekly NEAR price changes against weekly Intents volume changes, showing no clear pattern" width="778" height="590" loading="lazy" decoding="async"></picture></a><figcaption><b>3.</b> Weekly changes form a cloud, not a line. Price does not drive usage.</figcaption></figure>
+      <figure class="wide r"><a class="zoom" href="charts/04_value_capture-light.svg" target="_blank" rel="noopener" aria-label="Open chart full size"><picture><source srcset="charts/04_value_capture-dark.svg" media="(prefers-color-scheme: dark)"><img src="charts/04_value_capture-light.svg" alt="Bar chart comparing yearly Intents revenue, NEAR gas fees and total Intents fees" width="1296" height="562" loading="lazy" decoding="async"></picture></a><figcaption><b>4.</b> The bear case in one picture: revenue is small next to the market cap.</figcaption></figure>
+      <figure class="r"><a class="zoom" href="charts/05_active_accounts-light.svg" target="_blank" rel="noopener" aria-label="Open chart full size"><picture><source srcset="charts/05_active_accounts-dark.svg" media="(prefers-color-scheme: dark)"><img src="charts/05_active_accounts-light.svg" alt="Line chart of NEAR daily active accounts falling, with the NEAR price" width="778" height="590" loading="lazy" decoding="async"></picture></a><figcaption><b>5.</b> Base chain activity fell while Intents grew.</figcaption></figure>
+      <figure class="r" style="--d:80ms"><a class="zoom" href="charts/06_stablecoins-light.svg" target="_blank" rel="noopener" aria-label="Open chart full size"><picture><source srcset="charts/06_stablecoins-dark.svg" media="(prefers-color-scheme: dark)"><img src="charts/06_stablecoins-light.svg" alt="Line chart of stablecoins on NEAR" width="778" height="590" loading="lazy" decoding="async"></picture></a><figcaption><b>6.</b> Stablecoins on NEAR shrank over the last year.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section id="tests">
+  <div class="wrap">
+    <span class="kicker r">What would change our mind</span>
+    <h2 class="r">Five tests that would prove us wrong. 0 of 5 are met today.</h2>
+    <p class="intro r">The thresholds live in <code>settlemark.toml</code> and are checked on every rebuild, whether or not they help the claim. They were set on 14 Nov 2026, the day of the analysis, so they are not a pre registration made weeks earlier.</p>
+    <div class="table r"><div class="table-scroll"><table>
+      <thead><tr><th>Falsifier</th><th>Test</th><th>Value now</th><th>Result</th></tr></thead>
+      <tbody>
+<tr><td><b>F1</b> Intents usage moves with NEAR price</td><td>weekly change correlation above 0.5</td><td class="num">−0.05</td><td><span class="pill ok">Not met</span></td></tr>
+<tr><td><b>F2</b> Intents is losing ground</td><td>share of all DEX volume, last 13 weeks below the 13 weeks before</td><td class="num">+0.43 pts</td><td><span class="pill ok">Not met</span></td></tr>
+<tr><td><b>F3</b> NEAR price leads Intents usage</td><td>lagged correlation above 0.3</td><td class="num">+0.06</td><td><span class="pill ok">Not met</span></td></tr>
+<tr><td><b>F4</b> Intents is just crypto beta</td><td>weekly change correlation with Bitcoin above 0.5</td><td class="num">−0.08</td><td><span class="pill ok">Not met</span></td></tr>
+<tr><td><b>F5</b> Holders capture the flow</td><td>market cap below 50x yearly Intents revenue (if met, the small capture half is wrong)</td><td class="num">477x</td><td><span class="pill ok">Not met</span></td></tr>
+      </tbody>
+    </table></div></div>
+    <p class="note r">We would also change our mind if Intents share falls two quarters in a row, if the weekly correlation with price rises above 0.5 over any 26 week window, or if a fee switch or buyback pushes market cap below 50x yearly revenue. That last one would make the case bullish rather than conditional.</p>
+  </div>
+</section>
+
+<section id="method">
+  <div class="wrap">
+    <span class="kicker r">Method</span>
+    <h2 class="r">One command rebuilds everything. Nothing is typed by hand.</h2>
+    <div class="method">
+      <div class="code r"><button class="copy" type="button" data-copy="git clone https://github.com/henrysammarfo/near-settlement-thesis && cd near-settlement-thesis && npm run setup && npm run rebuild && npm test">Copy</button><span class="c"># free public APIs, no keys, no cost</span>
+<span class="p">$ </span>git clone https://github.com/henrysammarfo/near-settlement-thesis
+<span class="p">$ </span>cd near-settlement-thesis
+<span class="p">$ </span>npm run setup
+<span class="p">$ </span>npm run rebuild
+<span class="p">$ </span>npm test</div>
+      <ol class="steps r" style="--d:80ms">
+        <li><b>Fetch</b> nine datasets from DefiLlama, NearBlocks and CoinGecko, with retries and a local cache. Every row stores its source URL and fetch time.</li>
+        <li><b>Validate</b> each file against a schema: dates sorted and unique, numbers finite and non negative.</li>
+        <li><b>Analyse</b> weekly changes, not levels, so trends cannot fake a correlation. Bootstrap intervals use a fixed seed, so results repeat exactly.</li>
+        <li><b>Render</b> six charts, THESIS.md and this page from results.json.</li>
+      </ol>
+    </div>
+    <h3 style="margin:36px 0 10px;letter-spacing:-.02em">Limits</h3>
+    <ul class="limits r">
+      <li>The rebuild uses free public APIs only. The Intents Explorer API needs a partner token and was not used.</li>
+      <li>A by hand cross check on the NEAR BigQuery public dataset counted 2,968,076 to 5,144,507 receipt actions a day from 2026-11-08 to 2026-11-13 (<a class="src" href="https://github.com/henrysammarfo/near-settlement-thesis/blob/main/data/bigquery/receipt_actions_daily.csv" rel="noopener">CSV</a>). It is a 7 day snapshot, not a trend.</li>
+      <li>Weekly correlations over about two years are noisy. Early Intents weeks are tiny, so their changes are large.</li>
+      <li>NearBlocks active accounts can miss signers hidden behind relayers.</li>
+      <li>CoinGecko's free tier gives 365 days, so the Bitcoin test covers fewer weeks.</li>
+      <li>If a source changes its method, a rebuild changes the numbers. That is intended.</li>
+    </ul>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap f">
+    <a class="brand" href="#"><img src="brand/mark.svg" alt="" width="24" height="24">Settlemark</a>
+    <span>Data fetched 2026-11-14T23:05:20Z · <a href="https://github.com/henrysammarfo/near-settlement-thesis/blob/main/THESIS.md" rel="noopener">THESIS.md</a> · <a href="https://github.com/henrysammarfo/near-settlement-thesis" rel="noopener">Source</a> · MIT · Not financial advice</span>
+    <span>Also by this builder: <a href="https://github.com/henrysammarfo/pocket" rel="noopener">Pocket</a></span>
+  </div>
+</footer>
+
+<script>
+(()=>{const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const hdr=document.getElementById("top");addEventListener("scroll",()=>hdr.classList.toggle("scrolled",scrollY>8),{passive:true});
+const fmt=(v,el)=>{const d=+el.dataset.dec||0,s=el.dataset.sign&&v>0?"+":"",n=Math.abs(v).toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d});return (v<0?"\u2212":s)+(el.dataset.pre||"")+n+(el.dataset.suf||"")};
+const count=el=>{const to=parseFloat(el.dataset.count);if(reduce||!isFinite(to))return;const t0=performance.now(),dur=1400;const step=t=>{const p=Math.min(1,(t-t0)/dur),e=1-Math.pow(2,-10*p);el.textContent=fmt(p<1?to*e:to,el);if(p<1)requestAnimationFrame(step)};requestAnimationFrame(step)};
+const io=new IntersectionObserver(es=>{for(const e of es){if(!e.isIntersecting)continue;const el=e.target;el.classList.add("in");el.querySelectorAll("[data-count]").forEach(count);io.unobserve(el)}},{rootMargin:"0px 0px -8% 0px",threshold:.12});
+document.querySelectorAll(".r").forEach(el=>io.observe(el));
+document.querySelectorAll(".copy").forEach(b=>b.addEventListener("click",async()=>{try{await navigator.clipboard.writeText(b.dataset.copy);b.textContent="Copied"}catch{b.textContent="Select and copy"}setTimeout(()=>b.textContent="Copy",1600)}));
+})();
+</script>
+</body>
+</html>

@@ -1,6 +1,6 @@
-# THESIS: NEAR is becoming a settlement layer, and its token has not caught up
+# Settlemark THESIS: NEAR is becoming a settlement layer, and its token has not caught up
 
-Every number below is computed by `scripts/build.py` from the CSV files in `data/` and written into this file by `scripts/render.py`. Each linked number points at the public API it came from. Data fetched 2026-11-14T22:40:33Z. Window: 2024-12-10 to 2026-11-13 (99 full weeks). Not financial advice.
+Every number below is computed by `settlemark/analysis.py` from the validated CSV files in `data/` and written into this file by `settlemark/render.py` (run `npm run rebuild`). Each linked number points at the public API it came from. Data fetched 2026-11-14T23:05:20Z. Window: 2024-12-10 to 2026-11-13 (99 full weeks). Not financial advice.
 
 ## The claim
 
@@ -30,15 +30,15 @@ Two parts, tested separately:
 
 ## What would change our mind
 
-These tests are fixed in `scripts/build.py`. They were written on 2026-11-14, the day of the analysis, so they are not a pre registration made weeks in advance. Met: 0 of 5.
+These tests are fixed in `settlemark/analysis.py` with thresholds in `settlemark.toml`. They were written on 2026-11-14, the day of the analysis, so they are not a pre registration made weeks in advance. Met: 0 of 5.
 
-| Falsifier | Test | Result now |
-|---|---|---|
-| F1 Intents usage moves with NEAR price | weekly change correlation above 0.5 | not met |
-| F2 Intents is losing ground | share of all DEX volume, last 13 weeks below the 13 weeks before | not met |
-| F3 NEAR price leads Intents usage | lagged correlation above 0.3 | not met |
-| F4 Intents is just crypto beta | weekly change correlation with Bitcoin above 0.5 | not met |
-| F5 Holders capture the flow | market cap below 50x yearly Intents revenue (if met, the 'small capture' half is wrong) | not met |
+| Falsifier | Test | Value now | Result |
+|---|---|---|---|
+| F1 Intents usage moves with NEAR price | weekly change correlation above 0.5 | -0.05 | not met |
+| F2 Intents is losing ground | share of all DEX volume, last 13 weeks below the 13 weeks before | +0.43 pts | not met |
+| F3 NEAR price leads Intents usage | lagged correlation above 0.3 | +0.06 | not met |
+| F4 Intents is just crypto beta | weekly change correlation with Bitcoin above 0.5 | -0.08 | not met |
+| F5 Holders capture the flow | market cap below 50x yearly Intents revenue (if met, the small capture half is wrong) | 477x | not met |
 
 We would also change our mind if Intents share of DEX volume falls for two quarters in a row, if the weekly correlation with NEAR price rises above 0.5 over any 26 week window, or if a fee switch or buyback raises holder capture so that market cap falls below 50x yearly revenue (that would make the case bullish rather than conditional).
 
@@ -52,4 +52,4 @@ Part 1 is supported by this data: Intents usage moves independently of the NEAR 
 - Correlations of weekly changes over about two years are noisy. The early Intents weeks are tiny, so log changes there are large.
 - NearBlocks active accounts can miss signers hidden behind relayers.
 - CoinGecko's free tier gives 365 days, so the Bitcoin test covers fewer weeks than the NEAR test.
-- If a source changes its methodology, rerunning `make rebuild` changes the numbers. That is intended: nothing here is frozen by hand.
+- If a source changes its methodology, rerunning `npm run rebuild` changes the numbers. That is intended: nothing here is frozen by hand.

@@ -1,10 +1,14 @@
 {
-  "name": "near-settlement-thesis",
+  "name": "settlemark-near-settlement-thesis",
+  "version": "2.0.0",
   "private": true,
+  "description": "Settlemark research note 01: the NEAR settlement thesis, rebuilt from public data with one command.",
+  "license": "MIT",
   "scripts": {
-    "setup": "python3 -m venv .venv && .venv/bin/pip install -q -r requirements.txt",
+    "setup": "python3 -m venv .venv && .venv/bin/python -m pip install -q -r requirements.txt",
     "rebuild": "sh rebuild.sh",
-    "build": "sh -c '.venv/bin/python scripts/build.py > /dev/null && .venv/bin/python scripts/render.py'",
-    "test": ".venv/bin/python -m pytest -q"
+    "build": "sh -c '[ -x .venv/bin/python ] && P=.venv/bin/python || P=python3; $P -m settlemark build'",
+    "test": "sh -c '[ -x .venv/bin/python ] && P=.venv/bin/python || P=python3; $P -m pytest'",
+    "lint": "make lint"
   }
 }

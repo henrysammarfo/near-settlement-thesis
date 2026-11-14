@@ -1,7 +1,11 @@
 .venv/
 __pycache__/
 .pytest_cache/
+.ruff_cache/
+.cache/
 .env
+.secrets
 *.pyc
+*.csv.tmp
 site/.gitignore
 .vercel/
