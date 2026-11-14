@@ -44,7 +44,7 @@ Part 1 is supported by this data: Intents usage moves independently of the NEAR 
 
 ## Limits
 
-- Free public APIs only: DefiLlama, NearBlocks and CoinGecko. The NEAR BigQuery dataset and the Intents Explorer API were not used (BigQuery needs Google Cloud billing; the Explorer needs a partner token). `docs/BIGQUERY.md` gives the optional queries.
+- The one command rebuild uses free public APIs only: DefiLlama, NearBlocks and CoinGecko. The Intents Explorer API was not used (it needs a partner token). BigQuery is the optional path, run by hand (see `docs/BIGQUERY.md`). {bq}
 - Correlations of weekly changes over about two years are noisy. The early Intents weeks are tiny, so log changes there are large.
 - NearBlocks active accounts can miss signers hidden behind relayers.
 - CoinGecko's free tier gives 365 days, so the Bitcoin test covers fewer weeks than the NEAR test.

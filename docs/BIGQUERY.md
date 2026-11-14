@@ -1,18 +1,8 @@
-# Optional path: NEAR BigQuery public dataset
+# The BigQuery path (optional, run by hand)
 
-We did not run these, because BigQuery bills the query runner and we had no billing account. The free path (DefiLlama, NearBlocks, CoinGecko) produced every number in THESIS.md. With billing set up, these queries would cross check chart 5. Always filter on block_date to keep cost down.
+The one command rebuild uses free APIs only. The NEAR BigQuery public dataset is a second, independent check. It runs in the free BigQuery sandbox (no billing, 1 TB of scanning a month), but a 7 day query scans about 174 GB, so we keep queries short and run them by hand in the console.
 
-```sql
--- Daily transactions and distinct signers, last 365 days
-SELECT block_date, COUNT(*) AS txns, COUNT(DISTINCT signer_account_id) AS signers
-FROM `bigquery-public-data.crypto_near_mainnet_us.transactions`
-WHERE block_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY)
-GROUP BY block_date ORDER BY block_date;
+* `queries/01_receipt_actions_daily.sql`: run on 2026-11-14, result in `data/bigquery/receipt_actions_daily.csv`.
+* `queries/02_intents_receipts_daily.sql` and `queries/03_intents_signers_daily.sql`: ready to run; results not yet included. Column names follow the public schema; if the console rejects a column, check the table schema first.
 
--- Daily receipts sent to the Intents contract
-SELECT block_date, COUNT(*) AS intents_receipts
-FROM `bigquery-public-data.crypto_near_mainnet_us.receipt_actions`
-WHERE block_date >= DATE_SUB(CURRENT_DATE(), INTERVAL 365 DAY)
-  AND receiver_account_id = 'intents.near'
-GROUP BY block_date ORDER BY block_date;
-```
+Notes: `block_timestamp` is INT64 nanoseconds, so convert with `TIMESTAMP_MICROS(DIV(block_timestamp, 1000))`. Filter on `block_date` to limit the scan. Save results as CSV in `data/bigquery/` with the query file name in the `source_url` column.

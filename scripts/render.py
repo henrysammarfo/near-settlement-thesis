@@ -35,6 +35,15 @@ N = {
  "weeks": R["weeks"], "wbtc": R["weeks_btc"], "start": R["window_start"], "end": R["window_end"], "fetched": R["fetched_at_utc"],
  "met": met, "nf": len(R["falsifiers"]),
 }
+import csv as _csv
+bq = os.path.join(ROOT, "data", "bigquery", "receipt_actions_daily.csv")
+if os.path.exists(bq):
+    rr = [r for r in _csv.DictReader(open(bq)) if not r["note"]]
+    N["bq"] = (f"A cross check on the BigQuery public dataset (`queries/01_receipt_actions_daily.sql`, run by hand in the free sandbox) counted "
+               f"{min(int(r['receipt_actions']) for r in rr):,} to {max(int(r['receipt_actions']) for r in rr):,} receipt actions a day from {rr[0]['day']} to {rr[-1]['day']} "
+               f"([data/bigquery/receipt_actions_daily.csv](data/bigquery/receipt_actions_daily.csv)). It is a 7 day snapshot, so it cannot test a trend yet.")
+else:
+    N["bq"] = "No BigQuery results are included in this build."
 fals = "\n".join(f"| {f['name']} | {f['test']} | {'MET (counts against us)' if f['met'] else 'not met'} |" for f in R["falsifiers"])
 T = open(os.path.join(ROOT, "scripts", "THESIS.template.md")).read()
 out = T.format(**N, fals=fals)

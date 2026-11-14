@@ -3,7 +3,7 @@
 **In plain words:** people now use NEAR Intents to move and swap money across many blockchains, and that use keeps growing whether the NEAR price goes up or down. But very little of that money reaches NEAR holders yet. This project checks both statements against public data, shows the evidence for and against, and lets anyone rebuild every chart with one command.
 
 * Thesis with every number linked to its source: [THESIS.md](THESIS.md)
-* Live page: https://henrysammarfo.github.io/near-settlement-thesis/
+* Live page: https://near-settlement-thesis.vercel.app/
 * Built for NEAR HACKATHON 2026, track `thesis`. Not financial advice.
 
 Headline results (current build, see THESIS.md for links): weekly Intents volume changes correlate -0.05 with NEAR price changes; Intents share of all onchain DEX volume rose from 0.003% to 1.46% (first versus latest 13 weeks); NEAR's market cap is 477x yearly Intents revenue.
@@ -37,13 +37,13 @@ Needs Python 3.10 or newer. No API keys. No cost.
 | data/near_stablecoins.csv, data/near_tvl.csv | DefiLlama stablecoins and TVL on NEAR |
 | data/near_price.csv, data/btc_price.csv | CoinGecko, 365 days |
 
-**BigQuery is the optional path.** The track prompt suggests the NEAR BigQuery public dataset and the Intents Explorer API. BigQuery bills whoever runs the query and the Explorer needs a partner token, so this build uses only the free sources above. `docs/BIGQUERY.md` lists the queries we would add with billing.
+**BigQuery is the optional path.** The track prompt suggests the NEAR BigQuery public dataset and the Intents Explorer API. The one command rebuild uses only the free sources above, so anyone can rerun it without an account. The exact BigQuery SQL is in `queries/`, runs in the free BigQuery sandbox, and one result is saved in `data/bigquery/` (see `docs/BIGQUERY.md`). The Explorer API needs a partner token and was not used.
 
 ## How it is built
 
 * `scripts/fetch.py` pulls the data. `scripts/build.py` computes every number and chart. `scripts/render.py` fills `scripts/THESIS.template.md` and writes the site. No number in THESIS.md is typed by hand.
 * Falsifiers are fixed in `scripts/build.py` and reported in THESIS.md whether or not they help the claim.
-* The live page is `site/`, published with GitHub Pages.
+* The live page is `site/`, deployed as a static site on Vercel.
 
 ## License
 

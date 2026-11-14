@@ -1,0 +1,8 @@
+day,receipt_actions,note,fetched_at_utc,source_url
+2026-11-08,2968076,,2026-11-14T22:40:00Z,bigquery-public-data.crypto_near_mainnet_us.receipt_actions via queries/01_receipt_actions_daily.sql
+2026-11-09,4360094,,2026-11-14T22:40:00Z,bigquery-public-data.crypto_near_mainnet_us.receipt_actions via queries/01_receipt_actions_daily.sql
+2026-11-10,4458362,,2026-11-14T22:40:00Z,bigquery-public-data.crypto_near_mainnet_us.receipt_actions via queries/01_receipt_actions_daily.sql
+2026-11-11,4442111,,2026-11-14T22:40:00Z,bigquery-public-data.crypto_near_mainnet_us.receipt_actions via queries/01_receipt_actions_daily.sql
+2026-11-12,4607214,,2026-11-14T22:40:00Z,bigquery-public-data.crypto_near_mainnet_us.receipt_actions via queries/01_receipt_actions_daily.sql
+2026-11-13,5144507,,2026-11-14T22:40:00Z,bigquery-public-data.crypto_near_mainnet_us.receipt_actions via queries/01_receipt_actions_daily.sql
+2026-11-14,4477856,partial day,2026-11-14T22:40:00Z,bigquery-public-data.crypto_near_mainnet_us.receipt_actions via queries/01_receipt_actions_daily.sql
