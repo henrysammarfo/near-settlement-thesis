@@ -1,0 +1,44 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NEAR Settlement Thesis</title><style>body{font:16px/1.6 system-ui,sans-serif;max-width:900px;margin:2rem auto;padding:0 1rem;color:#1a202c}
+img{max-width:100%;border:1px solid #e2e8f0;border-radius:8px;margin:.5rem 0}table{border-collapse:collapse;width:100%;font-size:14px}td{border:1px solid #e2e8f0;padding:6px}
+a{color:#2b6cb0}h1{line-height:1.2}</style></head><body>
+<p><small>Data fetched 2026-11-14T22:40:33Z. Rebuilt by <code>make rebuild</code>. Repo: <a href="https://github.com/henrysammarfo/near-settlement-thesis">henrysammarfo/near-settlement-thesis</a></small></p>
+<h1>THESIS: NEAR is becoming a settlement layer, and its token has not caught up</h1>
+<p>Every number below is computed by `scripts/build.py` from the CSV files in `data/` and written into this file by `scripts/render.py`. Each linked number points at the public API it came from. Data fetched 2026-11-14T22:40:33Z. Window: 2024-12-10 to 2026-11-13 (99 full weeks). Not financial advice.</p>
+<h2>The claim</h2>
+<p>NEAR Intents has turned NEAR into a cross chain settlement layer whose usage grows on its own, independent of the NEAR price. The long term case for NEAR rests on that flow. The weak point today is that the token captures very little of it.</p>
+<p>Two parts, tested separately:</p>
+<p>1. <b>Usage is independent of price.</b> If Intents were just NEAR speculation, its weekly volume would rise and fall with the NEAR price. We expect it not to.</p>
+<p>2. <b>Value capture is small.</b> The flow is large next to the fees that reach the network and its holders.</p>
+<h2>Evidence for</h2>
+<li>Weekly NEAR Intents volume went from <a href="https://api.llama.fi/summary/dexs/near-intents?dataType=dailyVolume">$0.8M</a> a week (first 4 weeks) to <a href="https://api.llama.fi/summary/dexs/near-intents?dataType=dailyVolume">$859.7M</a> a week (last 4 weeks). Over the same span the NEAR price went from <a href="https://api.nearblocks.io/v1/charts">$5.30</a> to <a href="https://api.nearblocks.io/v1/charts">$4.38</a>. <img alt="chart 1" src="charts/01_volume_vs_price.png"></li>
+<li>Intents share of all onchain DEX volume tracked by DefiLlama: <a href="https://api.llama.fi/overview/dexs?excludeTotalDataChartBreakdown=true&amp;excludeTotalDataChart=false">0.003%</a> in the first 13 weeks, <a href="https://api.llama.fi/overview/dexs?excludeTotalDataChartBreakdown=true&amp;excludeTotalDataChart=false">1.03%</a> in the 13 weeks before the latest, <a href="https://api.llama.fi/overview/dexs?excludeTotalDataChartBreakdown=true&amp;excludeTotalDataChart=false">1.46%</a> in the latest 13 weeks. <img alt="chart 2" src="charts/02_share_of_dex_volume.png"></li>
+<li>Correlation between weekly changes in Intents volume and weekly NEAR price changes is <a href="https://api.llama.fi/summary/dexs/near-intents?dataType=dailyVolume">-0.05</a> over 99 weeks (90% bootstrap interval -0.21 to +0.12). That is close to zero. <img alt="chart 3" src="charts/03_weekly_changes_scatter.png"></li>
+<li>Neither leads the other: last week&#x27;s NEAR price change against this week&#x27;s Intents change gives +0.06, and the reverse gives +0.05.</li>
+<li>It is not just crypto beta either: correlation of weekly Intents changes with Bitcoin weekly returns is <a href="https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&amp;days=365&amp;interval=daily">-0.08</a> over 51 weeks. It does follow the overall DEX market somewhat (<a href="https://api.llama.fi/overview/dexs?excludeTotalDataChartBreakdown=true&amp;excludeTotalDataChart=false">+0.34</a>), which is what a settlement venue should do.</li>
+<li>Over the last 365 days Intents settled <a href="https://api.llama.fi/summary/dexs/near-intents?dataType=dailyVolume">$32.97B</a> and charged <a href="https://api.llama.fi/summary/fees/near-intents?dataType=dailyFees">$54.3M</a> in total fees.</li>
+<h2>Evidence against</h2>
+<li><b>Holders capture little.</b> Over the last 365 days the Intents protocol kept <a href="https://api.llama.fi/summary/fees/near-intents?dataType=dailyRevenue">$9.4M</a> as revenue (about 2.8 basis points of volume; all fees were 16.5 basis points). NEAR chain gas fees were <a href="https://api.nearblocks.io/v1/charts">$1.1M</a>. NEAR&#x27;s market cap is <a href="https://api.nearblocks.io/v1/charts">$4.48B</a>: 477x yearly Intents revenue and 3,906x yearly chain fees. <img alt="chart 4" src="charts/04_value_capture.png"></li>
+<li><b>Levels point the wrong way for holders.</b> The correlation of log weekly Intents volume with log NEAR price is <a href="https://api.nearblocks.io/v1/charts">-0.52</a>: usage grew while the price fell. Usage alone has not supported the price.</li>
+<li><b>The base chain shrank while Intents grew.</b> NearBlocks daily active accounts averaged <a href="https://api.nearblocks.io/v1/charts">775,618</a> in the first 13 weeks of the window and <a href="https://api.nearblocks.io/v1/charts">70,872</a> in the latest 13 weeks. Part of that drop may be bot or airdrop traffic leaving, and relayed signers are undercounted, but it is not the picture of a busier chain. Weekly changes correlate <a href="https://api.nearblocks.io/v1/charts">-0.12</a> with price changes. <img alt="chart 5" src="charts/05_active_accounts.png"></li>
+<li><b>Stablecoins on NEAR shrank:</b> <a href="https://stablecoins.llama.fi/stablecoincharts/Near">$164.5M</a> a year ago, <a href="https://stablecoins.llama.fi/stablecoincharts/Near">$133.4M</a> now. A settlement layer for money should hold more dollars, not fewer. <img alt="chart 6" src="charts/06_stablecoins.png"></li>
+<li>Volume counts can flatter. DefiLlama may count both legs or confidential flow; another entry in this track, <a href="https://github.com/soldanoandrea/near-thesis">near-thesis</a>, found public swaps match only part of DefiLlama&#x27;s reported volume on sampled days. Our share numbers inherit that.</li>
+<h2>What would change our mind</h2>
+<p>These tests are fixed in `scripts/build.py`. They were written on 2026-11-14, the day of the analysis, so they are not a pre registration made weeks in advance. Met: 0 of 5.</p>
+<table>
+<tr><td>Falsifier</td><td>Test</td><td>Result now</td></tr>
+<tr><td>F1 Intents usage moves with NEAR price</td><td>weekly change correlation above 0.5</td><td>not met</td></tr>
+<tr><td>F2 Intents is losing ground</td><td>share of all DEX volume, last 13 weeks below the 13 weeks before</td><td>not met</td></tr>
+<tr><td>F3 NEAR price leads Intents usage</td><td>lagged correlation above 0.3</td><td>not met</td></tr>
+<tr><td>F4 Intents is just crypto beta</td><td>weekly change correlation with Bitcoin above 0.5</td><td>not met</td></tr>
+<tr><td>F5 Holders capture the flow</td><td>market cap below 50x yearly Intents revenue (if met, the &#x27;small capture&#x27; half is wrong)</td><td>not met</td></tr>
+</table>
+<p>We would also change our mind if Intents share of DEX volume falls for two quarters in a row, if the weekly correlation with NEAR price rises above 0.5 over any 26 week window, or if a fee switch or buyback raises holder capture so that market cap falls below 50x yearly revenue (that would make the case bullish rather than conditional).</p>
+<h2>Verdict</h2>
+<p>Part 1 is supported by this data: Intents usage moves independently of the NEAR price and has taken a growing share of onchain DEX volume. Part 2 is also supported, and it is the bear case: the token captures a small slice of that flow, stablecoins on NEAR shrank, and the base chain shows no matching growth. NEAR is a long term buy only if value capture improves. Watch the revenue line in chart 4, not the price.</p>
+<h2>Limits</h2>
+<li>Free public APIs only: DefiLlama, NearBlocks and CoinGecko. The NEAR BigQuery dataset and the Intents Explorer API were not used (BigQuery needs Google Cloud billing; the Explorer needs a partner token). `docs/BIGQUERY.md` gives the optional queries.</li>
+<li>Correlations of weekly changes over about two years are noisy. The early Intents weeks are tiny, so log changes there are large.</li>
+<li>NearBlocks active accounts can miss signers hidden behind relayers.</li>
+<li>CoinGecko&#x27;s free tier gives 365 days, so the Bitcoin test covers fewer weeks than the NEAR test.</li>
+<li>If a source changes its methodology, rerunning `make rebuild` changes the numbers. That is intended: nothing here is frozen by hand.</li></body></html>

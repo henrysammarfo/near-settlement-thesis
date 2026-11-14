@@ -1,0 +1,10 @@
+{
+  "name": "near-settlement-thesis",
+  "private": true,
+  "scripts": {
+    "setup": "python3 -m venv .venv && .venv/bin/pip install -q -r requirements.txt",
+    "rebuild": "sh rebuild.sh",
+    "build": "sh -c '.venv/bin/python scripts/build.py > /dev/null && .venv/bin/python scripts/render.py'",
+    "test": ".venv/bin/python -m pytest -q"
+  }
+}
