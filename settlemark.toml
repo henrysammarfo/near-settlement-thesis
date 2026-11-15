@@ -155,4 +155,4 @@ required = false            # becomes true once its first committed run lands
 key = "05"
 csv = "05_weekly_activity.csv"
 columns = ["week_start:date", "transactions:int", "signers:int"]
-required = false            # becomes true once its first committed run lands
+required = true             # first committed run: console, 15 Nov 2026

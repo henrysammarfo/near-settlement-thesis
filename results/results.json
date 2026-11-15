@@ -366,7 +366,7 @@
   },
   "leadlag": {
     "band": 0.197989898732,
-    "lead_bars": 12,
+    "lead_bars": 20,
     "lead_bars_outside": [
       {
         "series": "storage",
@@ -382,6 +382,10 @@
       {
         "series": "storage",
         "corr": 0.245353762051
+      },
+      {
+        "series": "bq_txs",
+        "corr": 0.270203507747
       }
     ],
     "alpha": 0.05,
@@ -768,9 +772,263 @@
           "p_cw": 0.127507944179
         },
         "split_week": "2026-05-03"
+      },
+      {
+        "series": "bq_signers",
+        "label": "BigQuery weekly distinct signers",
+        "weeks": 98,
+        "first_week": "2024-12-29",
+        "last_week": "2026-11-08",
+        "xcorr_lags": [
+          -4,
+          -3,
+          -2,
+          -1,
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "xcorr": [
+          -0.0137754895395,
+          0.000323538449884,
+          -0.0349180998429,
+          -0.0177052948244,
+          -0.0748880740017,
+          0.0697962819186,
+          0.0132145341217,
+          -0.0293343215808,
+          0.138788187104
+        ],
+        "best_lead_weeks": 4,
+        "best_lead_corr": 0.138788187104,
+        "intents_leads": [
+          {
+            "lags": 1,
+            "f": 0.613818035543,
+            "df1": 1,
+            "df2": 94,
+            "p_value": 0.435323457639,
+            "p_shift": 0.440476190476,
+            "shifts": 83
+          },
+          {
+            "lags": 2,
+            "f": 0.31753124771,
+            "df1": 2,
+            "df2": 91,
+            "p_value": 0.728747190414,
+            "p_shift": 0.77380952381,
+            "shifts": 83
+          },
+          {
+            "lags": 3,
+            "f": 0.173299052332,
+            "df1": 3,
+            "df2": 88,
+            "p_value": 0.914188167149,
+            "p_shift": 0.940476190476,
+            "shifts": 83
+          },
+          {
+            "lags": 4,
+            "f": 0.704464001112,
+            "df1": 4,
+            "df2": 85,
+            "p_value": 0.591057752142,
+            "p_shift": 0.654761904762,
+            "shifts": 83
+          }
+        ],
+        "usage_leads": [
+          {
+            "lags": 1,
+            "f": 0.148561498341,
+            "df1": 1,
+            "df2": 94,
+            "p_value": 0.700784694929,
+            "p_shift": 0.77380952381,
+            "shifts": 83
+          },
+          {
+            "lags": 2,
+            "f": 0.192972406537,
+            "df1": 2,
+            "df2": 91,
+            "p_value": 0.824841240224,
+            "p_shift": 0.880952380952,
+            "shifts": 83
+          },
+          {
+            "lags": 3,
+            "f": 0.124154495173,
+            "df1": 3,
+            "df2": 88,
+            "p_value": 0.945604334271,
+            "p_shift": 0.97619047619,
+            "shifts": 83
+          },
+          {
+            "lags": 4,
+            "f": 0.159257288993,
+            "df1": 4,
+            "df2": 85,
+            "p_value": 0.958275686915,
+            "p_shift": 0.97619047619,
+            "shifts": 83
+          }
+        ],
+        "headline_lags": 2,
+        "headline_p": 0.728747190414,
+        "headline_p_shift": 0.77380952381,
+        "headline_reverse_p": 0.824841240224,
+        "intents_leads_significant": false,
+        "usage_leads_significant": false,
+        "any_order_below_alpha": [],
+        "out_of_sample": {
+          "lags": 2,
+          "train_weeks": 70,
+          "test_weeks": 28,
+          "mse_own": 0.0742425281242,
+          "mse_with_intents": 0.0753740459199,
+          "mse_ratio": 1.01524083062,
+          "oos_r2_gain_pct": -1.5240830618,
+          "win_share": 0.464285714286,
+          "cw_t": -1.14936736413,
+          "p_cw": 0.874797734297
+        },
+        "split_week": "2026-05-03"
+      },
+      {
+        "series": "bq_txs",
+        "label": "BigQuery weekly transactions",
+        "weeks": 98,
+        "first_week": "2024-12-29",
+        "last_week": "2026-11-08",
+        "xcorr_lags": [
+          -4,
+          -3,
+          -2,
+          -1,
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "xcorr": [
+          -0.0552342157239,
+          0.0427602409051,
+          0.0305331574103,
+          -0.0810612672327,
+          0.270203507747,
+          0.0271430540441,
+          -0.114394482813,
+          -0.000318614697754,
+          0.0580246183952
+        ],
+        "best_lead_weeks": 2,
+        "best_lead_corr": -0.114394482813,
+        "intents_leads": [
+          {
+            "lags": 1,
+            "f": 0.0984362813344,
+            "df1": 1,
+            "df2": 94,
+            "p_value": 0.754409470893,
+            "p_shift": 0.761904761905,
+            "shifts": 83
+          },
+          {
+            "lags": 2,
+            "f": 0.751655761432,
+            "df1": 2,
+            "df2": 91,
+            "p_value": 0.474490035497,
+            "p_shift": 0.535714285714,
+            "shifts": 83
+          },
+          {
+            "lags": 3,
+            "f": 0.560542425888,
+            "df1": 3,
+            "df2": 88,
+            "p_value": 0.642468845076,
+            "p_shift": 0.714285714286,
+            "shifts": 83
+          },
+          {
+            "lags": 4,
+            "f": 0.407271880787,
+            "df1": 4,
+            "df2": 85,
+            "p_value": 0.802936342978,
+            "p_shift": 0.833333333333,
+            "shifts": 83
+          }
+        ],
+        "usage_leads": [
+          {
+            "lags": 1,
+            "f": 0.00422788888618,
+            "df1": 1,
+            "df2": 94,
+            "p_value": 0.948294393211,
+            "p_shift": 0.97619047619,
+            "shifts": 83
+          },
+          {
+            "lags": 2,
+            "f": 0.240816562015,
+            "df1": 2,
+            "df2": 91,
+            "p_value": 0.786485085146,
+            "p_shift": 0.869047619048,
+            "shifts": 83
+          },
+          {
+            "lags": 3,
+            "f": 0.271224225755,
+            "df1": 3,
+            "df2": 88,
+            "p_value": 0.845993213411,
+            "p_shift": 0.916666666667,
+            "shifts": 83
+          },
+          {
+            "lags": 4,
+            "f": 0.285371886344,
+            "df1": 4,
+            "df2": 85,
+            "p_value": 0.886722879724,
+            "p_shift": 0.964285714286,
+            "shifts": 83
+          }
+        ],
+        "headline_lags": 2,
+        "headline_p": 0.474490035497,
+        "headline_p_shift": 0.535714285714,
+        "headline_reverse_p": 0.786485085146,
+        "intents_leads_significant": false,
+        "usage_leads_significant": false,
+        "any_order_below_alpha": [],
+        "out_of_sample": {
+          "lags": 2,
+          "train_weeks": 70,
+          "test_weeks": 28,
+          "mse_own": 0.0101428777705,
+          "mse_with_intents": 0.0103648173498,
+          "mse_ratio": 1.02188132247,
+          "oos_r2_gain_pct": -2.18813224738,
+          "win_share": 0.535714285714,
+          "cw_t": -0.288016145562,
+          "p_cw": 0.613332810136
+        },
+        "split_week": "2026-05-03"
       }
     ],
-    "tests_run": 24,
+    "tests_run": 40,
     "series_where_intents_leads": [],
     "series_where_usage_leads": [],
     "min_headline_p": 0.247200287098,
@@ -934,17 +1192,31 @@
         "key": "05",
         "sql": "queries/05_weekly_activity.sql",
         "csv": "data/bigquery/05_weekly_activity.csv",
-        "required": false,
-        "committed": false,
-        "rows": 0,
-        "first": "",
-        "last": "",
-        "scanned_gb": null,
-        "run_at_utc": null,
-        "method": null,
-        "sql_matches": null
+        "required": true,
+        "committed": true,
+        "rows": 100,
+        "first": "2024-12-09",
+        "last": "2026-11-02",
+        "scanned_gb": 65.1,
+        "run_at_utc": "2026-11-15T06:58:10Z",
+        "method": "console",
+        "sql_matches": true
       }
-    ]
+    ],
+    "weekly": {
+      "weeks": 99,
+      "first_week": "2024-12-22",
+      "last_week": "2026-11-08",
+      "tx_ratio_median": 1.0,
+      "tx_change_corr": 0.999969085354,
+      "signers_vs_active_accounts_change_corr": 0.912086761498,
+      "signers_first_13w": 2320942.69231,
+      "signers_last_13w": 179168.769231,
+      "signers_change_pct": -92.2803449726,
+      "bq_tx_change_pct": -89.6300373639,
+      "nearblocks_tx_change_pct": -89.626842141,
+      "nearblocks_aa_change_pct": -90.8624704959
+    }
   },
   "predictions": {
     "scored_on": "2026-11-14",

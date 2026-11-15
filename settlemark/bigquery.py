@@ -28,6 +28,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 from .config import Config
@@ -146,6 +147,33 @@ def weekly_activity(cfg: Config) -> pd.DataFrame | None:
     if df is None:
         return None
     return df.set_axis(df.index + pd.offsets.Day(6))[["transactions", "signers"]]
+
+
+def crosscheck(weekly: pd.DataFrame, bq_weekly: pd.DataFrame | None) -> dict | None:
+    """Query 05 against NearBlocks on the same weeks: do two independent sources agree?"""
+    if bq_weekly is None or not len(bq_weekly):
+        return None
+    j = weekly[["tx", "aa"]].join(bq_weekly, how="inner").dropna()
+    j = j[(j > 0).all(axis=1)]
+    if len(j) < 30:
+        return None
+    lc = np.log(j.astype(float)).diff().dropna()
+    head, tail = j.iloc[:13], j.iloc[-13:]
+    pct = lambda c: float(100 * (tail[c].mean() / head[c].mean() - 1))  # noqa: E731
+    return {
+        "weeks": len(j),
+        "first_week": str(j.index[0].date()),
+        "last_week": str(j.index[-1].date()),
+        "tx_ratio_median": float((j["transactions"] / j["tx"]).median()),
+        "tx_change_corr": float(lc["transactions"].corr(lc["tx"])),
+        "signers_vs_active_accounts_change_corr": float(lc["signers"].corr(lc["aa"])),
+        "signers_first_13w": float(head["signers"].mean()),
+        "signers_last_13w": float(tail["signers"].mean()),
+        "signers_change_pct": pct("signers"),
+        "bq_tx_change_pct": pct("transactions"),
+        "nearblocks_tx_change_pct": pct("tx"),
+        "nearblocks_aa_change_pct": pct("aa"),
+    }
 
 
 def status(cfg: Config) -> list[dict]:

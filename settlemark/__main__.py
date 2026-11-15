@@ -57,7 +57,11 @@ def build(cfg) -> dict:
 
     R["leadlag"] = leadlag(cfg, frames, series["chain"], bq.weekly_activity(cfg))
     R["peers"] = compare(cfg, R["window_end"], R["near_market_cap"])
-    R["bigquery"] = {"dataset": cfg.raw["bigquery"]["dataset"], "queries": bq.status(cfg)}
+    R["bigquery"] = {
+        "dataset": cfg.raw["bigquery"]["dataset"],
+        "queries": bq.status(cfg),
+        "weekly": bq.crosscheck(frames.weekly, bq.weekly_activity(cfg)),
+    }
     R["provenance"].update(
         {
             "leadlag": ["intents_volume", "near_chain", "near_rpc", "bigquery/05_weekly_activity"],

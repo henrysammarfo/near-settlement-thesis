@@ -88,3 +88,36 @@ def test_leadlag_uses_bigquery_weekly_when_present(tmp_path):
     L = leadlag(cfg, F, S["chain"], B.weekly_activity(cfg))
     names = {t["series"] for t in L["tests"] if "xcorr" in t}
     assert {"bq_signers", "bq_txs"} <= names
+
+
+def test_query_05_is_committed_and_feeds_the_lead_test():
+    import json
+
+    from settlemark.config import ROOT
+
+    R = json.loads((ROOT / "results" / "results.json").read_text())
+    q = {x["key"]: x for x in R["bigquery"]["queries"]}
+    assert q["05"]["committed"] and q["05"]["required"] and q["05"]["sql_matches"] and q["05"]["rows"] == 100
+    assert q["05"]["scanned_gb"] == 65.1 and q["05"]["run_at_utc"] == "2026-11-15T06:58:10Z"
+    assert not q["04"]["committed"]
+    series = {t["series"] for t in R["leadlag"]["tests"] if "xcorr" in t}
+    assert {"bq_signers", "bq_txs"} <= series
+    W = R["bigquery"]["weekly"]
+    assert W["tx_change_corr"] > 0.99 and W["signers_change_pct"] < 0
+    thesis = (ROOT / "THESIS.md").read_text()
+    assert "Query 04" in thesis and "1 Dec" in thesis and "not independent evidence" in thesis
+
+
+def test_crosscheck_needs_overlap():
+    import numpy as np
+    import pandas as pd
+
+    from settlemark.bigquery import crosscheck
+
+    idx = pd.date_range("2025-01-05", periods=40, freq="W-SUN")
+    rng = np.random.default_rng(3)
+    w = pd.DataFrame({"tx": rng.uniform(1e6, 2e6, 40), "aa": rng.uniform(1e5, 2e5, 40)}, index=idx)
+    b = pd.DataFrame({"transactions": w["tx"] * 1.0, "signers": w["aa"] * 3}, index=idx)
+    out = crosscheck(w, b)
+    assert abs(out["tx_ratio_median"] - 1) < 1e-12 and out["weeks"] == 40
+    assert crosscheck(w, b.iloc[:10]) is None and crosscheck(w, None) is None

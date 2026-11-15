@@ -173,7 +173,7 @@ function loadJSON(id, url) {
   // Lead/lag: grouped bars of cross correlations per lead, with the noise band behind them.
   function leadBars(host, L) {
     const tests = L.tests.filter((t) => t.xcorr && t.xcorr.length);
-    const COL = ["--acc", "--good", "--bad", "--ink2"];
+    const COL = ["--acc", "--good", "--bad", "--warn", "--ink2"];
     const draw = () => {
       host.innerHTML = "";
       const W = host.clientWidth, small = W < 560, H = small ? 260 : 320;

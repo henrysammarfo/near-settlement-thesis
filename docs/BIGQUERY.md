@@ -9,8 +9,8 @@ The NEAR BigQuery public dataset (`bigquery-public-data.crypto_near_mainnet_us`)
 | Key | SQL | Result | Status |
 |---|---|---|---|
 | 01 | `queries/01_receipt_actions_daily.sql` | `receipt_actions_daily.csv` | committed, run 2026-11-14 in the console, about 174 GB scanned |
-| 04 | `queries/04_intents_weekly.sql` | `04_intents_weekly.csv` | waiting for its first run |
-| 05 | `queries/05_weekly_activity.sql` | `05_weekly_activity.csv` | waiting for its first run; when it lands, the lead and lag test adds BigQuery weekly signers and transactions automatically |
+| 04 | `queries/04_intents_weekly.sql` | `04_intents_weekly.csv` | pending: on 15 Nov the console estimated about 500 GB, more than was left of the free monthly quota; runs after the quota resets on 1 Dec |
+| 05 | `queries/05_weekly_activity.sql` | `05_weekly_activity.csv` | committed, run 2026-11-15 06:58 UTC in the console, 65.09 GB scanned, 100 weeks; feeds the lead and lag test and a cross check against NearBlocks |
 
 Queries 04 and 05 use fixed dates (2024-12-09 to the week ending 2026-11-08), so a rerun returns the same rows.
 

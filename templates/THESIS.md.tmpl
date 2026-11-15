@@ -76,7 +76,7 @@ The track asks whether cross chain volume through Intents is a better leading in
 - **{lloosverdict}.** The best case is {lloosbest}; the smallest one sided Clark West p value is {lloosminp}, {lloosread}.
 - {lloostest} test weeks is a small sample, so a modest real gain could still hide here. State size is also the series most tied to Intents by construction (Intents writes its own state).
 - **So the track's hypothesis is not supported by these data.** Intents grew while base chain activity fell, and week to week the two move independently. That fits part 1 (Intents is its own flow), but it means Intents volume is not, on public data, an early signal of NEAR usage.
-- Caveats: {lln} tests were run, so one p value under {llalpha} would be expected by chance; none came out that low. Two years of weekly data has low power, so a modest lead could exist and be missed. NearBlocks counts accounts, and relayers hide signers. A Granger test is about prediction, not cause. When the BigQuery weekly signer series lands (below), the same test runs on it automatically.
+- Caveats: {lln} tests were run, so one p value under {llalpha} would be expected by chance; none came out that low. Two years of weekly data has low power, so a modest lead could exist and be missed. NearBlocks counts accounts, and relayers hide signers. A Granger test is about prediction, not cause. BigQuery weekly transactions are almost the same count as NearBlocks transactions (see the BigQuery section), so those two rows are one test twice, and the true number of independent tests is lower than {lln}.
 
 ## Against other cross chain routers
 
@@ -93,6 +93,8 @@ The same source for everyone (DefiLlama's free fees and volume APIs), the same {
 BigQuery is a main source, not an add on. Every result is committed in `data/bigquery/` with a manifest recording the bytes scanned, when it ran and a hash of its SQL (`settlemark/bigquery.py`). The rebuild reads the committed files, so a fresh clone with no Google account rebuilds byte for byte; `npm run bigquery` refreshes them with a Google account, dry running first and refusing any query above the limit in `settlemark.toml`. `python -m settlemark check` fails if a required result is missing or if its SQL changed after it ran.
 
 {bqtable}
+
+Query 04 (weekly receipts and senders into `intents.near`) is pending: on 15 Nov the console estimated about 500 GB, more than was left of the free monthly BigQuery quota. It will run after the quota resets on 1 Dec. Nothing was done to get around the quota.
 
 {bq}
 

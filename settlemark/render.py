@@ -378,7 +378,24 @@ def bigquery_md(R: dict, repo: str) -> str:
             )
         else:
             rows.append(f"| [{q['sql']}]({q['sql']}) | pending first run | | | |")
-    return "\n".join(rows)
+    extra = bq_weekly_text(R, md=True)
+    return "\n".join(rows) + (f"\n\n{extra}" if extra else "")
+
+
+def bq_weekly_text(R: dict, md: bool = True) -> str:
+    W = (R.get("bigquery") or {}).get("weekly")
+    if not W:
+        return ""
+    code = (lambda x: f"`{x}`") if md else (lambda x: f"<code>{html.escape(x)}</code>")
+    return (
+        f"Query 05 against NearBlocks on the same {W['weeks']} weeks ({W['first_week']} to {W['last_week']}): weekly transactions agree "
+        f"almost exactly (median ratio {W['tx_ratio_median']:.3f}, weekly changes correlate at {W['tx_change_corr']:.4f}), so the two are "
+        f"very likely counts of the same indexed chain, not independent evidence. Distinct signers, which NearBlocks does not publish, "
+        f"fell {abs(W['signers_change_pct']):.0f}% from the first 13 weeks to the last 13 (about {W['signers_first_13w'] / 1e6:.2f}M to "
+        f"{W['signers_last_13w'] / 1e3:.0f}K a week), in line with NearBlocks active accounts (down {abs(W['nearblocks_aa_change_pct']):.0f}%), and "
+        f"their weekly changes track active accounts at {W['signers_vs_active_accounts_change_corr']:.2f}. So the base chain decline in part 1 "
+        f"is confirmed from raw chain data, and the lead test now also runs on {code('signers')} and {code('transactions')} from BigQuery."
+    )
 
 
 def bigquery_html(R: dict) -> str:
@@ -393,6 +410,9 @@ def bigquery_html(R: dict) -> str:
     ]
     if todo:
         parts.append(" Pending first run: " + ", ".join(f"<code>{html.escape(q['sql'])}</code>" for q in todo) + ".")
+    extra = bq_weekly_text(R, md=False)
+    if extra:
+        parts.append(" " + extra)
     return "".join(parts)
 
 
