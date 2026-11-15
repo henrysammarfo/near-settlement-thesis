@@ -9,6 +9,11 @@
     "rebuild": "sh rebuild.sh",
     "build": "sh -c '[ -x .venv/bin/python ] && P=.venv/bin/python || P=python3; $P -m settlemark build'",
     "test": "sh -c '[ -x .venv/bin/python ] && P=.venv/bin/python || P=python3; $P -m pytest'",
-    "lint": "make lint"
+    "lint": "make lint",
+    "check": "sh -c '[ -x .venv/bin/python ] && P=.venv/bin/python || P=python3; $P -m settlemark check'",
+    "predictions": "sh -c '[ -x .venv/bin/python ] && P=.venv/bin/python || P=python3; $P -m settlemark predictions --score'",
+    "bigquery": "sh -c '[ -x .venv/bin/python ] && P=.venv/bin/python || P=python3; $P -m settlemark bigquery all'",
+    "anchor": "sh -c '[ -x .venv/bin/python ] && P=.venv/bin/python || P=python3; $P -m settlemark anchor verify'",
+    "serve": "sh -c '[ -x .venv/bin/python ] && P=.venv/bin/python || P=python3; echo Open http://localhost:8000 ; $P -m http.server 8000 --directory site'"
   }
 }

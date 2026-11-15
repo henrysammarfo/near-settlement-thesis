@@ -1,0 +1,5 @@
+{
+  "installCommand": "echo skip install: the live page is the committed site folder",
+  "buildCommand": "echo skip python build: serving the committed site folder",
+  "outputDirectory": "site"
+}

@@ -1,4 +1,4 @@
-"""Draw the six thesis charts in the Settlemark style.
+"""Draw the nine thesis charts in the Settlemark style.
 
 Each chart is written three ways: charts/NN_name.png (light, for GitHub and THESIS.md) and
 site/charts/NN_name-light.svg plus -dark.svg (crisp vector art for the live page, swapped by
@@ -18,6 +18,7 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 
 from .analysis import Frames
+from .stats import days
 
 
 @dataclass(frozen=True)
@@ -44,6 +45,11 @@ CHARTS = (
     "04_value_capture",
     "05_active_accounts",
     "06_stablecoins",
+    "07_supply_vs_buybacks",
+    "08_rolling_correlation",
+    "09_value_per_token",
+    "10_lead_lag",
+    "11_router_take_rates",
 )
 
 
@@ -178,7 +184,100 @@ def draw(fr: Frames, R: dict, t: Theme, outputs: dict[str, list[Path]]) -> None:
     _finish(fig, t, "DefiLlama stablecoins", fetched, outputs["06_stablecoins"])
 
 
-def draw_all(fr: Frames, R: dict, charts_dir: Path, site_charts_dir: Path) -> list[Path]:
+def draw_deep(S: dict, R: dict, t: Theme, outputs: dict[str, list[Path]]) -> None:
+    """Charts 7 to 9: raw chain supply and buybacks, rolling correlation, valuation scenarios."""
+    _style(t)
+    fetched, C, V, Rb = R["fetched_at_utc"], R["chain"], R["valuation"], R["robustness"]
+    ch = S["chain"]
+    start = S["buyback_start"] - days(7)
+    seg = ch.loc[start:]
+    fig, ax = plt.subplots(figsize=(5.4, 4.1))
+    added = (seg.total_supply_near - seg.total_supply_near.iloc[0]) / 1e6
+    bought = (seg.buyback_wallet_near - seg.buyback_wallet_near.iloc[0]) / 1e6
+    ax.fill_between(seg.index, added, color=t.bad, alpha=0.12, lw=0)
+    ax.plot(seg.index, added, color=t.bad, lw=2.2, label="NEAR added to total supply")
+    ax.fill_between(seg.index, bought, color=t.good, alpha=0.18, lw=0)
+    ax.plot(seg.index, bought, color=t.good, lw=2.2, label="NEAR gained by the buyback wallet")
+    ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: f"{x:.0f}M"))
+    _dates(ax)
+    ax.legend(loc="lower left", bbox_to_anchor=(0, 1.0), ncol=1, borderaxespad=0.3, handlelength=1.2, fontsize=8.5)
+    ax.set_title(f"Buybacks cover {C['buyback_coverage_13w_pct']:.1f}% of new supply (13 weeks)", pad=44, fontsize=11.5)
+    _finish(fig, t, "NEAR archival RPC, one block per week", fetched, outputs["07_supply_vs_buybacks"])
+
+    fig, ax = plt.subplots(figsize=(5.4, 4.1))
+    roll = S["rolling"]
+    ax.axhline(0.5, color=t.bad, lw=1.2, ls=(0, (4, 3)))
+    ax.text(roll.index[0], 0.53, "0.5: part 1 fails above this line", color=t.bad, fontsize=8)
+    ax.axhline(0, color=t.neutral, lw=0.8)
+    ax.plot(roll.index, roll, color=t.accent, lw=2.2)
+    ax.set_ylim(-1, 1)
+    _dates(ax)
+    ax.set_title(f"{Rb['rolling_weeks']} week rolling correlation, Intents vs price")
+    _finish(fig, t, "DefiLlama, NearBlocks", fetched, outputs["08_rolling_correlation"])
+
+    fig, ax = plt.subplots(figsize=(5.4, 4.1))
+    names = ["Bear", "Base", "Bull"]
+    vals = [V["value_per_token_bear"], V["value_per_token_base"], V["value_per_token_bull"]]
+    ax.bar(names, vals, color=[t.bad, t.neutral, t.good], width=0.56)
+    ax.axhline(C["near_price_now"], color=t.price, lw=2)
+    ax.text(2.42, C["near_price_now"], f" price ${C['near_price_now']:.2f}", color=t.price, va="bottom", ha="right", fontsize=9)
+    for i, v in enumerate(vals):
+        ax.text(i, v, f"${v:.2f}", ha="center", va="bottom", color=t.ink, fontsize=10, fontweight="bold")
+    ax.yaxis.set_major_formatter(FuncFormatter(lambda x, _: f"${x:.0f}"))
+    ax.grid(False, axis="x")
+    ax.set_title(f"Value per NEAR from buybacks, {V['discount_rate_pct']:.0f}% discount")
+    _finish(fig, t, "Settlemark DCF on RPC buybacks", fetched, outputs["09_value_per_token"])
+
+
+def draw_extra(R: dict, t: Theme, outputs: dict[str, list[Path]]) -> None:
+    """Charts 10 and 11: does Intents lead usage, and Intents against other cross chain routers."""
+    _style(t)
+    fetched, L, P = R["fetched_at_utc"], R["leadlag"], R["peers"]
+
+    fig, ax = plt.subplots(figsize=(5.4, 4.1))
+    done = [x for x in L["tests"] if "xcorr" in x]
+    colors = [t.accent, t.price, t.good, t.neutral, t.bad]
+    width = 0.8 / max(len(done), 1)
+    for i, x in enumerate(done):
+        xs = [k + (i - (len(done) - 1) / 2) * width for k in x["xcorr_lags"]]
+        ax.bar(xs, x["xcorr"], width=width * 0.92, color=colors[i % len(colors)], label=x["label"])
+    n = min(x["weeks"] for x in done)
+    band = 1.96 / n**0.5
+    ax.axhspan(-band, band, color=t.neutral, alpha=0.15, lw=0)
+    ax.axhline(0, color=t.neutral, lw=0.8)
+    ax.axvline(0, color=t.muted, lw=0.8, ls=(0, (2, 2)))
+    ax.set_ylim(-0.6, 0.6)
+    ax.set_xticks(done[0]["xcorr_lags"])
+    ax.set_xlabel("weeks Intents volume leads usage (negative: usage leads)")
+    ax.grid(False, axis="x")
+    ax.legend(loc="lower left", bbox_to_anchor=(0, 1.0), ncol=1, borderaxespad=0.3, handlelength=1.2, fontsize=8)
+    ax.set_title("Leads barely clear noise (grey band: 95% under no link)", pad=10 + 13 * len(done), fontsize=11.5)
+    _finish(fig, t, "DefiLlama, NearBlocks, NEAR archival RPC", fetched, outputs["10_lead_lag"])
+
+    fig, ax = plt.subplots(figsize=(5.4, 4.1))
+    rows = sorted(P["rows"], key=lambda r: r["fee_bps"])
+    names = [r["name"] for r in rows]
+    y = range(len(rows))
+    ax.barh([i + 0.2 for i in y], [r["fee_bps"] for r in rows], height=0.38, color=t.neutral, label="All fees")
+    ax.barh([i - 0.2 for i in y], [r["revenue_bps"] for r in rows], height=0.38, color=t.accent, label="Kept as revenue")
+    for i, r in enumerate(rows):
+        c = t.accent if r["slug"] == "near_intents" else t.ink
+        ax.text(r["fee_bps"] + 0.6, i + 0.2, f"{r['fee_bps']:.1f}", va="center", fontsize=8.5, color=t.muted)
+        ax.text(r["revenue_bps"] + 0.6, i - 0.2, f"{r['revenue_bps']:.1f}", va="center", fontsize=8.5, color=c, fontweight="bold")
+    ax.set_yticks(list(y), names)
+    for lbl, r in zip(ax.get_yticklabels(), rows):
+        if r["slug"] == "near_intents":
+            lbl.set_color(t.accent)
+            lbl.set_fontweight("bold")
+    ax.grid(True, axis="x")
+    ax.grid(False, axis="y")
+    ax.set_xlabel("basis points of volume")
+    ax.legend(loc="lower right", fontsize=8.5)
+    ax.set_title(f"Take rates, {P['window_days']} days to {P['window_end']}")
+    _finish(fig, t, "DefiLlama fees and volume APIs", P.get("fetched_at_utc", fetched), outputs["11_router_take_rates"])
+
+
+def draw_all(fr: Frames, R: dict, charts_dir: Path, site_charts_dir: Path, deep_series: dict | None = None) -> list[Path]:
     charts_dir.mkdir(parents=True, exist_ok=True)
     site_charts_dir.mkdir(parents=True, exist_ok=True)
     # The PNG is also published on the site so links to the first version of the page keep working.
@@ -186,5 +285,11 @@ def draw_all(fr: Frames, R: dict, charts_dir: Path, site_charts_dir: Path) -> li
     dark = {c: [site_charts_dir / f"{c}-dark.svg"] for c in CHARTS}
     draw(fr, R, LIGHT, light)
     draw(fr, R, DARK, dark)
+    if deep_series is not None:
+        draw_deep(deep_series, R, LIGHT, light)
+        draw_deep(deep_series, R, DARK, dark)
+    if R.get("leadlag") and R.get("peers"):
+        draw_extra(R, LIGHT, light)
+        draw_extra(R, DARK, dark)
     plt.rcdefaults()
     return [p for v in (*light.values(), *dark.values()) for p in v]

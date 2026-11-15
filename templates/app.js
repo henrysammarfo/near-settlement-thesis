@@ -1,4 +1,12 @@
 // Settlemark page: interactive charts drawn as SVG from data.json (written by `npm run rebuild`).
+// The same data is inlined in index.html, so the page also works opened straight from disk (file://).
+function loadJSON(id, url) {
+  const n = document.getElementById(id);
+  if (n && n.textContent.trim()) {
+    try { return Promise.resolve(JSON.parse(n.textContent)); } catch (e) { console.error(e); }
+  }
+  return fetch(url).then((r) => r.json());
+}
 (() => {
   "use strict";
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -162,6 +170,63 @@
     host.innerHTML = entries.map(([k, v]) => `<div class="vb"><div class="row"><span>${k} <span style="color:var(--mute)">· ${note[k] || ""}</span></span><b class="num">${money(v)}</b></div><div class="track"><div class="fill" style="--f:${(v / max).toFixed(4)};background:${colors[k] || "var(--acc)"}"></div></div></div>`).join("");
   }
 
+  // Lead/lag: grouped bars of cross correlations per lead, with the noise band behind them.
+  function leadBars(host, L) {
+    const tests = L.tests.filter((t) => t.xcorr && t.xcorr.length);
+    const COL = ["--acc", "--good", "--bad", "--warn", "--ink2"];
+    const draw = () => {
+      host.innerHTML = "";
+      const W = host.clientWidth, small = W < 560, H = small ? 260 : 320;
+      const m = { t: 16, r: 8, b: 40, l: small ? 40 : 48 };
+      const iw = W - m.l - m.r, ih = H - m.t - m.b;
+      const lags = tests[0].xcorr_lags, n = lags.length, k = tests.length;
+      const band = L.band || 1.96 / Math.sqrt(Math.min(...tests.map((t) => t.weeks)));
+      const top = Math.max(0.3, Math.ceil(Math.max(band, ...tests.flatMap((t) => t.xcorr.map(Math.abs))) * 10) / 10);
+      const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, height: H }, host);
+      const g = el("g", { transform: `translate(${m.l},${m.t})` }, svg);
+      const ys = (v) => ih / 2 - (v / top) * (ih / 2);
+      const slot = iw / n, bw = Math.max(2, (slot * 0.72) / k);
+      el("rect", { x: 0, y: ys(band), width: iw, height: ys(-band) - ys(band), fill: css("--mute"), opacity: 0.14 }, g);
+      for (let v = -top; v <= top + 1e-9; v += top / 2) {
+        el("line", { class: "grid", x1: 0, x2: iw, y1: ys(v), y2: ys(v) }, g);
+        el("text", { x: -8, y: ys(v) + 4, "text-anchor": "end" }, g).textContent = minus(v.toFixed(2).replace(/0$/, ""));
+      }
+      lags.forEach((lag, i) => { el("text", { x: (i + 0.5) * slot, y: ih + 20, "text-anchor": "middle" }, g).textContent = minus(String(lag)); });
+      el("text", { x: iw / 2, y: ih + 36, "text-anchor": "middle" }, g).textContent = small ? "weeks Intents leads (negative: usage leads)" : "weeks Intents volume leads usage (negative: usage leads)";
+      tests.forEach((t, j) => t.xcorr.forEach((v, i) => {
+        const x = i * slot + slot * 0.14 + j * bw, y0 = ys(0), y1 = ys(v);
+        const r = el("rect", { x, y: Math.min(y0, y1), width: Math.max(1, bw - 1), height: Math.max(1, Math.abs(y1 - y0)), rx: 1.5, fill: css(COL[j % COL.length]) }, g);
+        if (!reduce) { r.style.transformOrigin = `0 ${y0}px`; r.style.transform = "scaleY(0)"; r.style.transition = `transform .9s cubic-bezier(.16,1,.3,1) ${i * 30 + j * 10}ms`; }
+      }));
+      const hit = el("rect", { x: 0, y: 0, width: iw, height: ih, fill: "transparent" }, g);
+      const move = (ev) => {
+        const b = svg.getBoundingClientRect();
+        const i = Math.max(0, Math.min(n - 1, Math.floor(((ev.touches ? ev.touches[0].clientX : ev.clientX) - b.left - m.l) / slot)));
+        const rows = tests.map((t, j) => `<i style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(${COL[j % COL.length]});margin-right:6px"></i>${t.label}: <b>${minus(t.xcorr[i].toFixed(2))}</b>`).join("<br>");
+        showTip(host, m.l + (i + 0.5) * slot, m.t + 8, `<span style="opacity:.7">${lags[i] === 0 ? "Same week" : lags[i] > 0 ? `Intents leads by ${lags[i]} week${lags[i] === 1 ? "" : "s"}` : `Usage leads by ${-lags[i]} week${lags[i] === -1 ? "" : "s"}`} · noise band ±${band.toFixed(2)}</span><br>${rows}`);
+      };
+      hit.addEventListener("pointermove", move); hit.addEventListener("pointerdown", move); hit.addEventListener("pointerleave", hideTip);
+      host._play = () => play(svg);
+      if (host._played) play(svg, true);
+    };
+    const lg = host.previousElementSibling;
+    if (lg && lg.classList.contains("legend")) lg.innerHTML = tests.map((t, j) => `<span><i style="background:var(${COL[j % COL.length]})"></i>${t.label}</span>`).join("") + `<span><i style="background:var(--mute);opacity:.35"></i>noise band</span>`;
+    draw();
+    let w = host.clientWidth;
+    new ResizeObserver(() => { if (host.clientWidth !== w) { w = host.clientWidth; draw(); } }).observe(host);
+  }
+
+  // Router take rates: per router, all fees and the part kept as revenue, in basis points.
+  function takeBars(host, P) {
+    const rows = [...P.rows].sort((a, b) => b.fee_bps - a.fee_bps);
+    const max = Math.max(...rows.map((r) => r.fee_bps));
+    host.innerHTML = rows.map((r) => {
+      const me = r.slug === "near_intents";
+      return `<div class="vb${me ? " me" : ""}"><div class="row"><span>${r.name} <span style="color:var(--mute)">· ${r.model}</span></span><b class="num">${r.fee_bps.toFixed(1)} <span style="color:var(--mute);font-weight:500">/</span> ${r.revenue_bps.toFixed(1)} bps</b></div>` +
+        `<div class="track"><div class="fill" style="--f:${(r.fee_bps / max).toFixed(4)};background:var(--mute);opacity:.55"></div><div class="fill" style="--f:${(r.revenue_bps / max).toFixed(4)};background:${me ? "var(--acc)" : "var(--ink2)"};position:absolute;inset:0 auto 0 0;width:100%"></div></div></div>`;
+    }).join("");
+  }
+
   // Counters, reveals, nav progress and active section.
   const fmt = (v, e) => { const d = +e.dataset.dec || 0; return (e.dataset.pre || "") + v.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d }) + (e.dataset.suf || ""); };
   const count = (e) => { const to = parseFloat(e.dataset.count); if (reduce || !isFinite(to)) return; const t0 = performance.now(); const step = (t) => { const p = Math.min(1, (t - t0) / 1600), k = 1 - Math.pow(2, -10 * p); e.textContent = fmt(p < 1 ? to * k : to, e); if (p < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); };
@@ -179,7 +244,7 @@
   addEventListener("scroll", onScroll, { passive: true }); onScroll();
   document.querySelectorAll(".copy").forEach((b) => b.addEventListener("click", async () => { try { await navigator.clipboard.writeText(b.dataset.copy); b.textContent = "Copied"; } catch { b.textContent = "Select to copy"; } setTimeout(() => (b.textContent = "Copy"), 1600); }));
 
-  fetch("data.json").then((r) => r.json()).then((D) => {
+  loadJSON("data-json", "data.json").then((D) => {
     const w = D.weekly;
     series(document.getElementById("c-flow"), {
       x: w.date,
@@ -193,4 +258,66 @@
     valueBars(document.getElementById("c-value"), D.value_capture_365d);
     document.querySelectorAll(".plot,.vbars").forEach((p) => { if (p.closest(".r.in")) { p.classList.add("in"); p._played = true; if (p._play) p._play(); } });
   }).catch((e) => { document.querySelectorAll(".plot").forEach((p) => (p.textContent = "Chart data could not load. See THESIS.md.")); console.error(e); });
+  loadJSON("results-json", "results.json").then((R) => {
+    const lead = document.getElementById("c-lead"), take = document.getElementById("c-take");
+    if (lead && R.leadlag) leadBars(lead, R.leadlag);
+    if (take && R.peers) takeBars(take, R.peers);
+    [lead, take].forEach((p) => { if (p && p.closest(".r.in")) { p.classList.add("in"); p._played = true; if (p._play) p._play(); } });
+  }).catch((e) => console.error(e));
+})();
+
+/* Thesis tester: sliders drive templates/model.js, the browser twin of settlemark/valuation.py. */
+(function () {
+  const ui = document.getElementById("tester-ui");
+  if (!ui || !window.SettlemarkModel) return;
+  const M = window.SettlemarkModel;
+  const $ = (id) => document.getElementById(id);
+  const usd = (v) => (Math.abs(v) >= 1e9 ? `$${(v / 1e9).toFixed(2)}B` : Math.abs(v) >= 1e6 ? `$${(v / 1e6).toFixed(1)}M` : `$${Math.round(v).toLocaleString("en-US")}`);
+  const sgn = (v, d) => (v < 0 ? "\u2212" : "+") + Math.abs(v).toFixed(d);
+  const LO = 8, HI = Math.log10(2e10); // weekly volume slider: $100M to $20B on a log scale
+  const toVol = (s) => Math.pow(10, LO + (s / 1000) * (HI - LO));
+  const fromVol = (v) => Math.round(((Math.log10(v) - LO) / (HI - LO)) * 1000);
+  loadJSON("results-json", "results.json").then((R) => {
+    const V = R.valuation;
+    const base = M.defaults(V);
+    const set = (x) => { $("t-vol").value = fromVol(x.weekly_volume); $("t-take").value = x.take_bps; $("t-share").value = x.share_pct; $("t-g").value = x.growth_pct; $("t-r").value = x.discount_pct; };
+    let exact = true; // until a slider moves, use the unrounded measured inputs
+    const read = () => (exact ? base : { weekly_volume: toVol(+$("t-vol").value), take_bps: +$("t-take").value, share_pct: +$("t-share").value, growth_pct: +$("t-g").value, discount_pct: +$("t-r").value });
+    const draw = () => {
+      const x = read(), o = M.run(x, V);
+      $("o-vol").textContent = usd(x.weekly_volume);
+      $("o-take").textContent = `${x.take_bps.toFixed(2)} bps`;
+      $("o-share").textContent = `${Math.round(x.share_pct)}%`;
+      $("o-g").textContent = `${Math.round(x.growth_pct)}%`;
+      $("o-r").textContent = `${(+x.discount_pct).toFixed(1).replace(/\.0$/, "")}%`;
+      $("o-vpt").textContent = isFinite(o.value_per_token) ? `$${o.value_per_token.toFixed(2)}` : "n/a";
+      const scale = Math.max(V.near_price * 2, o.value_per_token || 0);
+      $("o-bar").style.width = `${Math.min(100, ((o.value_per_token || 0) / scale) * 100)}%`;
+      $("o-px").style.left = `${(V.near_price / scale) * 100}%`;
+      $("o-px").dataset.l = `price $${V.near_price.toFixed(2)}`;
+      $("o-rev").textContent = usd(o.revenue_usd);
+      $("o-bb").textContent = `${(o.buyback_near / 1e6).toFixed(2)}M NEAR`;
+      $("o-cov").textContent = `${o.coverage_pct.toFixed(1)}%`;
+      $("o-net").textContent = `${sgn(o.net_supply_pct, 2)}%`;
+      $("o-mr").textContent = `${o.mcap_to_revenue.toFixed(0)}x`;
+      $("o-be").textContent = usd(o.breakeven_weekly_volume);
+      const flips = [];
+      if (o.coverage_pct >= 100) flips.push("buybacks cover all new supply");
+      if (o.mcap_to_revenue < V.f5_line) flips.push(`market cap falls below ${V.f5_line}x revenue (F5)`);
+      if (o.value_per_token >= V.near_price) flips.push("buyback value exceeds the price");
+      const v = $("o-verdict");
+      v.textContent = flips.length ? `Part 2 flips to bullish here: ${flips.join(", ")}.` : "Part 2 of the thesis holds: holders capture too little to justify the price on buybacks alone.";
+      v.classList.toggle("ok", flips.length > 0);
+    };
+    set(base);
+    const check = M.run(base, V).value_per_token;
+    const c = $("o-check");
+    const same = Math.abs(check - V.value_per_token_base) < 0.005;
+    c.textContent = same ? `Defaults reproduce the Python base case: $${V.value_per_token_base.toFixed(2)} per NEAR.` : `Warning: browser $${check.toFixed(2)} differs from Python $${V.value_per_token_base.toFixed(2)}.`;
+    c.classList.toggle("ok", same);
+    ["t-vol", "t-take", "t-share", "t-g", "t-r"].forEach((id) => $(id).addEventListener("input", () => { exact = false; draw(); }));
+    $("t-reset").addEventListener("click", () => { exact = true; set(base); draw(); });
+    ui.dataset.ready = "1";
+    draw();
+  }).catch((e) => { $("o-check").textContent = "Tester data could not load. See THESIS.md."; console.error(e); });
 })();

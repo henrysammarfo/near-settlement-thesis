@@ -27,4 +27,30 @@ def fetch_all(cfg: Config, use_cache: bool = True, only: list[str] | None = None
         logger.info("%-17s %5d rows  %s", ds.name, len(rows), ds.provider)
         if ds.provider == "CoinGecko":
             time.sleep(cfg.http.pause_between_coingecko_calls_seconds)
+    if not only or "near_rpc" in only:
+        counts["near_rpc"] = fetch_chain(cfg, fetched_at, use_cache)
+    if not only or "peers" in only:
+        from .peers import fetch_peers
+
+        counts["peers"] = fetch_peers(cfg, fetched_at, use_cache)
+    # BigQuery is not refetched here: its results are committed (see settlemark/bigquery.py) and
+    # refreshed with `npm run bigquery`, so a rebuild never spends anyone's query allowance.
     return counts
+
+
+def fetch_chain(cfg: Config, fetched_at: str, use_cache: bool = True) -> int:
+    """One archival RPC block per week: total supply, buyback wallet balance, intents.near storage."""
+    from . import chain
+
+    c = cfg.chain
+    ccfg = chain.ChainConfig(
+        endpoints=tuple(c["endpoints"]),
+        buyback_account=c["buyback_account"],
+        intents_account=c["intents_account"],
+        first_week=c["first_week"],
+        timeout_seconds=cfg.http.timeout_seconds,
+    )
+    rpc = chain.Rpc(ccfg, cfg.paths.cache.parent / "rpc" if use_cache else None)
+    rows = chain.sample(rpc, ccfg, fetched_at)
+    chain.write(rows, cfg.paths.data / "near_rpc.csv")
+    return len(rows)

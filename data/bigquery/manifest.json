@@ -1,0 +1,18 @@
+{
+  "01": {
+    "csv": "receipt_actions_daily.csv",
+    "sql": "01_receipt_actions_daily.sql",
+    "sql_sha256": "09e17c78b47b0b3c38b4e40b904f6c6853987fcafae8b95858221bd7a4f7840d",
+    "scanned_gb": 174.0,
+    "run_at_utc": "2026-11-14T22:40:00Z",
+    "method": "console"
+  },
+  "05": {
+    "csv": "05_weekly_activity.csv",
+    "sql": "05_weekly_activity.sql",
+    "sql_sha256": "e5ae1f554a7ef10b8578bd3359a2dce4f35d34e97aeacb4507f6445fb1d073f8",
+    "scanned_gb": 65.1,
+    "run_at_utc": "2026-11-15T06:58:10Z",
+    "method": "console"
+  }
+}

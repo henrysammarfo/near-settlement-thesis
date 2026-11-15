@@ -23,7 +23,7 @@ class SchemaError(ValueError):
 @dataclass(frozen=True)
 class Column:
     name: str
-    kind: Literal["date", "number", "int"]
+    kind: Literal["date", "number", "int", "str"]
     min: float | None = None
 
 
@@ -59,6 +59,10 @@ def validate(schema: Schema, header: Sequence[str], rows: Sequence[dict[str, str
                 if v <= prev:
                     raise SchemaError(f"{where}: dates must be strictly increasing ({prev} then {v})")
                 prev = v
+                continue
+            if c.kind == "str":
+                if not v:
+                    raise SchemaError(f"{where}: {c.name} is empty")
                 continue
             try:
                 x = float(v)

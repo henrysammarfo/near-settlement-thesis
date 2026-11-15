@@ -41,6 +41,22 @@ class FalsifierConfig:
 
 
 @dataclass(frozen=True)
+class ValuationConfig:
+    discount_rate: float
+    discount_low: float
+    discount_high: float
+    terminal_growth: float
+    explicit_years: int
+    fade_years: int
+    bull_growth_cap: float
+
+
+@dataclass(frozen=True)
+class RobustnessConfig:
+    rolling_weeks: int
+
+
+@dataclass(frozen=True)
 class Paths:
     root: Path
     data: Path
@@ -61,7 +77,11 @@ class Config:
     http: HttpConfig
     analysis: AnalysisConfig
     falsifiers: FalsifierConfig
+    valuation: ValuationConfig
+    robustness: RobustnessConfig
+    chain: dict = field(default_factory=dict)
     sources: dict[str, str] = field(default_factory=dict)
+    raw: dict = field(default_factory=dict)  # every table in settlemark.toml, for the newer modules
 
 
 class ConfigError(ValueError):
@@ -96,7 +116,11 @@ def load_config(path: Path = DEFAULT_CONFIG, root: Path | None = None, output_ro
             http=HttpConfig(**raw["http"]),
             analysis=AnalysisConfig(**raw["analysis"]),
             falsifiers=FalsifierConfig(**raw["falsifiers"]),
+            valuation=ValuationConfig(**raw["valuation"]),
+            robustness=RobustnessConfig(**raw["robustness"]),
+            chain=dict(raw["chain"]),
             sources=dict(raw["sources"]),
+            raw=raw,
         )
     except (KeyError, TypeError) as e:
         raise ConfigError(f"invalid config {path}: {e}") from e
@@ -107,4 +131,9 @@ def load_config(path: Path = DEFAULT_CONFIG, root: Path | None = None, output_ro
         raise ConfigError("analysis.bootstrap_resamples must be at least 100")
     if a.compare_weeks < 2 or a.endpoint_weeks < 1 or a.lag_weeks < 1:
         raise ConfigError("analysis window sizes must be positive")
+    v = cfg.valuation
+    if not v.discount_low < v.discount_rate < v.discount_high:
+        raise ConfigError("valuation discount rates must satisfy low < base < high")
+    if v.terminal_growth >= v.discount_low:
+        raise ConfigError("valuation.terminal_growth must be below every discount rate")
     return cfg
