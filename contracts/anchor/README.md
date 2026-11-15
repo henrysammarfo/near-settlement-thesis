@@ -1,6 +1,6 @@
 # Anchor contract (NEAR testnet)
 
-A 400 byte contract with no SDK and no dependencies. `anchor` logs its JSON arguments
+A small contract with no SDK and no dependencies. A compiled wasm is not committed in this repo, so we do not claim a byte size here. `anchor` logs its JSON arguments
 (prefixed `settlemark anchor `) and stores the latest call under the key `latest`. Settlemark
 calls it once with the sha256 of each frozen prediction file, so the hashes sit in a public
 transaction with a block time. Verify with `python -m settlemark anchor verify`.
