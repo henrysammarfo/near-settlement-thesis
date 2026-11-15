@@ -11,11 +11,9 @@
 <meta property="og:title" content="Settlemark · NEAR settlement thesis">
 <meta property="og:description" content="Intents grows whatever NEAR's price does. Holders barely capture it.">
 <link rel="icon" href="brand/favicon.svg" type="image/svg+xml">
-<link rel="preload" href="brand/fonts/inter-tight.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="brand/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
 <style>
-@font-face{font-family:"Inter";src:url(brand/fonts/inter.woff2) format("woff2");font-weight:100 900;font-display:swap}
-@font-face{font-family:"Inter Tight";src:url(brand/fonts/inter-tight.woff2) format("woff2");font-weight:100 900;font-display:swap}
+@font-face{font-family:"Inter";src:url($font_inter) format("woff2");font-weight:100 900;font-display:swap}
+@font-face{font-family:"Inter Tight";src:url($font_tight) format("woff2");font-weight:100 900;font-display:swap}
 :root{
   --bg:#FFFFFF;--bg2:#F5F6F8;--card:#FFFFFF;--ink:#0A0A0B;--ink2:#3F434B;--mute:#80858F;--line:#E8E9EC;
   --acc:#3D5AFE;--good:#0E9F6E;--bad:#E5484D;--goodbg:rgba(14,159,110,.08);--badbg:rgba(229,72,77,.07);--accbg:rgba(61,90,254,.08);
@@ -124,7 +122,9 @@ a.lnk:hover{text-decoration-color:var(--acc)}
 .vbars{display:grid;gap:var(--s3);padding:var(--s1)}
 .vb .row{display:flex;justify-content:space-between;font-size:15px;margin-bottom:var(--s1);color:var(--ink2)}
 .vb .row b{font-family:var(--display);font-size:20px;color:var(--ink);letter-spacing:-.02em}
-.vb .track{height:16px;border-radius:8px;background:var(--bg2);overflow:hidden}
+.vb .track{position:relative;height:16px;border-radius:8px;background:var(--bg2);overflow:hidden}
+.vb.me .row span:first-child{color:var(--ink);font-weight:600}
+#c-take .row{gap:var(--s2);align-items:baseline}#c-take .row b{white-space:nowrap}
 .vb .fill{height:100%;border-radius:8px;transform-origin:0 50%;transform:scaleX(var(--f));transition:transform 1.2s var(--ease)}
 .js .vbars:not(.in) .fill{transform:scaleX(0)}
 
@@ -161,7 +161,9 @@ a.lnk:hover{text-decoration-color:var(--acc)}
 .steps b{color:var(--ink)}
 footer{padding:var(--s6) 0 calc(var(--s8) + env(safe-area-inset-bottom));border-top:1px solid var(--line);font-size:14px;color:var(--mute)}
 footer .in{display:flex;flex-wrap:wrap;gap:var(--s2);justify-content:space-between;align-items:center}
-footer a{color:var(--ink2)}
+footer a{color:var(--ink2);display:inline-block;padding:10px 0}
+@media (max-width:640px){table.peers th,table.peers td{padding-left:4px;padding-right:4px;font-size:14px}#c-take .row span span{display:none}#c-take .row b{font-size:16px;white-space:nowrap}}
+table.peers th small{display:block;font:500 13px var(--text);color:var(--mute);text-transform:none;letter-spacing:0}
 
 /* deep sections */
 .kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s2);margin-bottom:var(--s2)}
@@ -342,7 +344,7 @@ table.ll th{color:var(--mute);font-weight:600}
       <div class="kpi acc r" style="--d:180ms"><b class="num">$llaarev</b><span>p for the reverse: usage leading Intents. Neither way.</span></div>
     </div>
     <div class="grid2">
-      <div class="chart r"><h3>Cross correlations by lead</h3>$chart_10<div class="src">Grey band: what noise alone produces 95% of the time.</div></div>
+      <div class="chart r"><h3>Cross correlations by lead</h3><div class="legend"></div><div class="plot" id="c-lead" role="img" aria-label="Correlations between weekly Intents volume changes and later usage changes at leads of minus four to four weeks against a grey 95 percent noise band"></div><noscript>$chart_10</noscript><div class="src">Grey band (&plusmn;$llband): what noise alone produces 95% of the time. Positive lead bars crossing it: $llout of $llbars, where chance alone gives about $llexp. Same week bars are partly mechanical: Intents settles on NEAR. Tap or hover a lead for values. <a href="charts/10_lead_lag-light.svg" rel="noopener">Static chart</a></div></div>
       <div class="chart r" style="--d:80ms"><h3>What it means</h3><p class="lead" style="font-size:16px">$llverdict. Intents grew while the base chain shrank, and week to week they move independently. That fits part 1, Intents is its own flow, but it is not an early signal of NEAR usage. Two years of weeks gives low power: a modest lead could be missed. Granger tests prediction, not cause.</p></div>
     </div>
   </div>
@@ -360,10 +362,10 @@ table.ll th{color:var(--mute);font-weight:600}
       <div class="kpi bad r" style="--d:180ms"><b class="num">$peprem</b><span>richer than router tokens per revenue dollar: NEAR at $pemrev, token peers at a median $petok.</span></div>
     </div>
     <div class="grid2">
-      <div class="chart r"><h3>Take rates</h3>$chart_11<div class="src">Fees and revenue over volume, basis points</div></div>
+      <div class="chart r"><h3>Take rates</h3><div class="legend"><span><i style="background:var(--mute);opacity:.45"></i>All fees</span><span><i style="background:var(--ink2)"></i>Kept as revenue (Intents in blue)</span></div><div class="vbars" id="c-take" role="img" aria-label="Fees and revenue in basis points of volume for NEAR Intents and four other cross chain routers"></div><noscript>$chart_11</noscript><div class="src">Fees / revenue over volume, basis points, $pedays days. Source: <a href="https://defillama.com" rel="noopener">DefiLlama</a>. <a href="charts/11_router_take_rates-light.svg" rel="noopener">Static chart</a></div></div>
       <div class="chart r" style="--d:80ms"><h3>Side by side</h3>
 $peers_html
-      <p class="src">NEAR is a whole layer 1, so part of its premium is fair. THORChain fees include LP fees; aggregators can overlap with Intents volume.</p></div>
+      <p class="src">NEAR is a whole layer 1, so part of its premium is fair. Each row follows its DefiLlama methodology: Intents and THORChain fees both count frontend affiliate fees, THORChain also counts LP and outbound fees. Aggregators can overlap with Intents volume.</p></div>
     </div>
   </div>
 </section>
@@ -434,7 +436,7 @@ $falsifier_rows
 <section id="verdict">
   <div class="w">
     <div class="kick r">09 · Verdict</div>
-    <p class="verdict r">The use is real, and buybacks now catch most revenue. <span>They cover $cov13 of new supply, worth $vbase a token against $pxnow.</span> A long term buy only if volume compounds toward $bev a week.</p>
+    <p class="verdict r">The use is real, and buybacks now catch most revenue. <span>They cover $cov13 of new supply, worth $vbase a token against $pxnow.</span> The price only holds if volume compounds toward $bev a week.</p>
     <div class="method">
       <div class="term r"><button class="copy" type="button" data-copy="git clone $repo && cd near-settlement-thesis && npm run setup && npm run rebuild && npm test">Copy</button><span class="c"># no keys, no accounts, no cost</span>
 <span class="p">$$ </span>npm run setup

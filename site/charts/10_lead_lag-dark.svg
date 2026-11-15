@@ -414,7 +414,7 @@ L 378 245.092
 " style="fill: none; stroke: #1e2539; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
    </g>
    <g id="text_18">
-    <text style="font-weight: 700; font-size: 11.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #eef1f8" x="38.8" y="19.537305" transform="rotate(-0 38.8 19.537305)">No lead stands out from noise (grey band)</text>
+    <text style="font-weight: 700; font-size: 11.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #eef1f8" x="38.8" y="19.537305" transform="rotate(-0 38.8 19.537305)">Leads barely clear noise (grey band: 95% under no link)</text>
    </g>
    <g id="legend_1">
     <g id="patch_32">

@@ -29,3 +29,20 @@ def test_new_sections_and_charts_are_on_the_page():
     html = (ROOT / "site" / "index.html").read_text()
     for needle in ('id="lead"', 'id="routers"', "10_lead_lag-light.svg", "11_router_take_rates-light.svg", "testnet.nearblocks.io/txns/"):
         assert needle in html, needle
+
+
+def test_fonts_are_inlined_so_file_urls_do_not_hit_cors():
+    page = (ROOT / "site" / "index.html").read_text()
+    assert "brand/fonts/inter.woff2" not in page and page.count("data:font/woff2;base64,") == 2
+
+
+def test_noise_band_claims_match_the_data():
+    import json
+
+    L = json.loads((ROOT / "results" / "results.json").read_text())["leadlag"]
+    bars = [(k, r) for t in L["tests"] if "xcorr" in t for k, r in zip(t["xcorr_lags"], t["xcorr"]) if k > 0]
+    assert L["lead_bars"] == len(bars)
+    assert len(L["lead_bars_outside"]) == sum(abs(r) > L["band"] for _, r in bars)
+    page = (ROOT / "site" / "index.html").read_text()
+    assert "all inside the noise band" not in page
+    assert f"{len(L['lead_bars_outside'])} of {L['lead_bars']}" in page

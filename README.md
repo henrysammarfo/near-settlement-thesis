@@ -5,6 +5,7 @@
 **In plain words:** people now use NEAR Intents to move and swap money across many blockchains, and that use keeps growing whether the NEAR price goes up or down. But very little of that money reaches NEAR holders yet. This project tests both statements against public data, gives the evidence against as much room as the evidence for, and lets anyone rebuild every number and chart with one command.
 
 * Live page: https://near-settlement-thesis.vercel.app/ (interactive charts drawn from `site/data.json`, which the rebuild writes; the first version stays at /v1)
+* Post deadline branch `post-deadline-upgrades`, public preview: https://settlemark-next.vercel.app/ (lead and lag test, router comparison, BigQuery as a main source, anchored predictions). The live page above is the version submitted before the deadline.
 * The thesis, every number linked to its source: [THESIS.md](THESIS.md)
 * Built for NEAR HACKATHON 2026, track `thesis`. Not financial advice.
 
@@ -38,8 +39,8 @@ Needs Python 3.11 or newer. No API keys. No accounts. No cost.
 
 1. `git clone https://github.com/henrysammarfo/near-settlement-thesis && cd near-settlement-thesis`
 2. `npm run setup` (or `make setup`). You see the Python packages install into `.venv`.
-3. `npm run rebuild` (or `sh rebuild.sh`, or `make rebuild`). You see one log line per dataset, for example `intents_volume 704 rows DefiLlama`, then `near_rpc 101 rows NEAR archival RPC`, one line per router series in `data/peers/`, `results.json`, `charts: 44 files` and `rendered THESIS.md`. BigQuery is read from the committed results in `data/bigquery/`, so no Google account is needed. The first run takes about 3 minutes because it reads one archival block a week (about 780 RPC calls); later runs reuse the immutable block cache and take seconds.
-4. `npm test` (or `make test`). You see `82 passed` and no warnings (any deprecation warning fails the run), with no network needed (the JavaScript model test needs Node).
+3. `npm run rebuild` (or `sh rebuild.sh`, or `make rebuild`). You see one log line per dataset, for example `intents_volume 705 rows DefiLlama` (one more row each day), then `near_rpc 101 rows NEAR archival RPC`, one line per router series in `data/peers/`, `results.json`, `charts: 44 files` and `rendered THESIS.md`. BigQuery is read from the committed results in `data/bigquery/`, so no Google account is needed. The first run takes about 3 minutes because it reads one archival block a week (about 780 RPC calls); later runs reuse the immutable block cache and take seconds.
+4. `npm test` (or `make test`). You see `84 passed` and no warnings (any deprecation warning fails the run), with no network needed (the JavaScript model test needs Node).
 5. `make lint`. You see ruff report no problems.
 5b. `npm run check` (or `python -m settlemark check`). It rebuilds every output into a temp folder from the committed CSVs and fails on any byte of difference, then audits THESIS.md so every number is either computed or a constant written in the template.
 6. Open `site/index.html` straight from disk (double click, or `file://`). You see the same page as the live site with every chart drawn: the chart data is inlined in the HTML. If you prefer a server, `npm run serve` serves `site/` at http://localhost:8000.
@@ -77,7 +78,7 @@ templates/             THESIS.md and page templates (no numbers in them, only pl
 brand/                 the Settlemark mark and wordmark, hand written SVG
 tests/                 unit tests for the statistics, schema, parsers and HTTP layer, plus integration tests
 queries/, docs/        BigQuery SQL and how to refresh it
-contracts/anchor/      the 400 byte NEAR testnet contract that logs the prediction hashes
+contracts/anchor/      the 399 byte NEAR testnet contract that logs the prediction hashes
 ```
 
 Design choices that matter for a thesis:

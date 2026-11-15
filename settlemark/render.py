@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 import csv
 import html
 import json
@@ -23,7 +24,7 @@ CHART_ALT = {
     "07_supply_vs_buybacks": "Two area lines since buybacks began: NEAR added to total supply rising far faster than NEAR held by the buyback wallet",
     "08_rolling_correlation": "Line chart of the 26 week rolling correlation between Intents volume and NEAR price, staying below the 0.5 line",
     "09_value_per_token": "Bar chart of value per NEAR from buybacks in bear, base and bull cases against the current price line",
-    "10_lead_lag": "Bar chart of correlations between Intents volume changes and later usage changes at leads of minus four to four weeks, all inside the noise band",
+    "10_lead_lag": "Bar chart of correlations between Intents volume changes and later usage changes at leads of minus four to four weeks against a grey 95 percent noise band",
     "11_router_take_rates": "Horizontal bars of fees and revenue in basis points of volume for NEAR Intents and four other cross chain routers",
 }
 SVG_SIZE = re.compile(r'<svg[^>]*?width="([\d.]+)pt"[^>]*?height="([\d.]+)pt"', re.S)
@@ -197,6 +198,16 @@ def extra_numbers(R: dict) -> dict[str, str]:
                 "llstp": _p(st["headline_p"]) if st else "n/a",
                 "llstps": _p(st["headline_p_shift"]) if st else "n/a",
                 "llmin": _p(L["min_headline_p"]),
+                "llband": f"{L['band']:.2f}",
+                "llbars": str(L["lead_bars"]),
+                "llout": str(len(L["lead_bars_outside"])),
+                "llexp": f"{0.05 * L['lead_bars']:.1f}",
+                "lloutwhat": "; ".join(
+                    f"{T[o['series']]['label']} at {o['lead']} week{'s' if o['lead'] != 1 else ''}, {signed_md(o['corr'])}"
+                    for o in L["lead_bars_outside"]
+                )
+                or "none",
+                "llsame": ", ".join(f"{T[o['series']]['label']} {signed_md(o['corr'])}" for o in L["same_week_outside"]) or "none",
                 "llverdict": (
                     "Intents volume leads " + ", ".join(T[k]["label"] for k in L["series_where_intents_leads"])
                     if L["series_where_intents_leads"]
@@ -274,8 +285,8 @@ def peers_html(R: dict) -> str:
     if not P:
         return ""
     rows = [
-        '<div class="tscroll"><table class="sens num peers"><thead><tr><th>Router</th><th>Volume</th><th>Fees, bps</th><th>Revenue, bps</th>'
-        "<th>Cap to revenue</th></tr></thead><tbody>"
+        '<div class="tscroll"><table class="sens num peers"><thead><tr><th>Router</th><th>Volume</th><th>Fees<small>bps</small></th><th>Kept<small>bps</small></th>'
+        "<th>Cap<small>to revenue</small></th></tr></thead><tbody>"
     ]
     for r in P["rows"]:
         me = ' class="me"' if r["slug"] == "near_intents" else ""
@@ -612,6 +623,14 @@ def render_site(cfg: Config, R: dict) -> str:
     ctx.update({k: html.escape(v.replace("-", "\u2212") if k in ("llaar",) else v) for k, v in extra_numbers(R).items()})
     ctx.update(peers_html=peers_html(R), bq_html=bigquery_html(R))
     ctx.update(inline_data=_inline(cfg.paths.site / "data.json"), inline_results=_inline(cfg.paths.site / "results.json"))
+    # Fonts inlined as data URIs: Chrome blocks font files on file:// as cross origin, and README step 6 opens the page from disk.
+    fonts = cfg.paths.root / "brand" / "fonts"
+    ctx.update(
+        {
+            k: "data:font/woff2;base64," + base64.b64encode((fonts / f).read_bytes()).decode()
+            for k, f in (("font_inter", "inter.woff2"), ("font_tight", "inter-tight.woff2"))
+        }
+    )
     if "valuation" in R:
         lead, prow = predictions_html(cfg, R)
         ctx.update(sens_html=sensitivity_html(R), pred_lead=lead, pred_rows=prow)

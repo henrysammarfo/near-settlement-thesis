@@ -85,7 +85,15 @@ def leadlag(cfg: Config, frames: Frames, chain_weekly: pd.DataFrame | None = Non
         )
     done = [t for t in tests if "skipped" not in t]
     n_tests = sum(len(t["intents_leads"]) + len(t["usage_leads"]) for t in done)
+    # The 95% band for one correlation under no link. Some bars cross it by chance: count them honestly.
+    band = 1.96 / min(t["weeks"] for t in done) ** 0.5 if done else None
+    lead_bars = [(t["series"], k, r) for t in done for k, r in zip(t["xcorr_lags"], t["xcorr"]) if k > 0]
+    same_week = [(t["series"], r) for t in done for k, r in zip(t["xcorr_lags"], t["xcorr"]) if k == 0]
     return {
+        "band": band,
+        "lead_bars": len(lead_bars),
+        "lead_bars_outside": [{"series": s_, "lead": k, "corr": r} for s_, k, r in lead_bars if band and abs(r) > band],
+        "same_week_outside": [{"series": s_, "corr": r} for s_, r in same_week if band and abs(r) > band],
         "alpha": alpha,
         "headline_lags": main,
         "max_lag": K,

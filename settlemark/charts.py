@@ -251,7 +251,7 @@ def draw_extra(R: dict, t: Theme, outputs: dict[str, list[Path]]) -> None:
     ax.set_xlabel("weeks Intents volume leads usage (negative: usage leads)")
     ax.grid(False, axis="x")
     ax.legend(loc="lower left", bbox_to_anchor=(0, 1.0), ncol=1, borderaxespad=0.3, handlelength=1.2, fontsize=8)
-    ax.set_title("No lead stands out from noise (grey band)", pad=10 + 13 * len(done), fontsize=11.5)
+    ax.set_title("Leads barely clear noise (grey band: 95% under no link)", pad=10 + 13 * len(done), fontsize=11.5)
     _finish(fig, t, "DefiLlama, NearBlocks, NEAR archival RPC", fetched, outputs["10_lead_lag"])
 
     fig, ax = plt.subplots(figsize=(5.4, 4.1))

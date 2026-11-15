@@ -365,6 +365,25 @@
     "volume_change_last_13w_pct": 84.5598040809
   },
   "leadlag": {
+    "band": 0.197989898732,
+    "lead_bars": 12,
+    "lead_bars_outside": [
+      {
+        "series": "storage",
+        "lead": 1,
+        "corr": 0.210563628184
+      }
+    ],
+    "same_week_outside": [
+      {
+        "series": "tx",
+        "corr": 0.268786837378
+      },
+      {
+        "series": "storage",
+        "corr": 0.245353762051
+      }
+    ],
     "alpha": 0.05,
     "headline_lags": 2,
     "max_lag": 4,

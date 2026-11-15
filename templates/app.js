@@ -170,6 +170,63 @@ function loadJSON(id, url) {
     host.innerHTML = entries.map(([k, v]) => `<div class="vb"><div class="row"><span>${k} <span style="color:var(--mute)">· ${note[k] || ""}</span></span><b class="num">${money(v)}</b></div><div class="track"><div class="fill" style="--f:${(v / max).toFixed(4)};background:${colors[k] || "var(--acc)"}"></div></div></div>`).join("");
   }
 
+  // Lead/lag: grouped bars of cross correlations per lead, with the noise band behind them.
+  function leadBars(host, L) {
+    const tests = L.tests.filter((t) => t.xcorr && t.xcorr.length);
+    const COL = ["--acc", "--good", "--bad", "--ink2"];
+    const draw = () => {
+      host.innerHTML = "";
+      const W = host.clientWidth, small = W < 560, H = small ? 260 : 320;
+      const m = { t: 16, r: 8, b: 40, l: small ? 40 : 48 };
+      const iw = W - m.l - m.r, ih = H - m.t - m.b;
+      const lags = tests[0].xcorr_lags, n = lags.length, k = tests.length;
+      const band = L.band || 1.96 / Math.sqrt(Math.min(...tests.map((t) => t.weeks)));
+      const top = Math.max(0.3, Math.ceil(Math.max(band, ...tests.flatMap((t) => t.xcorr.map(Math.abs))) * 10) / 10);
+      const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, height: H }, host);
+      const g = el("g", { transform: `translate(${m.l},${m.t})` }, svg);
+      const ys = (v) => ih / 2 - (v / top) * (ih / 2);
+      const slot = iw / n, bw = Math.max(2, (slot * 0.72) / k);
+      el("rect", { x: 0, y: ys(band), width: iw, height: ys(-band) - ys(band), fill: css("--mute"), opacity: 0.14 }, g);
+      for (let v = -top; v <= top + 1e-9; v += top / 2) {
+        el("line", { class: "grid", x1: 0, x2: iw, y1: ys(v), y2: ys(v) }, g);
+        el("text", { x: -8, y: ys(v) + 4, "text-anchor": "end" }, g).textContent = minus(v.toFixed(2).replace(/0$/, ""));
+      }
+      lags.forEach((lag, i) => { el("text", { x: (i + 0.5) * slot, y: ih + 20, "text-anchor": "middle" }, g).textContent = minus(String(lag)); });
+      el("text", { x: iw / 2, y: ih + 36, "text-anchor": "middle" }, g).textContent = small ? "weeks Intents leads (negative: usage leads)" : "weeks Intents volume leads usage (negative: usage leads)";
+      tests.forEach((t, j) => t.xcorr.forEach((v, i) => {
+        const x = i * slot + slot * 0.14 + j * bw, y0 = ys(0), y1 = ys(v);
+        const r = el("rect", { x, y: Math.min(y0, y1), width: Math.max(1, bw - 1), height: Math.max(1, Math.abs(y1 - y0)), rx: 1.5, fill: css(COL[j % COL.length]) }, g);
+        if (!reduce) { r.style.transformOrigin = `0 ${y0}px`; r.style.transform = "scaleY(0)"; r.style.transition = `transform .9s cubic-bezier(.16,1,.3,1) ${i * 30 + j * 10}ms`; }
+      }));
+      const hit = el("rect", { x: 0, y: 0, width: iw, height: ih, fill: "transparent" }, g);
+      const move = (ev) => {
+        const b = svg.getBoundingClientRect();
+        const i = Math.max(0, Math.min(n - 1, Math.floor(((ev.touches ? ev.touches[0].clientX : ev.clientX) - b.left - m.l) / slot)));
+        const rows = tests.map((t, j) => `<i style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(${COL[j % COL.length]});margin-right:6px"></i>${t.label}: <b>${minus(t.xcorr[i].toFixed(2))}</b>`).join("<br>");
+        showTip(host, m.l + (i + 0.5) * slot, m.t + 8, `<span style="opacity:.7">${lags[i] === 0 ? "Same week" : lags[i] > 0 ? `Intents leads by ${lags[i]} week${lags[i] === 1 ? "" : "s"}` : `Usage leads by ${-lags[i]} week${lags[i] === -1 ? "" : "s"}`} · noise band ±${band.toFixed(2)}</span><br>${rows}`);
+      };
+      hit.addEventListener("pointermove", move); hit.addEventListener("pointerdown", move); hit.addEventListener("pointerleave", hideTip);
+      host._play = () => play(svg);
+      if (host._played) play(svg, true);
+    };
+    const lg = host.previousElementSibling;
+    if (lg && lg.classList.contains("legend")) lg.innerHTML = tests.map((t, j) => `<span><i style="background:var(${COL[j % COL.length]})"></i>${t.label}</span>`).join("") + `<span><i style="background:var(--mute);opacity:.35"></i>noise band</span>`;
+    draw();
+    let w = host.clientWidth;
+    new ResizeObserver(() => { if (host.clientWidth !== w) { w = host.clientWidth; draw(); } }).observe(host);
+  }
+
+  // Router take rates: per router, all fees and the part kept as revenue, in basis points.
+  function takeBars(host, P) {
+    const rows = [...P.rows].sort((a, b) => b.fee_bps - a.fee_bps);
+    const max = Math.max(...rows.map((r) => r.fee_bps));
+    host.innerHTML = rows.map((r) => {
+      const me = r.slug === "near_intents";
+      return `<div class="vb${me ? " me" : ""}"><div class="row"><span>${r.name} <span style="color:var(--mute)">· ${r.model}</span></span><b class="num">${r.fee_bps.toFixed(1)} <span style="color:var(--mute);font-weight:500">/</span> ${r.revenue_bps.toFixed(1)} bps</b></div>` +
+        `<div class="track"><div class="fill" style="--f:${(r.fee_bps / max).toFixed(4)};background:var(--mute);opacity:.55"></div><div class="fill" style="--f:${(r.revenue_bps / max).toFixed(4)};background:${me ? "var(--acc)" : "var(--ink2)"};position:absolute;inset:0 auto 0 0;width:100%"></div></div></div>`;
+    }).join("");
+  }
+
   // Counters, reveals, nav progress and active section.
   const fmt = (v, e) => { const d = +e.dataset.dec || 0; return (e.dataset.pre || "") + v.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d }) + (e.dataset.suf || ""); };
   const count = (e) => { const to = parseFloat(e.dataset.count); if (reduce || !isFinite(to)) return; const t0 = performance.now(); const step = (t) => { const p = Math.min(1, (t - t0) / 1600), k = 1 - Math.pow(2, -10 * p); e.textContent = fmt(p < 1 ? to * k : to, e); if (p < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); };
@@ -201,6 +258,12 @@ function loadJSON(id, url) {
     valueBars(document.getElementById("c-value"), D.value_capture_365d);
     document.querySelectorAll(".plot,.vbars").forEach((p) => { if (p.closest(".r.in")) { p.classList.add("in"); p._played = true; if (p._play) p._play(); } });
   }).catch((e) => { document.querySelectorAll(".plot").forEach((p) => (p.textContent = "Chart data could not load. See THESIS.md.")); console.error(e); });
+  loadJSON("results-json", "results.json").then((R) => {
+    const lead = document.getElementById("c-lead"), take = document.getElementById("c-take");
+    if (lead && R.leadlag) leadBars(lead, R.leadlag);
+    if (take && R.peers) takeBars(take, R.peers);
+    [lead, take].forEach((p) => { if (p && p.closest(".r.in")) { p.classList.add("in"); p._played = true; if (p._play) p._play(); } });
+  }).catch((e) => console.error(e));
 })();
 
 /* Thesis tester: sliders drive templates/model.js, the browser twin of settlemark/valuation.py. */
