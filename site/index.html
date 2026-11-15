@@ -164,6 +164,48 @@ footer{padding:var(--s6) 0 calc(var(--s8) + env(safe-area-inset-bottom));border-
 footer .in{display:flex;flex-wrap:wrap;gap:var(--s2);justify-content:space-between;align-items:center}
 footer a{color:var(--ink2)}
 
+/* deep sections */
+.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s2);margin-bottom:var(--s2)}
+.kpi code,.prow code,.lead code{overflow-wrap:anywhere}
+@media (max-width:560px){.kpis{grid-template-columns:minmax(0,1fr)}}
+@media (min-width:900px){.kpis{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:var(--s3)}
+.kpi b{display:block;font:700 clamp(28px,3.4vw,40px)/1 var(--display);letter-spacing:-.04em;margin-bottom:var(--s1)}
+.kpi span{font-size:15px;line-height:1.4;color:var(--ink2)}
+.kpi.bad b{color:var(--bad)}.kpi.good b{color:var(--good)}.kpi.acc b{color:var(--acc)}
+.zoom{display:block}.zoom img{display:block;width:100%;height:auto}
+.tester{display:grid;grid-template-columns:1fr;gap:var(--s2)}
+@media (min-width:900px){.tester{grid-template-columns:5fr 6fr}}
+.sliders{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:var(--s3);display:grid;gap:var(--s3)}
+.sl label{display:flex;justify-content:space-between;gap:var(--s2);font-size:15px;color:var(--ink2);margin-bottom:var(--s1)}
+.sl label b{font:650 17px var(--display);color:var(--ink)}
+.sl input{width:100%;accent-color:var(--acc);height:28px}
+.sl small{display:block;font-size:13px;color:var(--mute)}
+.outs{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:var(--s3);display:grid;gap:var(--s2);align-content:start}
+.vpt{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--s2)}
+.vpt b{font:700 clamp(56px,8vw,96px)/.9 var(--display);letter-spacing:-.05em;color:var(--acc)}
+.vpt span{font-size:16px;color:var(--ink2)}
+.vbar{height:14px;border-radius:7px;background:var(--bg2);position:relative;overflow:visible;margin:var(--s1) 0 var(--s2)}
+.vbar i{position:absolute;left:0;top:0;bottom:0;border-radius:7px;background:var(--acc);transition:width .4s var(--ease)}
+.vbar em{position:absolute;top:-6px;bottom:-6px;width:2px;background:var(--ink);font-style:normal}
+.vbar em::after{content:attr(data-l);position:absolute;top:-22px;left:50%;transform:translateX(-50%);font:600 12px var(--text);color:var(--ink2);white-space:nowrap}
+.olist{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2) var(--s3);margin:0}
+.olist div{border-top:1px solid var(--line);padding-top:var(--s1)}
+.olist dt{font-size:13px;color:var(--mute)}.olist dd{margin:0;font:650 22px/1.2 var(--display);letter-spacing:-.02em}
+.tline{font-size:14px;color:var(--mute);margin:0}
+.tline.ok{color:var(--good)}
+.btn{font:600 14px var(--text);border:1px solid var(--line);background:var(--bg2);color:var(--ink);border-radius:999px;padding:var(--s1) var(--s2);cursor:pointer;justify-self:start}
+table.sens{width:100%;border-collapse:collapse;font-size:15px;margin-top:var(--s2)}
+table.sens th,table.sens td{text-align:right;padding:var(--s1) 12px;border-bottom:1px solid var(--line)}
+table.sens th:first-child,table.sens td:first-child{text-align:left}
+table.sens th{color:var(--mute);font-weight:600}
+.prow{display:grid;grid-template-columns:40px minmax(0,1fr) auto;grid-template-areas:"id name chip" "id meta meta";gap:4px var(--s2);padding:var(--s3) 0;border-bottom:1px solid var(--line);align-items:center}
+@media (min-width:700px){.prow{grid-template-columns:48px minmax(0,1fr) 190px auto;grid-template-areas:"id name meta chip"}}
+.prow .fid{grid-area:id}.prow .fname{grid-area:name}.prow .chip{grid-area:chip}
+.prow .pm{grid-area:meta;font:600 15px var(--display);color:var(--ink2)}
+@media (min-width:700px){.prow .pm{text-align:right}}
+.chip.wait{background:var(--accbg);color:var(--acc)}
+
 /* motion */
 .js .r{opacity:0;transform:translate3d(0,24px,0)}
 .js .r.in{opacity:1;transform:none;transition:opacity .8s var(--ease),transform 1s var(--spring);transition-delay:var(--d,0ms)}
@@ -177,7 +219,7 @@ footer a{color:var(--ink2)}
 <nav class="nav" aria-label="Main">
   <div class="w in">
     <a class="logo" href="#top"><img src="brand/mark.svg" alt="" width="28" height="28">Settlemark</a>
-    <ul><li><a href="#flow">Flow</a></li><li><a href="#case">The case</a></li><li><a href="#tests">Tests</a></li><li><a href="#verdict">Verdict</a></li><li class="k"><a href="https://github.com/henrysammarfo/near-settlement-thesis" rel="noopener">GitHub</a></li></ul>
+    <ul><li><a href="#flow">Flow</a></li><li><a href="#case">The case</a></li><li><a href="#chain">Chain</a></li><li><a href="#tester">Tester</a></li><li><a href="#predictions">Predictions</a></li><li><a href="#tests">Tests</a></li><li><a href="#verdict">Verdict</a></li><li class="k"><a href="https://github.com/henrysammarfo/near-settlement-thesis" rel="noopener">GitHub</a></li></ul>
   </div>
   <div class="prog" id="prog"></div>
 </nav>
@@ -255,10 +297,91 @@ footer a{color:var(--ink2)}
   </div>
 </section>
 
-<section id="tests" style="background:var(--bg2)">
+<section id="chain" style="background:var(--bg2)">
+  <div class="w">
+    <div class="kick r">03 · Raw chain</div>
+    <h2 class="r">Read from NEAR itself, not an aggregator.</h2>
+    <p class="lead r">One archival RPC block a week, 101 blocks from height 134,545,755 to 223,688,383. Every row keeps its block hash so anyone can check it (<a class="lnk" href="data/near_rpc.csv">CSV</a>).</p>
+    <div class="kpis">
+      <div class="kpi good r"><b class="num">94%</b><span>of Intents revenue already becomes NEAR in <code>buybacks.multisignature.near</code>, last 13 weeks.</span></div>
+      <div class="kpi bad r" style="--d:60ms"><b class="num">18.7%</b><span>of new NEAR supply covered by those buybacks. Net supply still grows.</span></div>
+      <div class="kpi r" style="--d:120ms"><b class="num">2.47%</b><span>supply growth in 52 weeks: <a class="lnk" href="data/near_rpc.csv" rel="noopener">31.64M NEAR</a>.</span></div>
+      <div class="kpi acc r" style="--d:180ms"><b class="num">4.0x</b><span><code>intents.near</code> state in a year, 3.39 GB to <a class="lnk" href="data/near_rpc.csv" rel="noopener">13.49 GB</a>. Its weekly growth correlates −0.06 with price.</span></div>
+    </div>
+    <div class="grid2">
+      <div class="chart r"><h3>New supply against buybacks</h3><a class="zoom" href="charts/07_supply_vs_buybacks-light.svg" target="_blank" rel="noopener" aria-label="Open chart full size"><picture><source srcset="charts/07_supply_vs_buybacks-dark.svg" media="(prefers-color-scheme: dark)"><img src="charts/07_supply_vs_buybacks-light.svg" alt="Two area lines since buybacks began: NEAR added to total supply rising far faster than NEAR held by the buyback wallet" width="778" height="590" loading="lazy" decoding="async"></picture></a><div class="src">Source: NEAR archival RPC, cumulative since the week before buybacks began (2026-03-22)</div></div>
+      <div class="chart r" style="--d:80ms"><h3>Does usage follow price?</h3><a class="zoom" href="charts/08_rolling_correlation-light.svg" target="_blank" rel="noopener" aria-label="Open chart full size"><picture><source srcset="charts/08_rolling_correlation-dark.svg" media="(prefers-color-scheme: dark)"><img src="charts/08_rolling_correlation-light.svg" alt="Line chart of the 26 week rolling correlation between Intents volume and NEAR price, staying below the 0.5 line" width="778" height="590" loading="lazy" decoding="async"></picture></a><div class="src">73 rolling windows, 0 above 0.5. Latest 13 weeks alone: +0.54.</div></div>
+    </div>
+    <details class="r" style="margin-top:var(--s3)"><summary>Robustness and cross checks</summary><ul>
+      <li>Correlation in the first half −0.14, second half +0.21. Without the first 13 weeks −0.04 (90% interval −0.21 to +0.10). Spearman −0.06.</li>
+      <li>The rally: over the latest 13 weeks price moved 132% and volume 85%. That quarter correlates +0.54, above 0.5. Prediction P3 tests whether it lasts.</li>
+      <li>RPC supply times price gives $4.48B; NearBlocks market cap is 100.0% of it.</li>
+      <li>BigQuery receipts per NearBlocks transaction: 4.6 to 5.2 over 6 days.</li>
+      <li>The buyback wallet balance fell in 0 sampled weeks, so weekly gains are buybacks, not round trips.</li>
+    </ul></details>
+  </div>
+</section>
+
+<section id="tester">
+  <div class="w">
+    <div class="kick r">04 · Thesis tester</div>
+    <h2 class="r">Move the assumptions. Watch the token value.</h2>
+    <p class="lead r">The same formulas as <code>settlemark/valuation.py</code>, starting from the last 13 weeks. Only buybacks count as holder cash. The defaults reproduce the Python base case.</p>
+    <div class="tester r" id="tester-ui" data-ready="0">
+      <div class="sliders">
+        <div class="sl"><label for="t-vol">Weekly Intents volume <b id="o-vol" class="num">$923.8M</b></label><input id="t-vol" type="range" min="0" max="1000" step="1"><small>Last 13 weeks: $923.8M. Break even with issuance: $5.32B.</small></div>
+        <div class="sl"><label for="t-take">Revenue take rate <b id="o-take" class="num">4.17 bps</b></label><input id="t-take" type="range" min="0.5" max="15" step="0.05"><small>Last 13 weeks: 4.17 basis points.</small></div>
+        <div class="sl"><label for="t-share">Share of revenue bought back <b id="o-share" class="num">94%</b></label><input id="t-share" type="range" min="0" max="100" step="1"><small>Measured on chain: 94%.</small></div>
+        <div class="sl"><label for="t-g">Holder cash growth, first 5 years <b id="o-g" class="num">50%</b></label><input id="t-g" type="range" min="-20" max="150" step="1"><small>Bear 0%, base 50%, bull 100%. The price implies 76%.</small></div>
+        <div class="sl"><label for="t-r">Discount rate <b id="o-r" class="num">15%</b></label><input id="t-r" type="range" min="8" max="30" step="0.5"><small>Terminal growth 3% after a 5 year fade.</small></div>
+        <button class="btn" type="button" id="t-reset">Reset to measured values</button>
+      </div>
+      <div class="outs" aria-live="polite">
+        <div class="vpt"><b class="num" id="o-vpt">$1.14</b><span>value per NEAR from buybacks, against a price of $3.42</span></div>
+        <div class="vbar" aria-hidden="true"><i id="o-bar" style="width:0"></i><em id="o-px" data-l="price"></em></div>
+        <dl class="olist">
+          <div><dt>Revenue a year</dt><dd class="num" id="o-rev">&ndash;</dd></div>
+          <div><dt>Bought back a year</dt><dd class="num" id="o-bb">&ndash;</dd></div>
+          <div><dt>Share of a year&rsquo;s new supply covered</dt><dd class="num" id="o-cov">18.7%</dd></div>
+          <div><dt>Net supply change a year</dt><dd class="num" id="o-net">&ndash;</dd></div>
+          <div><dt>Market cap to revenue</dt><dd class="num" id="o-mr">&ndash;</dd></div>
+          <div><dt>Break even weekly volume</dt><dd class="num" id="o-be">$5.32B</dd></div>
+        </dl>
+        <p class="tline" id="o-verdict">Part 2 of the thesis holds at the measured values.</p>
+        <p class="tline" id="o-check">Python base case: $1.14 per NEAR.</p>
+      </div>
+    </div>
+    <div class="grid2" style="margin-top:var(--s2)">
+      <div class="chart r"><h3>Bear, base and bull</h3><a class="zoom" href="charts/09_value_per_token-light.svg" target="_blank" rel="noopener" aria-label="Open chart full size"><picture><source srcset="charts/09_value_per_token-dark.svg" media="(prefers-color-scheme: dark)"><img src="charts/09_value_per_token-light.svg" alt="Bar chart of value per NEAR from buybacks in bear, base and bull cases against the current price line" width="778" height="590" loading="lazy" decoding="async"></picture></a><div class="src">Settlemark DCF of buybacks measured on chain</div></div>
+      <div class="chart r" style="--d:80ms"><h3>Sensitivity, value per NEAR</h3>
+<table class="sens num"><thead><tr><th>Discount rate</th><th>Bear</th><th>Base</th><th>Bull</th></tr></thead><tbody><tr><td>10%</td><td>$0.18</td><td>$2.33</td><td>$18.06</td></tr><tr><td>15%</td><td>$0.11</td><td>$1.14</td><td>$8.29</td></tr><tr><td>20%</td><td>$0.08</td><td>$0.69</td><td>$4.68</td></tr></tbody></table>
+      <p class="src">Market value is 239x yearly holder cash. To justify it, holder cash must grow about 76% a year for 5 years.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="predictions" style="background:var(--bg2)">
+  <div class="w">
+    <div class="kick r">05 · Predictions written in advance</div>
+    <h2 class="r">Eight calls, frozen before the data exists.</h2>
+    <p class="lead r">Frozen 2026-11-15T00:24:38Z, before any of these weeks happened. The git commit is the timestamp; sha256 <code>2c2ec155b5202d02</code>. Each has our probability, so a Brier score grades us. Resolved 0 of 8. <a class="lnk" href="PREDICTIONS.md">Full text</a>.</p>
+    <div class="flist r">
+<div class="prow"><span class="fid">P1</span><span class="fname"><b>Usage holds whatever the price does</b><small>mean weekly NEAR Intents volume, weeks ending 2026-11-22 to 2026-12-13. Pass if &gt;= $429,842,985 (at least 50% of the mean of the last 4 weeks at freeze).</small></span><span class="pm">by 2026-12-13 · p = 0.85</span><span class="chip wait">Pending</span></div>
+<div class="prow"><span class="fid">P2</span><span class="fname"><b>Intents keeps its share of onchain trading</b><small>mean weekly Intents share of all DEX volume, weeks ending 2026-11-22 to 2027-01-10. Pass if &gt;= 1.0331% (at least the mean of the 13 weeks before the latest 13 at freeze).</small></span><span class="pm">by 2027-01-10 · p = 0.70</span><span class="chip wait">Pending</span></div>
+<div class="prow"><span class="fid">P3</span><span class="fname"><b>Usage does not simply follow price</b><small>correlation of weekly log changes, Intents volume against NEAR price, 8 weeks ending 2027-01-10. Pass if &lt;= 0.5 (at most 0.5, the line THESIS.md already uses).</small></span><span class="pm">by 2027-01-10 · p = 0.60</span><span class="chip wait">Pending</span></div>
+<div class="prow"><span class="fid">P4</span><span class="fname"><b>Holders still capture little</b><small>NEAR market cap on 2027-01-10 over Intents revenue in the 364 days to that date. Pass if &gt;= 50x (at least 50x, the F5 line).</small></span><span class="pm">by 2027-01-10 · p = 0.90</span><span class="chip wait">Pending</span></div>
+<div class="prow"><span class="fid">P5</span><span class="fname"><b>Buybacks do not offset new supply</b><small>NEAR gained by buybacks.multisignature.near over NEAR added to total supply, blocks at 2026-11-16 and 2027-01-11 00:00 UTC. Pass if &lt; 50% (below 50%).</small></span><span class="pm">by 2027-01-10 · p = 0.90</span><span class="chip wait">Pending</span></div>
+<div class="prow"><span class="fid">P6</span><span class="fname"><b>Buybacks keep running at a real pace</b><small>same ratio as P5. Pass if &gt;= 10% (at least 10%, a bit over half of the last 13 weeks at freeze (18.7%)).</small></span><span class="pm">by 2027-01-10 · p = 0.75</span><span class="chip wait">Pending</span></div>
+<div class="prow"><span class="fid">P7</span><span class="fname"><b>State inside Intents keeps growing</b><small>intents.near storage in bytes at the 2027-01-11 block over the 2026-11-16 block. Pass if &gt;= 1.05x (at least 1.05x (the last 52 weeks grew 3.98x)).</small></span><span class="pm">by 2027-01-10 · p = 0.85</span><span class="chip wait">Pending</span></div>
+<div class="prow"><span class="fid">P8</span><span class="fname"><b>Revenue does not collapse</b><small>Intents revenue in the 28 days ending 2026-12-13. Pass if &gt;= $806,057 (at least half of the 91 day run rate at freeze, scaled to 28 days).</small></span><span class="pm">by 2026-12-13 · p = 0.85</span><span class="chip wait">Pending</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="tests">
   <div class="w fals">
     <div>
-      <div class="kick r">03 · What would change our mind</div>
+      <div class="kick r">06 · What would change our mind</div>
       <div class="zero num r">0<small> of 5</small></div>
       <div class="dots r" aria-hidden="true"><i style="--i:0"></i><i style="--i:1"></i><i style="--i:2"></i><i style="--i:3"></i><i style="--i:4"></i></div>
       <p class="lead r">tests that would prove the thesis wrong are met. Thresholds live in <code>settlemark.toml</code> and run on every rebuild.</p>
@@ -275,18 +398,19 @@ footer a{color:var(--ink2)}
 
 <section id="verdict">
   <div class="w">
-    <div class="kick r">04 · Verdict</div>
-    <p class="verdict r">The use is real. <span>The value capture is not there yet.</span> NEAR is a long term buy only if that changes. Watch revenue, not price.</p>
+    <div class="kick r">07 · Verdict</div>
+    <p class="verdict r">The use is real, and buybacks now catch most revenue. <span>They cover 18.7% of new supply, worth $1.14 a token against $3.42.</span> A long term buy only if volume compounds toward $5.32B a week.</p>
     <div class="method">
       <div class="term r"><button class="copy" type="button" data-copy="git clone https://github.com/henrysammarfo/near-settlement-thesis && cd near-settlement-thesis && npm run setup && npm run rebuild && npm test">Copy</button><span class="c"># no keys, no accounts, no cost</span>
 <span class="p">$ </span>npm run setup
 <span class="p">$ </span>npm run rebuild
 <span class="p">$ </span>npm test</div>
       <ol class="steps r" style="--d:80ms">
-        <li><span>1</span><div><b>Fetch</b> nine public datasets with retries and caching. Every row keeps its source and time.</div></li>
+        <li><span>1</span><div><b>Fetch</b> nine public datasets and one archival RPC block a week, with retries and caching. Every row keeps its source and time.</div></li>
         <li><span>2</span><div><b>Validate</b> each file against a schema before any maths.</div></li>
         <li><span>3</span><div><b>Analyse</b> weekly changes with bootstrap intervals and a fixed seed.</div></li>
         <li><span>4</span><div><b>Render</b> this page, THESIS.md and every chart. No number typed by hand.</div></li>
+        <li><span>5</span><div><b>Check</b>: <code>python -m settlemark check</code> rebuilds into a temp folder and fails on any byte of difference.</div></li>
       </ol>
     </div>
     <details class="r" style="margin-top:var(--s5)"><summary>Limits</summary><ul>
@@ -307,6 +431,7 @@ footer a{color:var(--ink2)}
   </div>
 </footer>
 <div class="tip" id="tip"></div>
+<script src="model.js" defer></script>
 <script src="app.js" defer></script>
 </body>
 </html>

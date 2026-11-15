@@ -164,6 +164,48 @@ footer{padding:var(--s6) 0 calc(var(--s8) + env(safe-area-inset-bottom));border-
 footer .in{display:flex;flex-wrap:wrap;gap:var(--s2);justify-content:space-between;align-items:center}
 footer a{color:var(--ink2)}
 
+/* deep sections */
+.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s2);margin-bottom:var(--s2)}
+.kpi code,.prow code,.lead code{overflow-wrap:anywhere}
+@media (max-width:560px){.kpis{grid-template-columns:minmax(0,1fr)}}
+@media (min-width:900px){.kpis{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:var(--s3)}
+.kpi b{display:block;font:700 clamp(28px,3.4vw,40px)/1 var(--display);letter-spacing:-.04em;margin-bottom:var(--s1)}
+.kpi span{font-size:15px;line-height:1.4;color:var(--ink2)}
+.kpi.bad b{color:var(--bad)}.kpi.good b{color:var(--good)}.kpi.acc b{color:var(--acc)}
+.zoom{display:block}.zoom img{display:block;width:100%;height:auto}
+.tester{display:grid;grid-template-columns:1fr;gap:var(--s2)}
+@media (min-width:900px){.tester{grid-template-columns:5fr 6fr}}
+.sliders{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:var(--s3);display:grid;gap:var(--s3)}
+.sl label{display:flex;justify-content:space-between;gap:var(--s2);font-size:15px;color:var(--ink2);margin-bottom:var(--s1)}
+.sl label b{font:650 17px var(--display);color:var(--ink)}
+.sl input{width:100%;accent-color:var(--acc);height:28px}
+.sl small{display:block;font-size:13px;color:var(--mute)}
+.outs{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:var(--s3);display:grid;gap:var(--s2);align-content:start}
+.vpt{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--s2)}
+.vpt b{font:700 clamp(56px,8vw,96px)/.9 var(--display);letter-spacing:-.05em;color:var(--acc)}
+.vpt span{font-size:16px;color:var(--ink2)}
+.vbar{height:14px;border-radius:7px;background:var(--bg2);position:relative;overflow:visible;margin:var(--s1) 0 var(--s2)}
+.vbar i{position:absolute;left:0;top:0;bottom:0;border-radius:7px;background:var(--acc);transition:width .4s var(--ease)}
+.vbar em{position:absolute;top:-6px;bottom:-6px;width:2px;background:var(--ink);font-style:normal}
+.vbar em::after{content:attr(data-l);position:absolute;top:-22px;left:50%;transform:translateX(-50%);font:600 12px var(--text);color:var(--ink2);white-space:nowrap}
+.olist{display:grid;grid-template-columns:1fr 1fr;gap:var(--s2) var(--s3);margin:0}
+.olist div{border-top:1px solid var(--line);padding-top:var(--s1)}
+.olist dt{font-size:13px;color:var(--mute)}.olist dd{margin:0;font:650 22px/1.2 var(--display);letter-spacing:-.02em}
+.tline{font-size:14px;color:var(--mute);margin:0}
+.tline.ok{color:var(--good)}
+.btn{font:600 14px var(--text);border:1px solid var(--line);background:var(--bg2);color:var(--ink);border-radius:999px;padding:var(--s1) var(--s2);cursor:pointer;justify-self:start}
+table.sens{width:100%;border-collapse:collapse;font-size:15px;margin-top:var(--s2)}
+table.sens th,table.sens td{text-align:right;padding:var(--s1) 12px;border-bottom:1px solid var(--line)}
+table.sens th:first-child,table.sens td:first-child{text-align:left}
+table.sens th{color:var(--mute);font-weight:600}
+.prow{display:grid;grid-template-columns:40px minmax(0,1fr) auto;grid-template-areas:"id name chip" "id meta meta";gap:4px var(--s2);padding:var(--s3) 0;border-bottom:1px solid var(--line);align-items:center}
+@media (min-width:700px){.prow{grid-template-columns:48px minmax(0,1fr) 190px auto;grid-template-areas:"id name meta chip"}}
+.prow .fid{grid-area:id}.prow .fname{grid-area:name}.prow .chip{grid-area:chip}
+.prow .pm{grid-area:meta;font:600 15px var(--display);color:var(--ink2)}
+@media (min-width:700px){.prow .pm{text-align:right}}
+.chip.wait{background:var(--accbg);color:var(--acc)}
+
 /* motion */
 .js .r{opacity:0;transform:translate3d(0,24px,0)}
 .js .r.in{opacity:1;transform:none;transition:opacity .8s var(--ease),transform 1s var(--spring);transition-delay:var(--d,0ms)}
@@ -177,7 +219,7 @@ footer a{color:var(--ink2)}
 <nav class="nav" aria-label="Main">
   <div class="w in">
     <a class="logo" href="#top"><img src="brand/mark.svg" alt="" width="28" height="28">Settlemark</a>
-    <ul><li><a href="#flow">Flow</a></li><li><a href="#case">The case</a></li><li><a href="#tests">Tests</a></li><li><a href="#verdict">Verdict</a></li><li class="k"><a href="$repo" rel="noopener">GitHub</a></li></ul>
+    <ul><li><a href="#flow">Flow</a></li><li><a href="#case">The case</a></li><li><a href="#chain">Chain</a></li><li><a href="#tester">Tester</a></li><li><a href="#predictions">Predictions</a></li><li><a href="#tests">Tests</a></li><li><a href="#verdict">Verdict</a></li><li class="k"><a href="$repo" rel="noopener">GitHub</a></li></ul>
   </div>
   <div class="prog" id="prog"></div>
 </nav>
@@ -255,10 +297,84 @@ footer a{color:var(--ink2)}
   </div>
 </section>
 
-<section id="tests" style="background:var(--bg2)">
+<section id="chain" style="background:var(--bg2)">
+  <div class="w">
+    <div class="kick r">03 · Raw chain</div>
+    <h2 class="r">Read from NEAR itself, not an aggregator.</h2>
+    <p class="lead r">One archival RPC block a week, $nblk blocks from height $blk0 to $blk1. Every row keeps its block hash so anyone can check it (<a class="lnk" href="data/near_rpc.csv">CSV</a>).</p>
+    <div class="kpis">
+      <div class="kpi good r"><b class="num">$bbshare</b><span>of Intents revenue already becomes NEAR in <code>buybacks.multisignature.near</code>, last 13 weeks.</span></div>
+      <div class="kpi bad r" style="--d:60ms"><b class="num">$cov13</b><span>of new NEAR supply covered by those buybacks. Net supply still grows.</span></div>
+      <div class="kpi r" style="--d:120ms"><b class="num">$iss52p</b><span>supply growth in 52 weeks: $iss52.</span></div>
+      <div class="kpi acc r" style="--d:180ms"><b class="num">$storx</b><span><code>intents.near</code> state in a year, $stor0 to $stor1. Its weekly growth correlates $storp with price.</span></div>
+    </div>
+    <div class="grid2">
+      <div class="chart r"><h3>New supply against buybacks</h3>$chart_07<div class="src">Source: NEAR archival RPC, cumulative since the week before buybacks began ($bbstart)</div></div>
+      <div class="chart r" style="--d:80ms"><h3>Does usage follow price?</h3>$chart_08<div class="src">$rn rolling windows, $rabove above 0.5. Latest 13 weeks alone: $cl13.</div></div>
+    </div>
+    <details class="r" style="margin-top:var(--s3)"><summary>Robustness and cross checks</summary><ul>
+      <li>Correlation in the first half $c1h, second half $c2h. Without the first 13 weeks $cx13 (90% interval $cx13ci). Spearman $spear.</li>
+      <li>The rally: over the latest 13 weeks price moved $pr13 and volume $vr13. That quarter correlates $cl13, above 0.5. Prediction P3 tests whether it lasts.</li>
+      <li>RPC supply times price gives $fdv; NearBlocks market cap is $mcfdv of it.</li>
+      <li>BigQuery receipts per NearBlocks transaction: $bqr over $bqd days.</li>
+      <li>The buyback wallet balance fell in $bbdown sampled weeks, so weekly gains are buybacks, not round trips.</li>
+    </ul></details>
+  </div>
+</section>
+
+<section id="tester">
+  <div class="w">
+    <div class="kick r">04 · Thesis tester</div>
+    <h2 class="r">Move the assumptions. Watch the token value.</h2>
+    <p class="lead r">The same formulas as <code>settlemark/valuation.py</code>, starting from the last 13 weeks. Only buybacks count as holder cash. The defaults reproduce the Python base case.</p>
+    <div class="tester r" id="tester-ui" data-ready="0">
+      <div class="sliders">
+        <div class="sl"><label for="t-vol">Weekly Intents volume <b id="o-vol" class="num">$vol13</b></label><input id="t-vol" type="range" min="0" max="1000" step="1"><small>Last 13 weeks: $vol13. Break even with issuance: $bev.</small></div>
+        <div class="sl"><label for="t-take">Revenue take rate <b id="o-take" class="num">$take13 bps</b></label><input id="t-take" type="range" min="0.5" max="15" step="0.05"><small>Last 13 weeks: $take13 basis points.</small></div>
+        <div class="sl"><label for="t-share">Share of revenue bought back <b id="o-share" class="num">$bbshare</b></label><input id="t-share" type="range" min="0" max="100" step="1"><small>Measured on chain: $bbshare.</small></div>
+        <div class="sl"><label for="t-g">Holder cash growth, first $ny1 years <b id="o-g" class="num">$gbase</b></label><input id="t-g" type="range" min="-20" max="150" step="1"><small>Bear 0%, base $gbase, bull $gbull. The price implies $gimp.</small></div>
+        <div class="sl"><label for="t-r">Discount rate <b id="o-r" class="num">$dr</b></label><input id="t-r" type="range" min="8" max="30" step="0.5"><small>Terminal growth $tg after a $ny2 year fade.</small></div>
+        <button class="btn" type="button" id="t-reset">Reset to measured values</button>
+      </div>
+      <div class="outs" aria-live="polite">
+        <div class="vpt"><b class="num" id="o-vpt">$vbase</b><span>value per NEAR from buybacks, against a price of $pxnow</span></div>
+        <div class="vbar" aria-hidden="true"><i id="o-bar" style="width:0"></i><em id="o-px" data-l="price"></em></div>
+        <dl class="olist">
+          <div><dt>Revenue a year</dt><dd class="num" id="o-rev">&ndash;</dd></div>
+          <div><dt>Bought back a year</dt><dd class="num" id="o-bb">&ndash;</dd></div>
+          <div><dt>Share of a year&rsquo;s new supply covered</dt><dd class="num" id="o-cov">$cov13</dd></div>
+          <div><dt>Net supply change a year</dt><dd class="num" id="o-net">&ndash;</dd></div>
+          <div><dt>Market cap to revenue</dt><dd class="num" id="o-mr">&ndash;</dd></div>
+          <div><dt>Break even weekly volume</dt><dd class="num" id="o-be">$bev</dd></div>
+        </dl>
+        <p class="tline" id="o-verdict">Part 2 of the thesis holds at the measured values.</p>
+        <p class="tline" id="o-check">Python base case: $vbase per NEAR.</p>
+      </div>
+    </div>
+    <div class="grid2" style="margin-top:var(--s2)">
+      <div class="chart r"><h3>Bear, base and bull</h3>$chart_09<div class="src">Settlemark DCF of buybacks measured on chain</div></div>
+      <div class="chart r" style="--d:80ms"><h3>Sensitivity, value per NEAR</h3>
+$sens_html
+      <p class="src">Market value is $fdvhcf yearly holder cash. To justify it, holder cash must grow about $gimp a year for $ny1 years.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="predictions" style="background:var(--bg2)">
+  <div class="w">
+    <div class="kick r">05 · Predictions written in advance</div>
+    <h2 class="r">Eight calls, frozen before the data exists.</h2>
+    <p class="lead r">$pred_lead</p>
+    <div class="flist r">
+$pred_rows
+    </div>
+  </div>
+</section>
+
+<section id="tests">
   <div class="w fals">
     <div>
-      <div class="kick r">03 · What would change our mind</div>
+      <div class="kick r">06 · What would change our mind</div>
       <div class="zero num r">$met<small> of $nf</small></div>
       <div class="dots r" aria-hidden="true">$meter</div>
       <p class="lead r">tests that would prove the thesis wrong are met. Thresholds live in <code>settlemark.toml</code> and run on every rebuild.</p>
@@ -271,18 +387,19 @@ $falsifier_rows
 
 <section id="verdict">
   <div class="w">
-    <div class="kick r">04 · Verdict</div>
-    <p class="verdict r">The use is real. <span>The value capture is not there yet.</span> NEAR is a long term buy only if that changes. Watch revenue, not price.</p>
+    <div class="kick r">07 · Verdict</div>
+    <p class="verdict r">The use is real, and buybacks now catch most revenue. <span>They cover $cov13 of new supply, worth $vbase a token against $pxnow.</span> A long term buy only if volume compounds toward $bev a week.</p>
     <div class="method">
       <div class="term r"><button class="copy" type="button" data-copy="git clone $repo && cd near-settlement-thesis && npm run setup && npm run rebuild && npm test">Copy</button><span class="c"># no keys, no accounts, no cost</span>
 <span class="p">$$ </span>npm run setup
 <span class="p">$$ </span>npm run rebuild
 <span class="p">$$ </span>npm test</div>
       <ol class="steps r" style="--d:80ms">
-        <li><span>1</span><div><b>Fetch</b> nine public datasets with retries and caching. Every row keeps its source and time.</div></li>
+        <li><span>1</span><div><b>Fetch</b> nine public datasets and one archival RPC block a week, with retries and caching. Every row keeps its source and time.</div></li>
         <li><span>2</span><div><b>Validate</b> each file against a schema before any maths.</div></li>
         <li><span>3</span><div><b>Analyse</b> weekly changes with bootstrap intervals and a fixed seed.</div></li>
         <li><span>4</span><div><b>Render</b> this page, THESIS.md and every chart. No number typed by hand.</div></li>
+        <li><span>5</span><div><b>Check</b>: <code>python -m settlemark check</code> rebuilds into a temp folder and fails on any byte of difference.</div></li>
       </ol>
     </div>
     <details class="r" style="margin-top:var(--s5)"><summary>Limits</summary><ul>
@@ -303,6 +420,7 @@ $falsifier_rows
   </div>
 </footer>
 <div class="tip" id="tip"></div>
+<script src="model.js" defer></script>
 <script src="app.js" defer></script>
 </body>
 </html>

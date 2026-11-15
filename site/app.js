@@ -194,3 +194,59 @@
     document.querySelectorAll(".plot,.vbars").forEach((p) => { if (p.closest(".r.in")) { p.classList.add("in"); p._played = true; if (p._play) p._play(); } });
   }).catch((e) => { document.querySelectorAll(".plot").forEach((p) => (p.textContent = "Chart data could not load. See THESIS.md.")); console.error(e); });
 })();
+
+/* Thesis tester: sliders drive templates/model.js, the browser twin of settlemark/valuation.py. */
+(function () {
+  const ui = document.getElementById("tester-ui");
+  if (!ui || !window.SettlemarkModel) return;
+  const M = window.SettlemarkModel;
+  const $ = (id) => document.getElementById(id);
+  const usd = (v) => (Math.abs(v) >= 1e9 ? `$${(v / 1e9).toFixed(2)}B` : Math.abs(v) >= 1e6 ? `$${(v / 1e6).toFixed(1)}M` : `$${Math.round(v).toLocaleString("en-US")}`);
+  const sgn = (v, d) => (v < 0 ? "\u2212" : "+") + Math.abs(v).toFixed(d);
+  const LO = 8, HI = Math.log10(2e10); // weekly volume slider: $100M to $20B on a log scale
+  const toVol = (s) => Math.pow(10, LO + (s / 1000) * (HI - LO));
+  const fromVol = (v) => Math.round(((Math.log10(v) - LO) / (HI - LO)) * 1000);
+  fetch("results.json").then((r) => r.json()).then((R) => {
+    const V = R.valuation;
+    const base = M.defaults(V);
+    const set = (x) => { $("t-vol").value = fromVol(x.weekly_volume); $("t-take").value = x.take_bps; $("t-share").value = x.share_pct; $("t-g").value = x.growth_pct; $("t-r").value = x.discount_pct; };
+    let exact = true; // until a slider moves, use the unrounded measured inputs
+    const read = () => (exact ? base : { weekly_volume: toVol(+$("t-vol").value), take_bps: +$("t-take").value, share_pct: +$("t-share").value, growth_pct: +$("t-g").value, discount_pct: +$("t-r").value });
+    const draw = () => {
+      const x = read(), o = M.run(x, V);
+      $("o-vol").textContent = usd(x.weekly_volume);
+      $("o-take").textContent = `${x.take_bps.toFixed(2)} bps`;
+      $("o-share").textContent = `${Math.round(x.share_pct)}%`;
+      $("o-g").textContent = `${Math.round(x.growth_pct)}%`;
+      $("o-r").textContent = `${(+x.discount_pct).toFixed(1).replace(/\.0$/, "")}%`;
+      $("o-vpt").textContent = isFinite(o.value_per_token) ? `$${o.value_per_token.toFixed(2)}` : "n/a";
+      const scale = Math.max(V.near_price * 2, o.value_per_token || 0);
+      $("o-bar").style.width = `${Math.min(100, ((o.value_per_token || 0) / scale) * 100)}%`;
+      $("o-px").style.left = `${(V.near_price / scale) * 100}%`;
+      $("o-px").dataset.l = `price $${V.near_price.toFixed(2)}`;
+      $("o-rev").textContent = usd(o.revenue_usd);
+      $("o-bb").textContent = `${(o.buyback_near / 1e6).toFixed(2)}M NEAR`;
+      $("o-cov").textContent = `${o.coverage_pct.toFixed(1)}%`;
+      $("o-net").textContent = `${sgn(o.net_supply_pct, 2)}%`;
+      $("o-mr").textContent = `${o.mcap_to_revenue.toFixed(0)}x`;
+      $("o-be").textContent = usd(o.breakeven_weekly_volume);
+      const flips = [];
+      if (o.coverage_pct >= 100) flips.push("buybacks cover all new supply");
+      if (o.mcap_to_revenue < V.f5_line) flips.push(`market cap falls below ${V.f5_line}x revenue (F5)`);
+      if (o.value_per_token >= V.near_price) flips.push("buyback value exceeds the price");
+      const v = $("o-verdict");
+      v.textContent = flips.length ? `Part 2 flips to bullish here: ${flips.join(", ")}.` : "Part 2 of the thesis holds: holders capture too little to justify the price on buybacks alone.";
+      v.classList.toggle("ok", flips.length > 0);
+    };
+    set(base);
+    const check = M.run(base, V).value_per_token;
+    const c = $("o-check");
+    const same = Math.abs(check - V.value_per_token_base) < 0.005;
+    c.textContent = same ? `Defaults reproduce the Python base case: $${V.value_per_token_base.toFixed(2)} per NEAR.` : `Warning: browser $${check.toFixed(2)} differs from Python $${V.value_per_token_base.toFixed(2)}.`;
+    c.classList.toggle("ok", same);
+    ["t-vol", "t-take", "t-share", "t-g", "t-r"].forEach((id) => $(id).addEventListener("input", () => { exact = false; draw(); }));
+    $("t-reset").addEventListener("click", () => { exact = true; set(base); draw(); });
+    ui.dataset.ready = "1";
+    draw();
+  }).catch((e) => { $("o-check").textContent = "Tester data could not load. See THESIS.md."; console.error(e); });
+})();

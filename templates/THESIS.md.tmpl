@@ -1,6 +1,6 @@
 # Settlemark THESIS: NEAR is becoming a settlement layer, and its token has not caught up
 
-Every number below is computed by `settlemark/analysis.py` from the validated CSV files in `data/` and written into this file by `settlemark/render.py` (run `npm run rebuild`). Each linked number points at the public API it came from. Data fetched {fetched}. Window: {start} to {end} ({weeks} full weeks). Not financial advice.
+Every number below is computed by `settlemark/analysis.py` and `settlemark/deep.py` from the validated CSV files in `data/` and written into this file by `settlemark/render.py` (run `npm run rebuild`). Each linked number points at the public API it came from. Data fetched {fetched}. Window: {start} to {end} ({weeks} full weeks). Not financial advice.
 
 ## The claim
 
@@ -26,26 +26,65 @@ Two parts, tested separately:
 - **Levels point the wrong way for holders.** The correlation of log weekly Intents volume with log NEAR price is {lvl}: usage grew while the price fell. Usage alone has not supported the price.
 - **The base chain shrank while Intents grew.** NearBlocks daily active accounts averaged {aa0} in the first 13 weeks of the window and {aa1} in the latest 13 weeks. Part of that drop may be bot or airdrop traffic leaving, and relayed signers are undercounted, but it is not the picture of a busier chain. Weekly changes correlate {aa} with price changes. ![chart 5](charts/05_active_accounts.png)
 - **Stablecoins on NEAR shrank:** {st0} a year ago, {st1} now. A settlement layer for money should hold more dollars, not fewer. ![chart 6](charts/06_stablecoins.png)
+- **The recent rally broke the pattern for a quarter.** Over the latest 13 weeks the NEAR price moved {pr13} and Intents volume {vr13} (4 week averages), and the weekly change correlation in those 13 weeks alone was {cl13}, above the 0.5 line. The 26 week test below still holds, but this is the first sign that usage and price may be moving together. Prediction P3 tests it.
 - Volume counts can flatter. DefiLlama may count both legs or confidential flow; another entry in this track, [near-thesis](https://github.com/soldanoandrea/near-thesis), found public swaps match only part of DefiLlama's reported volume on sampled days. Our share numbers inherit that.
+
+## Raw chain evidence: read from NEAR itself
+
+Aggregators can be wrong, so the core supply and buyback facts are read straight from NEAR archival RPC: one block per week, the first block at or after Monday 00:00 UTC, {nblk} blocks from height {blk0} to {blk1} ([data/near_rpc.csv](data/near_rpc.csv)). Each row stores the block hash, so anyone can check it against any NEAR node. Code: `settlemark/chain.py`.
+
+- **New supply.** Total NEAR supply is {sup1}. It grew by {iss52} ({iss52p}) in the last 52 weeks and {iss13} in the last 13. Issuance is the cost every holder pays.
+- **Buybacks are real and measurable.** The wallet `buybacks.multisignature.near` first held NEAR in the week of {bbstart} and holds {bbnow} now. It gained {bb13} in the last 13 weeks, worth {bbusd13} at each week's price. Intents revenue over the same weeks was {rev13} by DefiLlama, so about {bbshare} of reported revenue turns into NEAR bought for holders. The two series line up closely, which suggests DefiLlama's revenue figure tracks this buyback flow. The wallet balance fell in {bbdown} sampled weeks, so no NEAR left it and the weekly gains are buybacks, not round trips.
+- **But buybacks cover only {cov13} of new supply** over the last 13 weeks. Net supply still grows: holder capture is real but not yet enough to shrink the float. ![chart 7](charts/07_supply_vs_buybacks.png)
+- **Usage inside the protocol grew on chain.** The `intents.near` contract stores {stor1} of state, up from {stor0} a year ago ({storx}). Weekly growth in that storage correlates {storp} with NEAR price changes and {storv} with Intents volume changes over {storw} weeks: a raw chain usage measure that does not follow price.
+- **Cross checks.** Price times RPC supply gives a fully diluted value of {fdv} at {pxnow}; NearBlocks market cap is {mcfdv} of it, so the market cap used for F5 is consistent with the chain. On {bqd} days the BigQuery public dataset counts {bqr} receipt actions per NearBlocks transaction, so receipts are not a substitute for transactions in trend work.
+
+## Valuation: what the buybacks are worth
+
+Only cash that reaches holders counts: the buybacks measured on chain above, annualised from the last 13 weeks to {hcf} a year. The model (`settlemark/valuation.py`) grows that cash for {ny1} years, fades growth to {tg} over {ny2} more, and discounts at {dr}. Growth is not typed by hand: the bull case is the observed annualised revenue growth of the last half year ({gobs}) capped at {gbull}; base is half of that ({gbase}); bear is no growth.
+
+- Value per NEAR from buybacks: bear {vbear}, base {vbase}, bull {vbull}, against a price of {pxnow}. Base is {vbasep} of price; bull is {vbullp}. ![chart 9](charts/09_value_per_token.png)
+- Reverse view: to justify today's {fdv} on buybacks alone, holder cash must grow about {gimp} a year for {ny1} years. Market value is {fdvhcf} today's yearly holder cash flow.
+- Break even: at the last 13 weeks' take rate ({take13} basis points) and buyback share, buybacks would match yearly issuance ({issusd} at today's price) once weekly Intents volume reaches {bev}, {bevx} the recent average of {vol13} a week.
+- Sensitivity, value per NEAR:
+
+{sens}
+
+The thesis tester on the page (`site/index.html`, section 04) runs the same formulas in the browser (`templates/model.js`) so you can move each assumption; a test checks both give the same numbers.
+
+## Is part 1 robust?
+
+- Split in half: {c1h} in the first half of the window, {c2h} in the second.
+- Without the tiny first 13 weeks: {cx13} (90% interval {cx13ci}). Rank (Spearman) correlation: {spear}.
+- Every {rw} week window: correlation ranges from {rmin} to {rmax} across {rn} windows; {rabove} are above 0.5. ![chart 8](charts/08_rolling_correlation.png)
+- Latest 13 weeks alone: {cl13}. That window is short, so it is a warning, not a verdict.
+
+## Predictions written down in advance
+
+These are frozen in `data/predictions.json` before their data exists, with our own probability for each, and scored by `python -m settlemark predictions --score` after each window closes. Misses will be published like hits.
+
+{preds}
 
 ## What would change our mind
 
-These tests are fixed in `settlemark/analysis.py` with thresholds in `settlemark.toml`. They were written on 2026-11-14, the day of the analysis, so they are not a pre registration made weeks in advance. Met: {met} of {nf}.
+These tests are fixed in `settlemark/analysis.py` with thresholds in `settlemark.toml`. They were written on 2026-11-14, the day of the analysis; the predictions above are the forward looking version. Met: {met} of {nf}.
 
 | Falsifier | Test | Value now | Result |
 |---|---|---|---|
 {fals}
 
-We would also change our mind if Intents share of DEX volume falls for two quarters in a row, if the weekly correlation with NEAR price rises above 0.5 over any 26 week window, or if a fee switch or buyback raises holder capture so that market cap falls below 50x yearly revenue (that would make the case bullish rather than conditional).
+We would also change our mind if Intents share of DEX volume falls for two quarters in a row, if the weekly correlation with NEAR price rises above 0.5 over any 26 week window, or if buybacks grow until market cap falls below 50x yearly revenue or buybacks cover new supply (that would make the case bullish rather than conditional).
 
 ## Verdict
 
-Part 1 is supported by this data: Intents usage moves independently of the NEAR price and has taken a growing share of onchain DEX volume. Part 2 is also supported, and it is the bear case: the token captures a small slice of that flow, stablecoins on NEAR shrank, and the base chain shows no matching growth. NEAR is a long term buy only if value capture improves. Watch the revenue line in chart 4, not the price.
+Part 1 is supported over the full window and in every {rw} week window, but the latest quarter is the weakest evidence yet ({cl13}), and P3 will tell us within 8 weeks. Part 2 is supported and now measured on chain: about {bbshare} of Intents revenue already buys NEAR, yet buybacks cover only {cov13} of new supply, and a buyback valuation gives {vbase} a token in the base case against {pxnow}. The price assumes about {gimp} yearly growth in holder cash. NEAR is a long term buy only if Intents volume keeps compounding toward {bev} a week. Watch chart 7, not the price.
 
 ## Limits
 
-- The one command rebuild uses free public APIs only: DefiLlama, NearBlocks and CoinGecko. The Intents Explorer API was not used (it needs a partner token). BigQuery is the optional path, run by hand (see `docs/BIGQUERY.md`). {bq}
+- The one command rebuild uses free public APIs only: DefiLlama, NearBlocks, CoinGecko and NEAR archival RPC (FastNEAR first, the NEAR Foundation node as fallback). The Intents Explorer API was not used (it needs a partner token). BigQuery is the optional path, run by hand (see `docs/BIGQUERY.md`). {bq}
 - Correlations of weekly changes over about two years are noisy. The early Intents weeks are tiny, so log changes there are large.
 - NearBlocks active accounts can miss signers hidden behind relayers.
 - CoinGecko's free tier gives 365 days, so the Bitcoin test covers fewer weeks than the NEAR test.
+- The valuation counts only buybacks. It ignores staking yield, which is paid in new supply, and any future fee switch. A {dr} discount rate is a choice; the table shows {dr} is neither the harshest nor the kindest.
+- `python -m settlemark check` rebuilds everything from the committed CSVs and fails unless every output matches byte for byte and every number in this file is computed or is a constant written in the template.
 - If a source changes its methodology, rerunning `npm run rebuild` changes the numbers. That is intended: nothing here is frozen by hand.

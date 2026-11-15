@@ -31,8 +31,8 @@ def test_outputs_exist(out):
     _cfg, _R, o = out
     pngs = sorted(p.name for p in (o / "charts").glob("*.png"))
     svgs = sorted(p.name for p in (o / "site" / "charts").glob("*.svg"))
-    assert len(pngs) == 6 and len(svgs) == 12
-    assert len(list((o / "site" / "charts").glob("*.png"))) == 6
+    assert len(pngs) == 9 and len(svgs) == 18
+    assert len(list((o / "site" / "charts").glob("*.png"))) == 9
     assert all((o / "charts" / p).stat().st_size > 20000 for p in pngs)
     assert (o / "site" / "index.html").exists() and (o / "site" / "brand" / "mark.svg").exists()
 
@@ -40,7 +40,18 @@ def test_outputs_exist(out):
 def test_thesis_structure_and_no_placeholders(out):
     _, _, o = out
     t = (o / "THESIS.md").read_text()
-    for h in ("## The claim", "## Evidence for", "## Evidence against", "## What would change our mind", "## Verdict", "## Limits"):
+    for h in (
+        "## The claim",
+        "## Evidence for",
+        "## Evidence against",
+        "## Raw chain evidence",
+        "## Valuation",
+        "## Is part 1 robust?",
+        "## Predictions written down in advance",
+        "## What would change our mind",
+        "## Verdict",
+        "## Limits",
+    ):
         assert h in t
     assert not re.search(r"\{[a-z0-9_]+\}", t), "unfilled placeholder"
     html = (o / "site" / "index.html").read_text()

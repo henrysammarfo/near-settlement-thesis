@@ -81,7 +81,8 @@
     "near_chain": "https://api.nearblocks.io/v1/charts",
     "near_stablecoins": "https://stablecoins.llama.fi/stablecoincharts/Near",
     "near_price_coingecko": "https://api.coingecko.com/api/v3/coins/near/market_chart?vs_currency=usd&days=365&interval=daily",
-    "btc_price": "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=365&interval=daily"
+    "btc_price": "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=365&interval=daily",
+    "near_rpc": "data/near_rpc.csv"
   },
   "provenance": {
     "corr_weekly_change_intents_vs_near_price": [
@@ -143,6 +144,273 @@
     ],
     "near_stablecoins_1y_ago": [
       "near_stablecoins"
+    ],
+    "chain.first_block_height": [
+      "near_rpc"
+    ],
+    "chain.last_block_height": [
+      "near_rpc"
+    ],
+    "chain.samples": [
+      "near_rpc"
+    ],
+    "chain.last_sample_week_start": [
+      "near_rpc"
+    ],
+    "chain.supply_now_near": [
+      "near_rpc"
+    ],
+    "chain.supply_52w_ago_near": [
+      "near_rpc"
+    ],
+    "chain.issuance_52w_near": [
+      "near_rpc"
+    ],
+    "chain.issuance_52w_pct": [
+      "near_rpc"
+    ],
+    "chain.issuance_13w_near": [
+      "near_rpc"
+    ],
+    "chain.buyback_wallet_first_week": [
+      "near_rpc"
+    ],
+    "chain.buyback_wallet_now_near": [
+      "near_rpc"
+    ],
+    "chain.buyback_13w_near": [
+      "near_rpc"
+    ],
+    "chain.buyback_52w_near": [
+      "near_rpc"
+    ],
+    "chain.buyback_wallet_weeks_down": [
+      "near_rpc"
+    ],
+    "chain.buyback_coverage_13w_pct": [
+      "near_rpc"
+    ],
+    "chain.buyback_coverage_52w_pct": [
+      "near_rpc"
+    ],
+    "chain.intents_storage_now_gb": [
+      "near_rpc"
+    ],
+    "chain.intents_storage_52w_ago_gb": [
+      "near_rpc"
+    ],
+    "chain.intents_storage_growth_52w_x": [
+      "near_rpc"
+    ],
+    "chain.corr_weekly_change_storage_vs_near_price": [
+      "near_rpc"
+    ],
+    "chain.corr_weekly_change_storage_vs_intents_volume": [
+      "near_rpc"
+    ],
+    "chain.storage_weeks": [
+      "near_rpc"
+    ],
+    "chain.buyback_13w_usd": [
+      "near_rpc",
+      "near_chain"
+    ],
+    "chain.buyback_share_of_revenue_13w_pct": [
+      "near_rpc",
+      "near_chain",
+      "intents_revenue"
+    ],
+    "chain.fdv_usd": [
+      "near_rpc",
+      "near_chain"
+    ],
+    "valuation": [
+      "near_rpc",
+      "near_chain",
+      "intents_revenue",
+      "intents_volume"
+    ],
+    "robustness": [
+      "intents_volume",
+      "near_chain"
     ]
+  },
+  "chain": {
+    "first_block_height": 134545755,
+    "last_block_height": 223688383,
+    "samples": 101,
+    "last_sample_week_start": "2026-11-09",
+    "supply_now_near": 1311190871.43,
+    "supply_52w_ago_near": 1279550547.15,
+    "issuance_52w_near": 31640324.2791,
+    "issuance_52w_pct": 2.47276861,
+    "issuance_13w_near": 8021367.61207,
+    "buyback_wallet_first_week": "2026-03-22",
+    "buyback_wallet_now_near": 2217648.47413,
+    "buyback_13w_near": 1504005.93456,
+    "buyback_52w_near": 2217648.47413,
+    "buyback_wallet_weeks_down": 0,
+    "buyback_coverage_13w_pct": 18.7499938576,
+    "buyback_coverage_52w_pct": 7.00893092805,
+    "buyback_13w_usd": 4692829.12562,
+    "intents_revenue_13w_usd": 5008045.0,
+    "buyback_share_of_revenue_13w_pct": 93.7058098644,
+    "intents_storage_now_gb": 13.486201623,
+    "intents_storage_52w_ago_gb": 3.387377246,
+    "intents_storage_growth_52w_x": 3.9813108029,
+    "corr_weekly_change_storage_vs_near_price": -0.0554774669711,
+    "corr_weekly_change_storage_vs_intents_volume": 0.245353762051,
+    "storage_weeks": 98,
+    "near_price_now": 3.41914019,
+    "fdv_usd": 4483145405.28,
+    "nearblocks_mcap_to_fdv_pct": 100.027323225,
+    "bq_days": 6,
+    "bq_receipts_per_nearblocks_tx_min": 4.5938578369,
+    "bq_receipts_per_nearblocks_tx_max": 5.16780161589
+  },
+  "valuation": {
+    "holder_cash_flow_usd": 18771316.5025,
+    "weekly_volume_13w_usd": 923837506.385,
+    "revenue_take_rate_13w_bps": 4.16993495184,
+    "buyback_share_13w_pct": 93.7058098644,
+    "supply_near": 1311190871.43,
+    "issuance_52w_near": 31640324.2791,
+    "near_price": 3.41914019,
+    "market_cap_usd": 4484370345.16,
+    "f5_line": 50.0,
+    "explicit_years": 5,
+    "fade_years": 5,
+    "revenue_run_rate_usd": 21015055.4945,
+    "revenue_growth_obs_annual_pct": 746.328634141,
+    "growth_bear_pct": 0.0,
+    "growth_base_pct": 50.0,
+    "growth_bull_pct": 100.0,
+    "discount_rate_pct": 15.0,
+    "terminal_growth_pct": 3.0,
+    "value_per_token_bear": 0.10593587279,
+    "value_per_token_base": 1.13952741663,
+    "value_per_token_bull": 8.28557487966,
+    "value_base_pct_of_price": 33.3278939529,
+    "value_bull_pct_of_price": 242.329194453,
+    "implied_growth_pct": 76.4192138542,
+    "fdv_to_holder_cash_flow": 238.829567691,
+    "issuance_usd_per_year": 108182704.367,
+    "breakeven_weekly_volume_usd": 5324253087.07,
+    "breakeven_to_current_volume_x": 5.76319217424,
+    "sensitivity": [
+      {
+        "r": 0.1,
+        "bear": 0.178055170379,
+        "base": 2.33228227172,
+        "bull": 18.0609370993
+      },
+      {
+        "r": 0.15,
+        "bear": 0.10593587279,
+        "base": 1.13952741663,
+        "bull": 8.28557487966
+      },
+      {
+        "r": 0.2,
+        "bear": 0.0759411306379,
+        "base": 0.686425681219,
+        "bull": 4.68040675784
+      }
+    ],
+    "growth_path_base_pct": [
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      40.6,
+      31.2,
+      21.8,
+      12.4,
+      3.0
+    ]
+  },
+  "robustness": {
+    "corr_first_half": -0.135078132144,
+    "corr_second_half": 0.207324168854,
+    "corr_excluding_first_13w": -0.0443735203502,
+    "corr_ci90_excluding_first_13w": [
+      -0.206084412006,
+      0.104858407934
+    ],
+    "corr_last_13w": 0.536865684781,
+    "spearman": -0.0616962811366,
+    "rolling_weeks": 26,
+    "rolling_corr_max": 0.3871811432,
+    "rolling_corr_min": -0.493493116551,
+    "rolling_windows": 73,
+    "rolling_windows_above_0_5": 0,
+    "price_change_last_13w_pct": 131.673931334,
+    "volume_change_last_13w_pct": 84.5598040809
+  },
+  "predictions": {
+    "scored_on": "2026-11-14",
+    "sha256": "2c2ec155b5202d02bbb5c59f9714dd7b452f4564fd5e38f990c33c16e6136af3",
+    "created_at_utc": "2026-11-15T00:24:38Z",
+    "results": [
+      {
+        "id": "P1",
+        "status": "PENDING",
+        "value": null,
+        "threshold": 429842985.12,
+        "window_end": "2026-12-13"
+      },
+      {
+        "id": "P2",
+        "status": "PENDING",
+        "value": null,
+        "threshold": 1.0331,
+        "window_end": "2027-01-10"
+      },
+      {
+        "id": "P3",
+        "status": "PENDING",
+        "value": null,
+        "threshold": 0.5,
+        "window_end": "2027-01-10"
+      },
+      {
+        "id": "P4",
+        "status": "PENDING",
+        "value": null,
+        "threshold": 50.0,
+        "window_end": "2027-01-10"
+      },
+      {
+        "id": "P5",
+        "status": "PENDING",
+        "value": null,
+        "threshold": 50.0,
+        "window_end": "2027-01-10"
+      },
+      {
+        "id": "P6",
+        "status": "PENDING",
+        "value": null,
+        "threshold": 10.0,
+        "window_end": "2027-01-10"
+      },
+      {
+        "id": "P7",
+        "status": "PENDING",
+        "value": null,
+        "threshold": 1.05,
+        "window_end": "2027-01-10"
+      },
+      {
+        "id": "P8",
+        "status": "PENDING",
+        "value": null,
+        "threshold": 806056.92,
+        "window_end": "2026-12-13"
+      }
+    ],
+    "resolved": 0,
+    "brier": null
   }
 }
