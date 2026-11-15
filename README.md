@@ -12,8 +12,9 @@
 
 The version submitted before the deadline is commit [7ee8b43](https://github.com/henrysammarfo/near-settlement-thesis/tree/7ee8b43f587a4c649acc58995d54ad756e4a45c5). That copy still works and can be tested on its own: check out that commit, run `npm run setup` and `npm test`, and open `site/index.html`. If you score only the deadline version, you can ignore the commits listed here. The live page above now serves the later work, after this merge, so use the commit link (not the live page) when you want the submitted copy.
 
-These commits were added after the cutoff (14 Nov 2026 23:59 UTC):
+These commits were added after the cutoff (14 Nov 2026 23:59 UTC). The commit that added this section, and the commit that added this sentence to the list, are also after the cutoff.
 
+* [`92326cc`](https://github.com/henrysammarfo/near-settlement-thesis/commit/92326cc) 2026-11-15 08:41 UTC. README: after the deadline section, source links for every claim, and a static Vercel deploy
 * [`d2f2be3`](https://github.com/henrysammarfo/near-settlement-thesis/commit/d2f2be3) 2026-11-15 07:03 UTC. BigQuery query 05 committed (100 weeks, 65.09 GB, console 2026-11-15T06:58:10Z): lead test and out of sample check rerun on it, cross check against NearBlocks; query 04 pending until the quota resets on 1 Dec
 * [`9fa3626`](https://github.com/henrysammarfo/near-settlement-thesis/commit/9fa3626) 2026-11-15 06:17 UTC. Lead test: out of sample check (fit on first 70 weeks, forecast the last 28, Clark West p), on page and thesis, with tests
 * [`c540a43`](https://github.com/henrysammarfo/near-settlement-thesis/commit/c540a43) 2026-11-15 06:11 UTC. Persona fixes: native lead and take rate charts, honest noise band counts, inlined fonts for file://, mobile table, methodology caveats, README preview link
