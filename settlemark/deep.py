@@ -15,7 +15,7 @@ import pandas as pd
 from . import chain
 from .analysis import Frames, load
 from .config import Config
-from .stats import StatsError, bootstrap_corr_ci, pearson
+from .stats import StatsError, bootstrap_corr_ci, days, pearson
 from .valuation import breakeven_weekly_volume, dcf, growth_path, implied_growth
 
 
@@ -58,17 +58,17 @@ def deep(cfg: Config, R: dict, frames: Frames) -> tuple[dict, dict]:
     last_day = pd.Timestamp(R["window_end"])
 
     # Align raw chain weeks to analysis weeks: the block at Monday 00:00 closes the week ending Sunday.
-    ch = ch[ch.index <= last_day + pd.Timedelta(days=1)]
+    ch = ch[ch.index <= last_day + days(1)]
     if len(ch) < 60:
         raise StatsError(f"need at least 60 weekly chain samples, got {len(ch)}")
-    end_idx = ch.index - pd.Timedelta(days=1)
+    end_idx = ch.index - days(1)
     chw = ch.set_axis(end_idx)
     supply = chw["total_supply_near"]
     bb = chw["buyback_wallet_near"]
     store = chw["intents_storage_bytes"]
     now = chw.index[-1]
-    y1 = now - pd.Timedelta(weeks=52)
-    q1 = now - pd.Timedelta(weeks=13)
+    y1 = now - days(7 * 52)
+    q1 = now - days(7 * 13)
     iss_52 = float(supply[now] - supply[y1])
     iss_13 = float(supply[now] - supply[q1])
     bb_13 = float(bb[now] - bb[q1])
@@ -77,12 +77,12 @@ def deep(cfg: Config, R: dict, frames: Frames) -> tuple[dict, dict]:
 
     # USD value of NEAR that reached the buyback wallet, week by week, at that week's closing price.
     price_w = w["p"]
-    d_bb = bb.diff().loc[q1 + pd.Timedelta(days=1) : now]
+    d_bb = bb.diff().loc[q1 + days(1) : now]
     px = price_w.reindex(d_bb.index)
     if px.isna().any():
         raise StatsError("missing weekly price for a buyback week")
     bb_usd_13 = float((d_bb * px).sum())
-    rev_13 = float(rev.loc[q1 + pd.Timedelta(days=1) : now].sum())
+    rev_13 = float(rev.loc[q1 + days(1) : now].sum())
     buyback_share = bb_usd_13 / rev_13 if rev_13 > 0 else float("nan")
 
     # Raw chain usage: intents.near state size. Its weekly growth against price and volume.
@@ -128,8 +128,8 @@ def deep(cfg: Config, R: dict, frames: Frames) -> tuple[dict, dict]:
 
     # Valuation on holder cash flow = buybacks actually observed on chain, annualised.
     cash0 = bb_usd_13 * 52 / 13
-    r6 = rev.loc[last_day - pd.Timedelta(days=181) : last_day].sum()
-    r6_prev = rev.loc[last_day - pd.Timedelta(days=363) : last_day - pd.Timedelta(days=182)].sum()
+    r6 = rev.loc[last_day - days(181) : last_day].sum()
+    r6_prev = rev.loc[last_day - days(363) : last_day - days(182)].sum()
     g_obs = float((r6 / r6_prev) ** 2 - 1) if r6_prev > 0 else float("nan")
     g_bull = float(min(max(g_obs, 0.0), v.bull_growth_cap))
     scen = {"bear": 0.0, "base": g_bull / 2, "bull": g_bull}
@@ -142,7 +142,7 @@ def deep(cfg: Config, R: dict, frames: Frames) -> tuple[dict, dict]:
         for r in (v.discount_low, v.discount_rate, v.discount_high)
     ]
     # The tester starts from the last 13 weeks, so its default output equals holder_cash_flow_usd.
-    vol_13 = float(vol_df["usd"].loc[q1 + pd.Timedelta(days=1) : now].sum())
+    vol_13 = float(vol_df["usd"].loc[q1 + days(1) : now].sum())
     take = rev_13 / vol_13
     iss_usd = iss_52 * price_now
     V = {
@@ -157,7 +157,7 @@ def deep(cfg: Config, R: dict, frames: Frames) -> tuple[dict, dict]:
         "f5_line": float(cfg.falsifiers.mcap_to_revenue_min),
         "explicit_years": v.explicit_years,
         "fade_years": v.fade_years,
-        "revenue_run_rate_usd": float(rev.loc[last_day - pd.Timedelta(days=90) : last_day].sum()) * 365 / 91,
+        "revenue_run_rate_usd": float(rev.loc[last_day - days(90) : last_day].sum()) * 365 / 91,
         "revenue_growth_obs_annual_pct": g_obs * 100,
         "growth_bear_pct": scen["bear"] * 100,
         "growth_base_pct": scen["base"] * 100,

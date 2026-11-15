@@ -15,10 +15,10 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
-import pandas as pd
 from matplotlib.ticker import FuncFormatter
 
 from .analysis import Frames
+from .stats import days
 
 
 @dataclass(frozen=True)
@@ -187,7 +187,7 @@ def draw_deep(S: dict, R: dict, t: Theme, outputs: dict[str, list[Path]]) -> Non
     _style(t)
     fetched, C, V, Rb = R["fetched_at_utc"], R["chain"], R["valuation"], R["robustness"]
     ch = S["chain"]
-    start = S["buyback_start"] - pd.Timedelta(weeks=1)
+    start = S["buyback_start"] - days(7 * 1)
     seg = ch.loc[start:]
     fig, ax = plt.subplots(figsize=(5.4, 4.1))
     added = (seg.total_supply_near - seg.total_supply_near.iloc[0]) / 1e6

@@ -21,7 +21,7 @@ import pandas as pd
 from .analysis import load
 from .config import Config
 from .deep import load_chain
-from .stats import log_changes, pearson
+from .stats import days, log_changes, pearson
 
 WEEK1_END = "2026-11-22"  # first full week after the freeze (weeks end Sunday UTC)
 END_4W = "2026-12-13"
@@ -227,15 +227,15 @@ def measure(cfg: Config, pid: str, today: dt.date) -> float | None:
     if pid == "P2":
         return float(seg.share.mean())
     if pid == "P3":
-        c = log_changes(w.loc[start - pd.Timedelta(days=7) : end, ["iv", "p"]])
+        c = log_changes(w.loc[start - days(7) : end, ["iv", "p"]])
         return pearson(c.iv, c.p)
     if pid == "P4":
         rev, _, _ = load(cfg, "intents_revenue")
         ch, _, _ = load(cfg, "near_chain")
-        return float(ch["market_cap_usd"].loc[:end].iloc[-1] / rev["usd"].loc[end - pd.Timedelta(days=363) : end].sum())
+        return float(ch["market_cap_usd"].loc[:end].iloc[-1] / rev["usd"].loc[end - days(363) : end].sum())
     if pid == "P8":
         rev, _, _ = load(cfg, "intents_revenue")
-        return float(rev["usd"].loc[end - pd.Timedelta(days=27) : end].sum())
+        return float(rev["usd"].loc[end - days(27) : end].sum())
     chain = load_chain(cfg)
     a, b = pd.Timestamp(CHAIN_START), pd.Timestamp(CHAIN_END)
     if a not in chain.index or b not in chain.index:

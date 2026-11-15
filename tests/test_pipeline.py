@@ -11,6 +11,7 @@ import pytest
 from settlemark.__main__ import build
 from settlemark.config import ROOT, load_config
 from settlemark.sources import DATASETS, read_csv
+from settlemark.stats import days
 
 
 @pytest.fixture(scope="module")
@@ -74,7 +75,7 @@ def test_numbers_trace_back_to_csv(out):
     iv = pd.read_csv(ROOT / "data/intents_volume.csv", parse_dates=["date"]).set_index("date")["usd"]
     rev = pd.read_csv(ROOT / "data/intents_revenue.csv", parse_dates=["date"]).set_index("date")["usd"]
     end = pd.Timestamp(R["window_end"])
-    start = end - pd.Timedelta(days=364)
+    start = end - days(364)
     assert R["intents_volume_365d"] == pytest.approx(iv.loc[start:end].sum())
     assert R["intents_revenue_365d"] == pytest.approx(rev.loc[start:end].sum())
     st = pd.read_csv(ROOT / "data/near_stablecoins.csv")["usd"]

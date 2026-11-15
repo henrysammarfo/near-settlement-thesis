@@ -81,3 +81,12 @@ def weekly(df: pd.DataFrame, agg: dict[str, str], rule: str = "W-SUN") -> pd.Dat
     if len(w) < 3:
         raise StatsError("need at least three weeks of data")
     return w.iloc[1:-1]
+
+
+def days(n: int) -> np.timedelta64:
+    """A whole number of days with an explicit unit.
+
+    `pd.Timedelta(days=n)` triggers NumPy's deprecated 'generic' timedelta unit on some
+    pandas 2.x and NumPy 2.5 combinations; an explicit `timedelta64[D]` never does.
+    """
+    return np.timedelta64(int(n), "D")

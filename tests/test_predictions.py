@@ -10,6 +10,7 @@ import pytest
 
 from settlemark import predictions as P
 from settlemark.config import ROOT, load_config
+from settlemark.stats import days
 
 
 def committed():
@@ -55,10 +56,10 @@ def test_scoring_with_future_data(tmp_path):
         path = root / "data" / f"{name}.csv"
         df = pd.read_csv(path)
         last = pd.Timestamp(df["date"].iloc[-1])
-        days = pd.date_range(last + pd.Timedelta(days=1), "2027-01-14")
-        add = pd.DataFrame({c: df[c].iloc[-1] for c in df.columns}, index=range(len(days)))
-        add["date"] = days.strftime("%Y-%m-%d")
-        add[col] = value(len(days)) if callable(value) else value
+        new = pd.date_range(last + days(1), "2027-01-14")
+        add = pd.DataFrame({c: df[c].iloc[-1] for c in df.columns}, index=range(len(new)))
+        add["date"] = new.strftime("%Y-%m-%d")
+        add[col] = value(len(new)) if callable(value) else value
         pd.concat([df, add]).to_csv(path, index=False)
 
     extend("intents_volume", "usd", 150e6)  # $1.05B a week: P1 hits

@@ -14,7 +14,7 @@ import pandas as pd
 
 from .config import Config
 from .sources import BY_NAME, read_csv
-from .stats import bootstrap_corr_ci, lagged_corr, log_changes, pearson, weekly
+from .stats import bootstrap_corr_ci, days, lagged_corr, log_changes, pearson, weekly
 
 
 @dataclass
@@ -59,7 +59,7 @@ def analyse(cfg: Config) -> tuple[dict, Frames]:
     both = pd.concat([chg["iv"], np.log(btc_w).diff().rename("btc")], axis=1).dropna()
 
     last = daily.index.max()
-    yr = last - pd.Timedelta(days=a.year_days)
+    yr = last - days(a.year_days)
     rev365 = float(rev.loc[yr:last].sum())
     fee365 = float(fees.loc[yr:last].sum())
     chain365 = float(ch["txn_fee_usd"].loc[yr:last].sum())
