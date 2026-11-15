@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from collections.abc import Sequence
 
 import numpy as np
@@ -191,6 +192,48 @@ def granger(effect: ArrayLike, cause: ArrayLike, lags: int, min_shift: int = 8) 
         raise StatsError("series too short for the shift test")
     p_shift = (1 + sum(v >= f for v in null)) / (1 + len(null))
     return {"lags": lags, "f": f, "df1": d1, "df2": d2, "p_value": f_pvalue(f, d1, d2), "p_shift": float(p_shift), "shifts": len(null)}
+
+
+def out_of_sample(effect: ArrayLike, cause: ArrayLike, lags: int, train: int) -> dict:
+    """Out of sample version of the Granger question.
+
+    Both models are fitted once, by least squares, on the first `train` weeks only: the own
+    lags model (a constant and effect_{t-1..t-lags}) and the same model plus cause_{t-1..t-lags}.
+    Their coefficients are then frozen and used for one step ahead forecasts of every later
+    week. `mse_ratio` below 1 means past Intents changes helped on weeks the fit never saw.
+    `p_cw` is the one sided Clark and West (2007) test for nested models, normal approximation;
+    `win_share` is the share of test weeks where the model with Intents was closer.
+    """
+    y, x = _arrays(effect, cause, min_n=3 * lags + 5)
+    n = len(y)
+    if not (2 * lags + 5 <= train <= n - 5):
+        raise StatsError(f"need at least 5 weeks on each side of the split, got train={train} of {n}")
+    Y = y[lags:]
+    own = np.column_stack([y[lags - k : n - k] for k in range(1, lags + 1)])
+    other = np.column_stack([x[lags - k : n - k] for k in range(1, lags + 1)])
+    one = np.ones((len(Y), 1))
+    XA, XB = np.hstack([one, own]), np.hstack([one, own, other])
+    cut = train - lags  # rows of Y that fall inside the first `train` weeks
+    bA, *_ = np.linalg.lstsq(XA[:cut], Y[:cut], rcond=None)
+    bB, *_ = np.linalg.lstsq(XB[:cut], Y[:cut], rcond=None)
+    fA, fB, yt = XA[cut:] @ bA, XB[cut:] @ bB, Y[cut:]
+    eA, eB = yt - fA, yt - fB
+    mA, mB = float(np.mean(eA**2)), float(np.mean(eB**2))
+    adj = eA**2 - (eB**2 - (fA - fB) ** 2)
+    sd = float(np.std(adj, ddof=1))
+    t = float(np.mean(adj) / (sd / np.sqrt(len(adj)))) if sd > 0 else 0.0
+    return {
+        "lags": lags,
+        "train_weeks": int(train),
+        "test_weeks": len(yt),
+        "mse_own": mA,
+        "mse_with_intents": mB,
+        "mse_ratio": mB / mA if mA > 0 else float("nan"),
+        "oos_r2_gain_pct": 100 * (1 - mB / mA) if mA > 0 else float("nan"),
+        "win_share": float(np.mean(np.abs(eB) < np.abs(eA))),
+        "cw_t": t,
+        "p_cw": float(0.5 * math.erfc(t / math.sqrt(2))),
+    }
 
 
 def cross_corr(a: ArrayLike, b: ArrayLike, max_lag: int) -> list[tuple[int, float]]:

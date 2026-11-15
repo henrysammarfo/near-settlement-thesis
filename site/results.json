@@ -500,7 +500,20 @@
         "headline_reverse_p": 0.862869691168,
         "intents_leads_significant": false,
         "usage_leads_significant": false,
-        "any_order_below_alpha": []
+        "any_order_below_alpha": [],
+        "out_of_sample": {
+          "lags": 2,
+          "train_weeks": 70,
+          "test_weeks": 28,
+          "mse_own": 0.0218768812906,
+          "mse_with_intents": 0.0218575450136,
+          "mse_ratio": 0.99911613192,
+          "oos_r2_gain_pct": 0.0883868079984,
+          "win_share": 0.464285714286,
+          "cw_t": 0.220716372448,
+          "p_cw": 0.412656641232
+        },
+        "split_week": "2026-05-03"
       },
       {
         "series": "tx",
@@ -614,7 +627,20 @@
         "headline_reverse_p": 0.785765878908,
         "intents_leads_significant": false,
         "usage_leads_significant": false,
-        "any_order_below_alpha": []
+        "any_order_below_alpha": [],
+        "out_of_sample": {
+          "lags": 2,
+          "train_weeks": 70,
+          "test_weeks": 28,
+          "mse_own": 0.0101512390057,
+          "mse_with_intents": 0.0103700067098,
+          "mse_ratio": 1.02155083769,
+          "oos_r2_gain_pct": -2.15508376872,
+          "win_share": 0.535714285714,
+          "cw_t": -0.287175800958,
+          "p_cw": 0.61301114284
+        },
+        "split_week": "2026-05-03"
       },
       {
         "series": "storage",
@@ -728,13 +754,32 @@
         "headline_reverse_p": 0.509233239877,
         "intents_leads_significant": false,
         "usage_leads_significant": false,
-        "any_order_below_alpha": []
+        "any_order_below_alpha": [],
+        "out_of_sample": {
+          "lags": 2,
+          "train_weeks": 70,
+          "test_weeks": 28,
+          "mse_own": 0.00141140623372,
+          "mse_with_intents": 0.00135009244268,
+          "mse_ratio": 0.956558367413,
+          "oos_r2_gain_pct": 4.34416325874,
+          "win_share": 0.5,
+          "cw_t": 1.13825052078,
+          "p_cw": 0.127507944179
+        },
+        "split_week": "2026-05-03"
       }
     ],
     "tests_run": 24,
     "series_where_intents_leads": [],
     "series_where_usage_leads": [],
-    "min_headline_p": 0.247200287098
+    "min_headline_p": 0.247200287098,
+    "oos_train_weeks": 70,
+    "series_where_oos_helps": [],
+    "series_where_oos_ratio_below_1": [
+      "aa",
+      "storage"
+    ]
   },
   "peers": {
     "fetched_at_utc": "2026-11-15T05:40:01Z",

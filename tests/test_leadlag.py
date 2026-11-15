@@ -78,3 +78,56 @@ def test_leadlag_on_committed_data_is_null_and_reported():
     # The honest finding: no usage series is led by Intents volume at the 5% level.
     assert L["series_where_intents_leads"] == []
     assert L["tests_run"] == 24
+
+
+def test_out_of_sample_finds_a_real_lead_and_ignores_noise():
+    import numpy as np
+
+    from settlemark.stats import out_of_sample
+
+    rng = np.random.default_rng(7)
+    x = rng.normal(size=120)
+    y = np.r_[0.0, 0.8 * x[:-1]] + 0.3 * rng.normal(size=120)  # x leads y by one week
+    real = out_of_sample(y, x, 2, 80)
+    assert real["mse_ratio"] < 0.5 and real["p_cw"] < 0.01 and real["test_weeks"] == 40
+    noise = out_of_sample(rng.normal(size=120), rng.normal(size=120), 2, 80)
+    assert noise["p_cw"] > 0.01
+
+
+def test_out_of_sample_uses_only_the_fit_weeks():
+    import numpy as np
+
+    from settlemark.stats import out_of_sample
+
+    rng = np.random.default_rng(1)
+    x, y = rng.normal(size=100), rng.normal(size=100)
+    a = out_of_sample(y, x, 2, 70)
+    y2 = y.copy()
+    y2[70:] += 5.0  # changing test weeks must not change the fitted models, only the errors
+    x2 = x.copy()
+    x2[72:] = 0.0
+    b = out_of_sample(y2, x2, 2, 70)
+    assert a["train_weeks"] == b["train_weeks"] == 70
+    assert a["mse_own"] != b["mse_own"]
+    import pytest
+
+    from settlemark.stats import StatsError
+
+    with pytest.raises(StatsError):
+        out_of_sample(y, x, 2, 98)
+
+
+def test_committed_out_of_sample_matches_config_and_page():
+    import json
+
+    from settlemark.config import ROOT
+
+    L = json.loads((ROOT / "results" / "results.json").read_text())["leadlag"]
+    assert L["oos_train_weeks"] == 70
+    for t in L["tests"]:
+        o = t["out_of_sample"]
+        assert o["train_weeks"] == 70 and o["test_weeks"] == t["weeks"] - 70
+    page = (ROOT / "site" / "index.html").read_text()
+    thesis = (ROOT / "THESIS.md").read_text()
+    assert "Out of sample" in page and "Out of sample check" in thesis
+    assert "after the in sample results" in thesis

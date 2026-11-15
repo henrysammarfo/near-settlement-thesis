@@ -83,6 +83,7 @@ lags = [1, 2, 3, 4]         # Granger style F tests run at each of these lag ord
 main_lags = 2               # the one we headline, fixed before looking (two weeks)
 min_shift = 8               # circular shift null: rotate the leader by at least this many weeks
 alpha = 0.05                # a lead counts only if both p values are below this
+oos_train_weeks = 70        # out of sample check: fit on the first 70 weeks, forecast the rest (added 15 Nov, after the in sample tests)
 
 [peers]
 # Cross chain routers with daily volume, fees and revenue on DefiLlama's free API, compared

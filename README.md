@@ -23,7 +23,7 @@ Numbers from the current build. They change only when the public data changes. S
 | How many of our five falsifiers are met? | Shown live in THESIS.md and on the page. |
 | Do buybacks offset new NEAR supply? | No. Read straight from NEAR archival RPC: buybacks catch most Intents revenue but cover under a fifth of new supply. |
 | What are buybacks worth per token? | Well below the price in the base case; the page has a tester to move every assumption. |
-| Does Intents volume lead network usage (the track's hypothesis)? | No, not on public data. Granger style tests on three usage series, including raw chain state, find no lead at the 5% level. Reported as a null result. |
+| Does Intents volume lead network usage (the track's hypothesis)? | No, not on public data. Granger style tests on three usage series, including raw chain state, find no lead at the 5% level, and fitting on the first 70 weeks then forecasting the last 28 gives the same answer. Reported as a null result. |
 | How does Intents compare with other cross chain routers? | Largest of five by volume, mid priced on fees, and NEAR trades at about 15x the revenue multiple of router tokens. |
 | What do we expect next? | Fourteen predictions with probabilities in [PREDICTIONS.md](PREDICTIONS.md) and [PREDICTIONS_2.md](PREDICTIONS_2.md), frozen after the hackathon deadline but before any scored week, with both hashes anchored on NEAR testnet. |
 
@@ -40,7 +40,7 @@ Needs Python 3.11 or newer. No API keys. No accounts. No cost.
 1. `git clone https://github.com/henrysammarfo/near-settlement-thesis && cd near-settlement-thesis`
 2. `npm run setup` (or `make setup`). You see the Python packages install into `.venv`.
 3. `npm run rebuild` (or `sh rebuild.sh`, or `make rebuild`). You see one log line per dataset, for example `intents_volume 705 rows DefiLlama` (one more row each day), then `near_rpc 101 rows NEAR archival RPC`, one line per router series in `data/peers/`, `results.json`, `charts: 44 files` and `rendered THESIS.md`. BigQuery is read from the committed results in `data/bigquery/`, so no Google account is needed. The first run takes about 3 minutes because it reads one archival block a week (about 780 RPC calls); later runs reuse the immutable block cache and take seconds.
-4. `npm test` (or `make test`). You see `84 passed` and no warnings (any deprecation warning fails the run), with no network needed (the JavaScript model test needs Node).
+4. `npm test` (or `make test`). You see `87 passed` and no warnings (any deprecation warning fails the run), with no network needed (the JavaScript model test needs Node).
 5. `make lint`. You see ruff report no problems.
 5b. `npm run check` (or `python -m settlemark check`). It rebuilds every output into a temp folder from the committed CSVs and fails on any byte of difference, then audits THESIS.md so every number is either computed or a constant written in the template.
 6. Open `site/index.html` straight from disk (double click, or `file://`). You see the same page as the live site with every chart drawn: the chart data is inlined in the HTML. If you prefer a server, `npm run serve` serves `site/` at http://localhost:8000.
@@ -66,7 +66,7 @@ settlemark/
   check.py             byte for byte rebuild check and the THESIS.md number audit
   bigquery.py          BigQuery as a main source: committed results, a manifest with scan size and SQL hash,
                        an API runner with a dry run and a scan limit, and an importer for console downloads
-  leadlag.py           does Intents volume lead usage? cross correlations, Granger F tests, a circular shift test
+  leadlag.py           does Intents volume lead usage? cross correlations, Granger F tests, a circular shift test, an out of sample check
   peers.py             Intents against THORChain, Chainflip, LI.FI and Rango: volume, fees, revenue, capture
   anchor.py            prediction hashes anchored on NEAR testnet, verified offline and live
   charts.py            eleven charts in light and dark, deterministic output (no timestamps embedded)

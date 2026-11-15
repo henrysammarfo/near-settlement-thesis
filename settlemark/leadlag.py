@@ -20,7 +20,7 @@ import pandas as pd
 
 from .analysis import Frames
 from .config import Config
-from .stats import cross_corr, granger
+from .stats import cross_corr, granger, out_of_sample
 
 LABELS = {
     "aa": "NearBlocks daily active accounts",
@@ -61,6 +61,8 @@ def leadlag(cfg: Config, frames: Frames, chain_weekly: pd.DataFrame | None = Non
         head = next(g for g in fwd if g["lags"] == main)
         head_rev = next(g for g in rev if g["lags"] == main)
         best = max((x for x in xc if x[0] > 0), key=lambda x: abs(x[1]))
+        train = int(L["oos_train_weeks"])
+        oos = out_of_sample(pair[key], pair.iv, main, train) if len(pair) >= train + 5 else None
         tests.append(
             {
                 "series": key,
@@ -81,6 +83,8 @@ def leadlag(cfg: Config, frames: Frames, chain_weekly: pd.DataFrame | None = Non
                 "intents_leads_significant": bool(head["p_value"] < alpha and head["p_shift"] < alpha),
                 "usage_leads_significant": bool(head_rev["p_value"] < alpha and head_rev["p_shift"] < alpha),
                 "any_order_below_alpha": [g["lags"] for g in fwd if g["p_value"] < alpha],
+                "out_of_sample": oos,
+                "split_week": str(pair.index[train].date()) if oos else None,
             }
         )
     done = [t for t in tests if "skipped" not in t]
@@ -102,4 +106,7 @@ def leadlag(cfg: Config, frames: Frames, chain_weekly: pd.DataFrame | None = Non
         "series_where_intents_leads": [t["series"] for t in done if t["intents_leads_significant"]],
         "series_where_usage_leads": [t["series"] for t in done if t["usage_leads_significant"]],
         "min_headline_p": min(t["headline_p"] for t in done) if done else None,
+        "oos_train_weeks": int(L["oos_train_weeks"]),
+        "series_where_oos_helps": [t["series"] for t in done if t["out_of_sample"] and t["out_of_sample"]["p_cw"] < alpha],
+        "series_where_oos_ratio_below_1": [t["series"] for t in done if t["out_of_sample"] and t["out_of_sample"]["mse_ratio"] < 1],
     }

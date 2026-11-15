@@ -76,6 +76,17 @@ The track asks whether cross chain volume through Intents is a better leading in
 - **Result: Intents volume does not lead any usage series we can measure at p below 0.05.** The smallest headline p value is 0.25. For NearBlocks active accounts the strongest lead is 1 week at +0.09, inside the noise band, and the reverse test (usage leading Intents) gives 0.86. ![chart 10](charts/10_lead_lag.png)
 - **Read the chart with the band in mind.** The band is plus or minus 0.20, the 95% range for one correlation when there is no link. Bars at positive leads that cross it: 1 of 12 (intents.near state size (RPC) at 1 week, +0.21). Chance alone would put about 0.6 there. The joint tests above, which weigh all lags at once, are the ones to trust.
 - **Same week is different: NearBlocks transactions +0.27, intents.near state size (RPC) +0.25.** Intents settles on NEAR, so a busy Intents week mechanically adds NEAR transactions and `intents.near` state in that same week. That is co-movement, partly by construction, not a lead.
+
+**Out of sample check.** The tests above use every week to fit and to judge. Here both forecasting models (usage's own 2 lags, and the same plus 2 lags of Intents) are fitted once on the first 70 weeks only, frozen, and then asked to forecast each of the last 28 weeks, from the week of 2026-05-03 on, one week ahead. The 70 week split was chosen on 15 Nov, after the in sample results above were known, so treat it as a robustness check, not a fresh test. Code: `out_of_sample` in `settlemark/stats.py`.
+
+| Usage series | Fit weeks | Test weeks | Forecast error with Intents | Weeks Intents model was closer | Clark West p |
+|---|---|---|---|---|---|
+| NearBlocks daily active accounts | 70 | 28 | 0.1% less | 46% | 0.41 |
+| NearBlocks transactions | 70 | 28 | 2.2% more | 54% | 0.61 |
+| intents.near state size (RPC) | 70 | 28 | 4.3% less | 50% | 0.13 |
+
+- **Out of sample, past Intents changes do not significantly improve any usage forecast.** The best case is intents.near state size (RPC), 4.3% less forecast error; the smallest one sided Clark West p value is 0.13, above 0.05. This does not rescue the leading indicator claim, and it does not weaken the null either: it is the same answer on weeks the fit never saw.
+- 28 test weeks is a small sample, so a modest real gain could still hide here. State size is also the series most tied to Intents by construction (Intents writes its own state).
 - **So the track's hypothesis is not supported by these data.** Intents grew while base chain activity fell, and week to week the two move independently. That fits part 1 (Intents is its own flow), but it means Intents volume is not, on public data, an early signal of NEAR usage.
 - Caveats: 24 tests were run, so one p value under 0.05 would be expected by chance; none came out that low. Two years of weekly data has low power, so a modest lead could exist and be missed. NearBlocks counts accounts, and relayers hide signers. A Granger test is about prediction, not cause. When the BigQuery weekly signer series lands (below), the same test runs on it automatically.
 
@@ -153,7 +164,7 @@ We would also change our mind if Intents share of DEX volume falls for two quart
 
 ## Verdict
 
-Part 1 is supported over the full window and in every 26 week window, but the latest quarter is the weakest evidence yet (+0.54), and P3 will tell us within 8 weeks. Part 2 is supported and now measured on chain: about 94% of Intents revenue already buys NEAR, yet buybacks cover only 18.7% of new supply, and a buyback valuation gives $1.14 a token in the base case against $3.42. The price assumes about 76% yearly growth in holder cash. On this model the price is justified only if Intents volume keeps compounding toward $5.32B a week. This is research, not investment advice. Watch chart 7, not the price. The track's own hypothesis, that Intents volume leads network usage, is not supported: Intents volume does not lead any usage series we can measure. Against other routers, Intents is the biggest and mid priced, and per dollar of Intents revenue NEAR is priced 15x richer than router tokens are per dollar of their own revenue; part of that is fair, since NEAR is a whole layer 1, not only Intents.
+Part 1 is supported over the full window and in every 26 week window, but the latest quarter is the weakest evidence yet (+0.54), and P3 will tell us within 8 weeks. Part 2 is supported and now measured on chain: about 94% of Intents revenue already buys NEAR, yet buybacks cover only 18.7% of new supply, and a buyback valuation gives $1.14 a token in the base case against $3.42. The price assumes about 76% yearly growth in holder cash. On this model the price is justified only if Intents volume keeps compounding toward $5.32B a week. This is research, not investment advice. Watch chart 7, not the price. The track's own hypothesis, that Intents volume leads network usage, is not supported: Intents volume does not lead any usage series we can measure, in sample or out of sample. Against other routers, Intents is the biggest and mid priced, and per dollar of Intents revenue NEAR is priced 15x richer than router tokens are per dollar of their own revenue; part of that is fair, since NEAR is a whole layer 1, not only Intents.
 
 ## Limits
 

@@ -207,6 +207,7 @@ def extra_numbers(R: dict) -> dict[str, str]:
                     for o in L["lead_bars_outside"]
                 )
                 or "none",
+                **oos_numbers(L, T),
                 "llsame": ", ".join(f"{T[o['series']]['label']} {signed_md(o['corr'])}" for o in L["same_week_outside"]) or "none",
                 "llverdict": (
                     "Intents volume leads " + ", ".join(T[k]["label"] for k in L["series_where_intents_leads"])
@@ -258,6 +259,72 @@ def leadlag_md(R: dict) -> str:
             f"{_p(t['headline_p_shift'])} | {_p(t['headline_reverse_p'])} |"
         )
     return "\n".join(rows)
+
+
+def oos_numbers(L: dict, T: dict) -> dict[str, str]:
+    oo = {k: t["out_of_sample"] for k, t in T.items() if t.get("out_of_sample")}
+    if not oo:
+        return {
+            k: "n/a" for k in ("lloostrain", "lloostest", "lloossplit", "lloosminp", "lloosbest", "lloosverdict", "lloosread", "llooswhere")
+        }
+    first = next(iter(oo.values()))
+    best_k = min(oo, key=lambda k: oo[k]["mse_ratio"])
+    minp = min(o["p_cw"] for o in oo.values())
+    helps = L["series_where_oos_helps"]
+    verdict = (
+        "Out of sample, past Intents changes improve the forecast of " + ", ".join(T[k]["label"] for k in helps)
+        if helps
+        else "Out of sample, past Intents changes do not significantly improve any usage forecast"
+    )
+    return {
+        "lloostrain": str(first["train_weeks"]),
+        "lloostest": str(first["test_weeks"]),
+        "lloossplit": T[best_k]["split_week"],
+        "lloosminp": _p(minp),
+        "lloosbest": f"{T[best_k]['label']}, {_gain(oo[best_k])} forecast error",
+        "llooswhere": " in sample or out of sample" if not helps else " in sample, though out of sample shows a significant gain",
+        "lloosread": (
+            f"above {L['alpha']:.2f}. This does not rescue the leading indicator claim, and it does not weaken the null either: it is the same answer on weeks the fit never saw"
+            if not helps
+            else f"below {L['alpha']:.2f}. On unseen weeks Intents does help, which is stronger evidence than the in sample tests gave"
+        ),
+        "lloosverdict": verdict,
+    }
+
+
+def _gain(o: dict) -> str:
+    g = o["oos_r2_gain_pct"]
+    return f"{g:.1f}% less" if g >= 0 else f"{abs(g):.1f}% more"
+
+
+def oos_md(R: dict) -> str:
+    L = R.get("leadlag")
+    rows = [
+        "| Usage series | Fit weeks | Test weeks | Forecast error with Intents | Weeks Intents model was closer | Clark West p |",
+        "|---|---|---|---|---|---|",
+    ]
+    for t in (L or {}).get("tests", []):
+        o = t.get("out_of_sample")
+        if o:
+            rows.append(
+                f"| {t['label']} | {o['train_weeks']} | {o['test_weeks']} | {_gain(o)} | {o['win_share'] * 100:.0f}% | {_p(o['p_cw'])} |"
+            )
+    return "\n".join(rows) if len(rows) > 2 else ""
+
+
+def oos_html(R: dict) -> str:
+    L = R.get("leadlag")
+    rows = [
+        '<div class="tscroll"><table class="sens num ll"><thead><tr><th>Usage series</th><th>Error with Intents</th><th>Closer weeks</th><th>p</th></tr></thead><tbody>'
+    ]
+    for t in (L or {}).get("tests", []):
+        o = t.get("out_of_sample")
+        if o:
+            rows.append(
+                f"<tr><td>{html.escape(t['label'])}</td><td>{_gain(o)}</td><td>{o['win_share'] * 100:.0f}%</td><td>{_p(o['p_cw'])}</td></tr>"
+            )
+    rows.append("</tbody></table></div>")
+    return "".join(rows) if len(rows) > 2 else ""
 
 
 def _cap(x: float | None) -> str:
@@ -479,6 +546,7 @@ def thesis_context(cfg: Config, R: dict) -> dict[str, str]:
         preds2=predictions_2_md(cfg, R),
         anchors=anchors_md(cfg),
         lltable=leadlag_md(R),
+        oostable=oos_md(R),
         petable=peers_md(R),
         bqtable=bigquery_md(R, cfg.project["repo"]),
         fals=fals,
@@ -621,7 +689,7 @@ def render_site(cfg: Config, R: dict) -> str:
         **{f"chart_{c[:2]}": chart_html(c, cfg.paths.site / "charts") for c in CHARTS},
     }
     ctx.update({k: html.escape(v.replace("-", "\u2212") if k in ("llaar",) else v) for k, v in extra_numbers(R).items()})
-    ctx.update(peers_html=peers_html(R), bq_html=bigquery_html(R))
+    ctx.update(peers_html=peers_html(R), bq_html=bigquery_html(R), oos_html=oos_html(R))
     ctx.update(inline_data=_inline(cfg.paths.site / "data.json"), inline_results=_inline(cfg.paths.site / "results.json"))
     # Fonts inlined as data URIs: Chrome blocks font files on file:// as cross origin, and README step 6 opens the page from disk.
     fonts = cfg.paths.root / "brand" / "fonts"

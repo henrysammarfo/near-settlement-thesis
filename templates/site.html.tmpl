@@ -347,6 +347,10 @@ table.ll th{color:var(--mute);font-weight:600}
       <div class="chart r"><h3>Cross correlations by lead</h3><div class="legend"></div><div class="plot" id="c-lead" role="img" aria-label="Correlations between weekly Intents volume changes and later usage changes at leads of minus four to four weeks against a grey 95 percent noise band"></div><noscript>$chart_10</noscript><div class="src">Grey band (&plusmn;$llband): what noise alone produces 95% of the time. Positive lead bars crossing it: $llout of $llbars, where chance alone gives about $llexp. Same week bars are partly mechanical: Intents settles on NEAR. Tap or hover a lead for values. <a href="charts/10_lead_lag-light.svg" rel="noopener">Static chart</a></div></div>
       <div class="chart r" style="--d:80ms"><h3>What it means</h3><p class="lead" style="font-size:16px">$llverdict. Intents grew while the base chain shrank, and week to week they move independently. That fits part 1, Intents is its own flow, but it is not an early signal of NEAR usage. Two years of weeks gives low power: a modest lead could be missed. Granger tests prediction, not cause.</p></div>
     </div>
+    <div class="grid2" style="margin-top:var(--s2)">
+      <div class="chart r"><h3>Out of sample: fit on $lloostrain weeks, forecast $lloostest</h3>$oos_html<div class="src">Both models fitted once on weeks before $lloossplit, then frozen. &ldquo;Closer weeks&rdquo;: share of test weeks where adding Intents beat usage&rsquo;s own past. One sided Clark West p.</div></div>
+      <div class="chart r" style="--d:80ms"><h3>Same answer on unseen weeks</h3><p class="lead" style="font-size:16px">$lloosverdict. Best case: $lloosbest, p $lloosminp. The split was picked after the in sample results were known, and $lloostest weeks is a small test, so this is a robustness check, not new proof either way.</p></div>
+    </div>
   </div>
 </section>
 
