@@ -53,3 +53,25 @@ near_tvl = "https://api.llama.fi/v2/historicalChainTvl/Near"
 near_chain = "https://api.nearblocks.io/v1/charts"
 near_price = "https://api.coingecko.com/api/v3/coins/near/market_chart?vs_currency=usd&days=365&interval=daily"
 btc_price = "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=365&interval=daily"
+
+[chain]
+# Raw chain reads, one block per week, straight from archival RPC (no indexer).
+endpoints = ["https://archival-rpc.mainnet.fastnear.com", "https://archival-rpc.mainnet.near.org"]
+buyback_account = "buybacks.multisignature.near"
+intents_account = "intents.near"
+first_week = "2024-12-09"
+
+[valuation]
+# Assumptions, stated once. Growth scenarios are not typed here: bull is the observed
+# annualised Intents revenue growth (last 182 days against the 182 before), capped below;
+# base is half of it; bear is zero growth.
+discount_rate = 0.15        # base discount rate for a volatile, early crypto cash flow
+discount_low = 0.10
+discount_high = 0.20
+terminal_growth = 0.03      # long run growth after the fade, about nominal world GDP
+explicit_years = 5          # years at the scenario growth rate
+fade_years = 5              # years over which growth fades to terminal_growth
+bull_growth_cap = 1.0       # never assume more than 100% a year, whatever the data says
+
+[robustness]
+rolling_weeks = 26          # the "any 26 week window" test in THESIS.md
