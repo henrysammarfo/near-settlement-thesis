@@ -75,3 +75,83 @@ bull_growth_cap = 1.0       # never assume more than 100% a year, whatever the d
 
 [robustness]
 rolling_weeks = 26          # the "any 26 week window" test in THESIS.md
+
+[leadlag]
+# Does Intents volume lead base chain usage? Weekly log changes, the same weeks as part 1.
+max_lag = 4                 # cross correlations for leads and lags of up to this many weeks
+lags = [1, 2, 3, 4]         # Granger style F tests run at each of these lag orders
+main_lags = 2               # the one we headline, fixed before looking (two weeks)
+min_shift = 8               # circular shift null: rotate the leader by at least this many weeks
+alpha = 0.05                # a lead counts only if both p values are below this
+
+[peers]
+# Cross chain routers with daily volume, fees and revenue on DefiLlama's free API, compared
+# over the same days. market_cap is CoinGecko, only for routers that have their own token.
+window_days = 91
+coingecko_pause_seconds = 2.0
+
+[[peers.protocol]]
+slug = "near_intents"
+name = "NEAR Intents"
+model = "intents, solver auctions"
+main = true                 # read from data/intents_*.csv, the files the rest of the thesis uses
+
+[[peers.protocol]]
+slug = "thorchain"
+name = "THORChain"
+model = "native asset pools"
+volume = "https://api.llama.fi/summary/dexs/thorchain-dex?dataType=dailyVolume"
+fees = "https://api.llama.fi/summary/fees/thorchain-dex?dataType=dailyFees"
+revenue = "https://api.llama.fi/summary/fees/thorchain-dex?dataType=dailyRevenue"
+market_cap = "https://api.coingecko.com/api/v3/coins/thorchain/market_chart?vs_currency=usd&days=365&interval=daily"
+
+[[peers.protocol]]
+slug = "chainflip"
+name = "Chainflip"
+model = "native asset pools, JIT market makers"
+volume = "https://api.llama.fi/summary/dexs/chainflip?dataType=dailyVolume"
+fees = "https://api.llama.fi/summary/fees/chainflip?dataType=dailyFees"
+revenue = "https://api.llama.fi/summary/fees/chainflip?dataType=dailyRevenue"
+market_cap = "https://api.coingecko.com/api/v3/coins/chainflip/market_chart?vs_currency=usd&days=365&interval=daily"
+
+[[peers.protocol]]
+slug = "lifi"
+name = "LI.FI"
+model = "aggregator over other bridges"
+volume = "https://api.llama.fi/summary/bridge-aggregators/li.fi?dataType=dailyBridgeVolume"
+fees = "https://api.llama.fi/summary/fees/li.fi?dataType=dailyFees"
+revenue = "https://api.llama.fi/summary/fees/li.fi?dataType=dailyRevenue"
+
+[[peers.protocol]]
+slug = "rango"
+name = "Rango"
+model = "aggregator over other bridges"
+volume = "https://api.llama.fi/summary/bridge-aggregators/rango?dataType=dailyBridgeVolume"
+fees = "https://api.llama.fi/summary/fees/rango?dataType=dailyFees"
+revenue = "https://api.llama.fi/summary/fees/rango?dataType=dailyRevenue"
+
+[bigquery]
+# The NEAR BigQuery public dataset is a main source. Its results are committed in data/bigquery/
+# with a manifest (scan size, run time, a hash of the SQL), so a fresh clone with no Google account
+# rebuilds byte for byte. `npm run bigquery` reruns every query: dry run first, and it refuses any
+# query above max_gb so the free 1 TB a month is never exceeded by accident.
+dataset = "bigquery-public-data.crypto_near_mainnet_us"
+max_gb = 400
+
+[[bigquery.query]]
+key = "01"
+csv = "receipt_actions_daily.csv"
+columns = ["day:date", "receipt_actions:int", "note:optional"]
+required = true
+
+[[bigquery.query]]
+key = "04"
+csv = "04_intents_weekly.csv"
+columns = ["week_start:date", "intents_receipts:int", "senders:int"]
+required = false            # becomes true once its first committed run lands
+
+[[bigquery.query]]
+key = "05"
+csv = "05_weekly_activity.csv"
+columns = ["week_start:date", "transactions:int", "signers:int"]
+required = false            # becomes true once its first committed run lands

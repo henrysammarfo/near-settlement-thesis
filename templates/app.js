@@ -1,4 +1,12 @@
 // Settlemark page: interactive charts drawn as SVG from data.json (written by `npm run rebuild`).
+// The same data is inlined in index.html, so the page also works opened straight from disk (file://).
+function loadJSON(id, url) {
+  const n = document.getElementById(id);
+  if (n && n.textContent.trim()) {
+    try { return Promise.resolve(JSON.parse(n.textContent)); } catch (e) { console.error(e); }
+  }
+  return fetch(url).then((r) => r.json());
+}
 (() => {
   "use strict";
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -179,7 +187,7 @@
   addEventListener("scroll", onScroll, { passive: true }); onScroll();
   document.querySelectorAll(".copy").forEach((b) => b.addEventListener("click", async () => { try { await navigator.clipboard.writeText(b.dataset.copy); b.textContent = "Copied"; } catch { b.textContent = "Select to copy"; } setTimeout(() => (b.textContent = "Copy"), 1600); }));
 
-  fetch("data.json").then((r) => r.json()).then((D) => {
+  loadJSON("data-json", "data.json").then((D) => {
     const w = D.weekly;
     series(document.getElementById("c-flow"), {
       x: w.date,
@@ -206,7 +214,7 @@
   const LO = 8, HI = Math.log10(2e10); // weekly volume slider: $100M to $20B on a log scale
   const toVol = (s) => Math.pow(10, LO + (s / 1000) * (HI - LO));
   const fromVol = (v) => Math.round(((Math.log10(v) - LO) / (HI - LO)) * 1000);
-  fetch("results.json").then((r) => r.json()).then((R) => {
+  loadJSON("results-json", "results.json").then((R) => {
     const V = R.valuation;
     const base = M.defaults(V);
     const set = (x) => { $("t-vol").value = fromVol(x.weekly_volume); $("t-take").value = x.take_bps; $("t-share").value = x.share_pct; $("t-g").value = x.growth_pct; $("t-r").value = x.discount_pct; };

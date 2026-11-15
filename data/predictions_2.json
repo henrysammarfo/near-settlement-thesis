@@ -1,0 +1,98 @@
+{
+  "created_at_utc": "2026-11-15T05:43:57Z",
+  "data_window_end": "2026-11-13",
+  "results_fetched_at_utc": "2026-11-14T23:05:20Z",
+  "note": "Set 2, frozen after the hackathon deadline of 2026-11-14 23:59 UTC and before the first scored week began on 2026-11-16.",
+  "rule_for_part1": "If P9, P10 and P11 all miss, the claim that Intents is still gaining ground is rejected.",
+  "rule_for_part2": "If P12 misses, NEAR is no longer priced far above router tokens on revenue and part 2 weakens.",
+  "predictions": [
+    {
+      "id": "P9",
+      "claim": "Intents volume keeps compounding",
+      "metric": "mean weekly NEAR Intents volume, weeks ending 2026-11-22 to 2027-01-10",
+      "rule": "at least 1.1x the mean of the last 4 weeks at freeze",
+      "op": ">=",
+      "threshold": 945654567.28,
+      "unit": "USD",
+      "window_end": "2027-01-10",
+      "datasets": [
+        "intents_volume"
+      ],
+      "probability": 0.4
+    },
+    {
+      "id": "P10",
+      "claim": "Intents sets a new share high",
+      "metric": "mean weekly Intents share of all DEX volume, weeks ending 2026-11-22 to 2027-01-10",
+      "rule": "at least the mean of the latest 13 weeks at freeze",
+      "op": ">=",
+      "threshold": 1.4586,
+      "unit": "percent",
+      "window_end": "2027-01-10",
+      "datasets": [
+        "intents_volume",
+        "all_dex_volume"
+      ],
+      "probability": 0.5
+    },
+    {
+      "id": "P11",
+      "claim": "Intents carries half of all router volume",
+      "metric": "Intents share of the combined volume of the 5 routers in data/peers, 2026-11-16 to 2027-01-10",
+      "rule": "at least 50% (47.7% in the 91 days to freeze)",
+      "op": ">=",
+      "threshold": 50.0,
+      "unit": "percent",
+      "window_end": "2027-01-10",
+      "datasets": [
+        "intents_volume",
+        "peers"
+      ],
+      "probability": 0.45
+    },
+    {
+      "id": "P12",
+      "claim": "NEAR stays far pricier per revenue dollar than router tokens",
+      "metric": "NEAR market cap over annualised Intents revenue, divided by the median of the same ratio for routers with a token, 2026-11-16 to 2027-01-10",
+      "rule": "at least 5x (15.1x in the 91 days to freeze)",
+      "op": ">=",
+      "threshold": 5.0,
+      "unit": "multiple",
+      "window_end": "2027-01-10",
+      "datasets": [
+        "near_chain",
+        "intents_revenue",
+        "peers"
+      ],
+      "probability": 0.85
+    },
+    {
+      "id": "P13",
+      "claim": "The base chain does not recover",
+      "metric": "mean NearBlocks daily active accounts, weeks ending 2026-11-22 to 2027-01-10",
+      "rule": "below 1.4x the mean of the latest 13 weeks at freeze",
+      "op": "<",
+      "threshold": 99221.0,
+      "unit": "accounts",
+      "window_end": "2027-01-10",
+      "datasets": [
+        "near_chain"
+      ],
+      "probability": 0.8
+    },
+    {
+      "id": "P14",
+      "claim": "Buybacks scale up",
+      "metric": "same ratio as P5",
+      "rule": "at least 25%, above the last 13 weeks at freeze (18.7%)",
+      "op": ">=",
+      "threshold": 25.0,
+      "unit": "percent",
+      "window_end": "2027-01-10",
+      "datasets": [
+        "near_rpc"
+      ],
+      "probability": 0.3
+    }
+  ]
+}

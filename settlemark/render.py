@@ -23,6 +23,8 @@ CHART_ALT = {
     "07_supply_vs_buybacks": "Two area lines since buybacks began: NEAR added to total supply rising far faster than NEAR held by the buyback wallet",
     "08_rolling_correlation": "Line chart of the 26 week rolling correlation between Intents volume and NEAR price, staying below the 0.5 line",
     "09_value_per_token": "Bar chart of value per NEAR from buybacks in bear, base and bull cases against the current price line",
+    "10_lead_lag": "Bar chart of correlations between Intents volume changes and later usage changes at leads of minus four to four weeks, all inside the noise band",
+    "11_router_take_rates": "Horizontal bars of fees and revenue in basis points of volume for NEAR Intents and four other cross chain routers",
 }
 SVG_SIZE = re.compile(r'<svg[^>]*?width="([\d.]+)pt"[^>]*?height="([\d.]+)pt"', re.S)
 
@@ -169,6 +171,153 @@ def deep_numbers(R: dict) -> dict[str, str]:
     }
 
 
+def _p(x: float) -> str:
+    return "<0.001" if x < 0.001 else f"{x:.2f}"
+
+
+def extra_numbers(R: dict) -> dict[str, str]:
+    """Placeholders for the lead and lag test and the router comparison."""
+    out: dict[str, str] = {}
+    L = R.get("leadlag")
+    if L:
+        T = {t["series"]: t for t in L["tests"] if "xcorr" in t}
+        aa, st, tx = T["aa"], T.get("storage"), T["tx"]
+        out.update(
+            {
+                "llw": str(aa["weeks"]),
+                "llk": str(L["headline_lags"]),
+                "llalpha": f"{L['alpha']:.2f}",
+                "lln": str(L["tests_run"]),
+                "llaap": _p(aa["headline_p"]),
+                "llaaps": _p(aa["headline_p_shift"]),
+                "llaarev": _p(aa["headline_reverse_p"]),
+                "llaak": str(aa["best_lead_weeks"]),
+                "llaar": signed_md(aa["best_lead_corr"]),
+                "lltxp": _p(tx["headline_p"]),
+                "llstp": _p(st["headline_p"]) if st else "n/a",
+                "llstps": _p(st["headline_p_shift"]) if st else "n/a",
+                "llmin": _p(L["min_headline_p"]),
+                "llverdict": (
+                    "Intents volume leads " + ", ".join(T[k]["label"] for k in L["series_where_intents_leads"])
+                    if L["series_where_intents_leads"]
+                    else "Intents volume does not lead any usage series we can measure"
+                ),
+            }
+        )
+    P = R.get("peers")
+    if P:
+        me = next(r for r in P["rows"] if r["slug"] == "near_intents")
+        out.update(
+            {
+                "pedays": str(P["window_days"]),
+                "pestart": P["window_start"],
+                "peend": P["window_end"],
+                "pen": str(P["routers"]),
+                "perank": str(P["intents_volume_rank"]),
+                "peshare": pct(P["intents_share_of_peer_volume_pct"]),
+                "pevol": money_b(me["volume_usd"]),
+                "pefee": f"{P['intents_fee_bps']:.1f}",
+                "pefeemed": f"{P['peer_fee_bps_median']:.1f}",
+                "perev": f"{P['intents_revenue_bps']:.1f}",
+                "perevmed": f"{P['peer_revenue_bps_median']:.1f}",
+                "pecheap": str(P["cheaper_than"]),
+                "peothers": str(P["routers"] - 1),
+                "pemrev": f"{P['near_mcap_to_annual_revenue']:.0f}x",
+                "petok": f"{P['token_peer_mcap_to_annual_revenue_median']:.0f}x",
+                "peprem": f"{P['near_premium_to_token_peers_x']:.0f}x",
+            }
+        )
+    return out
+
+
+def leadlag_md(R: dict) -> str:
+    L = R.get("leadlag")
+    if not L:
+        return ""
+    rows = [
+        f"| Usage series | Weeks | Strongest lead (weeks, r) | p, Intents leads ({L['headline_lags']} lags) | Shift p | p, usage leads |",
+        "|---|---|---|---|---|---|",
+    ]
+    for t in L["tests"]:
+        if "xcorr" not in t:
+            rows.append(f"| {t['label']} | {t['weeks']} | not run: {t['skipped']} | | | |")
+            continue
+        rows.append(
+            f"| {t['label']} | {t['weeks']} | {t['best_lead_weeks']}, {signed_md(t['best_lead_corr'])} | {_p(t['headline_p'])} | "
+            f"{_p(t['headline_p_shift'])} | {_p(t['headline_reverse_p'])} |"
+        )
+    return "\n".join(rows)
+
+
+def _cap(x: float | None) -> str:
+    return "no token" if x is None else f"{x:.0f}x"
+
+
+def peers_md(R: dict) -> str:
+    P = R.get("peers")
+    if not P:
+        return ""
+    rows = [
+        "| Router | Model | Volume | Fees, bps | Revenue, bps | Revenue share of fees | Market cap to yearly revenue |",
+        "|---|---|---|---|---|---|---|",
+    ]
+    for r in P["rows"]:
+        rows.append(
+            f"| {r['name']} | {r['model']} | {money_b(r['volume_usd'])} | {r['fee_bps']:.1f} | {r['revenue_bps']:.1f} | "
+            f"{r['revenue_share_of_fees_pct']:.0f}% | {_cap(r['mcap_to_annual_revenue'])} |"
+        )
+    return "\n".join(rows)
+
+
+def peers_html(R: dict) -> str:
+    P = R.get("peers")
+    if not P:
+        return ""
+    rows = [
+        '<div class="tscroll"><table class="sens num peers"><thead><tr><th>Router</th><th>Volume</th><th>Fees, bps</th><th>Revenue, bps</th>'
+        "<th>Cap to revenue</th></tr></thead><tbody>"
+    ]
+    for r in P["rows"]:
+        me = ' class="me"' if r["slug"] == "near_intents" else ""
+        rows.append(
+            f"<tr{me}><td>{html.escape(r['name'])}<small>{html.escape(r['model'])}</small></td><td>{money_b(r['volume_usd'])}</td>"
+            f"<td>{r['fee_bps']:.1f}</td><td>{r['revenue_bps']:.1f}</td><td>{_cap(r['mcap_to_annual_revenue'])}</td></tr>"
+        )
+    rows.append("</tbody></table></div>")
+    return "".join(rows)
+
+
+def bigquery_md(R: dict, repo: str) -> str:
+    B = R.get("bigquery")
+    if not B:
+        return ""
+    rows = ["| Query | Result | Rows | Scanned | Run |", "|---|---|---|---|---|"]
+    for q in B["queries"]:
+        if q["committed"]:
+            rows.append(
+                f"| [{q['sql']}]({q['sql']}) | [{q['csv']}]({q['csv']}) | {q['rows']} ({q['first']} to {q['last']}) | "
+                f"{q['scanned_gb']:.0f} GB | {q['run_at_utc'][:10]}, {q['method']} |"
+            )
+        else:
+            rows.append(f"| [{q['sql']}]({q['sql']}) | pending first run | | | |")
+    return "\n".join(rows)
+
+
+def bigquery_html(R: dict) -> str:
+    B = R.get("bigquery")
+    if not B:
+        return ""
+    done = [q for q in B["queries"] if q["committed"]]
+    todo = [q for q in B["queries"] if not q["committed"]]
+    parts = [
+        f"{len(done)} of {len(B['queries'])} BigQuery results are committed with their scan size and a hash of the SQL "
+        "(<code>data/bigquery/manifest.json</code>), so the page rebuilds with no Google account."
+    ]
+    if todo:
+        parts.append(" Pending first run: " + ", ".join(f"<code>{html.escape(q['sql'])}</code>" for q in todo) + ".")
+    return "".join(parts)
+
+
 def sensitivity_md(R: dict) -> str:
     rows = ["| Discount rate | Bear | Base | Bull |", "|---|---|---|---|"]
     for g in R["valuation"]["sensitivity"]:
@@ -194,6 +343,40 @@ def predictions_md(cfg: Config, R: dict) -> str:
             f"| {q['id']} | {q['claim']}: {q['metric']} | {q['op']} {_pred_threshold(q)} | {q['window_end']} | {q['probability']:.2f} | {st[q['id']]['status']} |"
         )
     return "\n".join(rows)
+
+
+def predictions_2_md(cfg: Config, R: dict) -> str:
+    p = cfg.paths.data / "predictions_2.json"
+    if not p.exists() or "predictions_2" not in R:
+        return ""
+    P = json.loads(p.read_text())
+    st = {r["id"]: r for r in R["predictions_2"]["results"]}
+    rows = [
+        f"Set 2, bolder calls: frozen {P['created_at_utc']}, after the hackathon deadline, sha256 `{R['predictions_2']['sha256'][:16]}`. "
+        f"Full text: [PREDICTIONS_2.md](PREDICTIONS_2.md). Resolved {R['predictions_2']['resolved']} of {len(P['predictions'])}.",
+        "",
+        "| ID | Prediction | Pass if | Window ends | Probability | Status |",
+        "|---|---|---|---|---|---|",
+    ]
+    for q in P["predictions"]:
+        rows.append(
+            f"| {q['id']} | {q['claim']}: {q['metric']} | {q['op']} {_pred_threshold(q)} | {q['window_end']} | {q['probability']:.2f} | {st[q['id']]['status']} |"
+        )
+    return "\n".join(rows)
+
+
+def anchors_md(cfg: Config) -> str:
+    p = cfg.paths.data / "anchors.json"
+    if not p.exists():
+        return "The prediction hashes are not anchored on chain yet."
+    A = json.loads(p.read_text())
+    a = A["anchors"][-1]
+    return (
+        f"Both hashes were written to NEAR {a['network']} in transaction [{a['tx_hash'][:12]}]({a['explorer_url']}) "
+        f"(block {a['block_height']:,}, {a['block_time_utc']}) by `{a['signer']}` calling `{a['method']}` on `{a['receiver']}`. "
+        "`python -m settlemark anchor verify` fetches that transaction from a public RPC and checks the hashes in its arguments "
+        "against the committed files. Testnet only proves the hashes existed by that block; it is a public timestamp, not money."
+    )
 
 
 def _pred_threshold(q: dict) -> str:
@@ -279,8 +462,14 @@ def thesis_context(cfg: Config, R: dict) -> dict[str, str]:
     )
     return dict(
         **md,
+        **extra_numbers(R),
         sens=sensitivity_md(R) if "valuation" in R else "",
         preds=predictions_md(cfg, R),
+        preds2=predictions_2_md(cfg, R),
+        anchors=anchors_md(cfg),
+        lltable=leadlag_md(R),
+        petable=peers_md(R),
+        bqtable=bigquery_md(R, cfg.project["repo"]),
         fals=fals,
         weeks=R["weeks"],
         wbtc=R["weeks_btc"],
@@ -320,6 +509,10 @@ def predictions_html(cfg: Config, R: dict) -> tuple[str, str]:
 
     P = json.loads(p.read_text())
     st = {r["id"]: r["status"] for r in R["predictions"]["results"]}
+    p2 = cfg.paths.data / "predictions_2.json"
+    if p2.exists() and "predictions_2" in R:
+        P = {**P, "predictions": P["predictions"] + json.loads(p2.read_text())["predictions"]}
+        st.update({r["id"]: r["status"] for r in R["predictions_2"]["results"]})
     chip = {"PENDING": "wait", "HIT": "ok", "MISS": "bad"}
     rows = []
     for q in P["predictions"]:
@@ -331,11 +524,31 @@ def predictions_html(cfg: Config, R: dict) -> tuple[str, str]:
             f'<span class="chip {chip[s]}">{s.title()}</span></div>'
         )
     lead = (
-        f"Frozen {html.escape(P['created_at_utc'])}, before any of these weeks happened. The git commit is the timestamp; sha256 "
-        f"<code>{R['predictions']['sha256'][:16]}</code>. Each has our probability, so a Brier score grades us. "
-        f'Resolved {R["predictions"]["resolved"]} of {len(P["predictions"])}. <a class="lnk" href="PREDICTIONS.md">Full text</a>.'
+        f"P1 to P8 frozen {html.escape(P['created_at_utc'])}; P9 to P14, the bolder set, a few hours later. Both after the hackathon "
+        f"deadline, both before any scored week began. sha256 <code>{R['predictions']['sha256'][:12]}</code>"
+        + (f" and <code>{R['predictions_2']['sha256'][:12]}</code>" if "predictions_2" in R else "")
+        + f". Each has our probability, so a Brier score grades us. Resolved {R['predictions']['resolved'] + R.get('predictions_2', {}).get('resolved', 0)} "
+        f'of {len(P["predictions"])}. <a class="lnk" href="PREDICTIONS.md">Set 1</a> · <a class="lnk" href="PREDICTIONS_2.md">Set 2</a>'
+        + _anchor_link(cfg)
+        + "."
     )
     return lead, "\n".join(rows)
+
+
+def _inline(path: Path) -> str:
+    """JSON safe to place inside a <script type="application/json"> element."""
+    if not path.exists():
+        return ""
+    data = json.loads(path.read_text())
+    return json.dumps(data, separators=(",", ":")).replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")
+
+
+def _anchor_link(cfg: Config) -> str:
+    p = cfg.paths.data / "anchors.json"
+    if not p.exists():
+        return ""
+    a = json.loads(p.read_text())["anchors"][-1]
+    return f' · <a class="lnk" href="{html.escape(a["explorer_url"])}" rel="noopener">hashes on NEAR testnet</a>'
 
 
 def render_site(cfg: Config, R: dict) -> str:
@@ -396,6 +609,9 @@ def render_site(cfg: Config, R: dict) -> str:
         ),
         **{f"chart_{c[:2]}": chart_html(c, cfg.paths.site / "charts") for c in CHARTS},
     }
+    ctx.update({k: html.escape(v.replace("-", "\u2212") if k in ("llaar",) else v) for k, v in extra_numbers(R).items()})
+    ctx.update(peers_html=peers_html(R), bq_html=bigquery_html(R))
+    ctx.update(inline_data=_inline(cfg.paths.site / "data.json"), inline_results=_inline(cfg.paths.site / "results.json"))
     if "valuation" in R:
         lead, prow = predictions_html(cfg, R)
         ctx.update(sens_html=sensitivity_html(R), pred_lead=lead, pred_rows=prow)
@@ -419,9 +635,10 @@ def render_all(cfg: Config) -> None:
     if rpc.exists():
         (site / "data").mkdir(exist_ok=True)
         shutil.copy(rpc, site / "data" / "near_rpc.csv")
-    preds = cfg.paths.root / "PREDICTIONS.md"
-    if preds.exists():
-        shutil.copy(preds, site / "PREDICTIONS.md")
+    for name in ("PREDICTIONS.md", "PREDICTIONS_2.md"):
+        preds = cfg.paths.root / name
+        if preds.exists():
+            shutil.copy(preds, site / name)
 
 
 def write_site_data(cfg: Config, frames, R: dict) -> Path:

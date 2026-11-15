@@ -51,9 +51,25 @@ def build(cfg) -> dict:
             "robustness": ["intents_volume", "near_chain"],
         }
     )
+    from . import bigquery as bq
+    from .leadlag import leadlag
+    from .peers import compare
+
+    R["leadlag"] = leadlag(cfg, frames, series["chain"], bq.weekly_activity(cfg))
+    R["peers"] = compare(cfg, R["window_end"], R["near_market_cap"])
+    R["bigquery"] = {"dataset": cfg.raw["bigquery"]["dataset"], "queries": bq.status(cfg)}
+    R["provenance"].update(
+        {
+            "leadlag": ["intents_volume", "near_chain", "near_rpc", "bigquery/05_weekly_activity"],
+            "peers": ["intents_volume", "intents_fees", "intents_revenue", "near_chain", "peers/*"],
+            "bigquery": ["bigquery/manifest.json"],
+        }
+    )
     if (cfg.paths.data / "predictions.json").exists():
         # Score as of the data fetch date, so the build stays a pure function of data/.
         R["predictions"] = score(cfg, dt.date.fromisoformat(R["fetched_at_utc"][:10]))
+    if (cfg.paths.data / "predictions_2.json").exists():
+        R["predictions_2"] = score(cfg, dt.date.fromisoformat(R["fetched_at_utc"][:10]), which=2)
     R = _stable(R)
     cfg.paths.results.mkdir(parents=True, exist_ok=True)
     (cfg.paths.results / "results.json").write_text(json.dumps(R, indent=2, sort_keys=False) + "\n")
@@ -70,12 +86,19 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="settlemark", description="Rebuild the Settlemark NEAR settlement thesis.")
     ap.add_argument(
         "command",
-        choices=["fetch", "build", "rebuild", "check", "predictions", "bigquery"],
+        choices=["fetch", "build", "rebuild", "check", "predictions", "bigquery", "bigquery-import", "anchor"],
         help="fetch data, build outputs from data, both, check that the committed outputs rebuild exactly, or freeze/score predictions",
     )
-    ap.add_argument("query", nargs="?", help="bigquery: query number or name prefix in queries/, e.g. 04")
-    ap.add_argument("--max-gb", type=float, default=400.0, help="bigquery: refuse queries that would scan more than this")
+    ap.add_argument("query", nargs="?", help="bigquery: query key in settlemark.toml (e.g. 05) or 'all'; anchor: 'verify' or 'show'")
+    ap.add_argument("csv", nargs="?", help="bigquery-import: CSV downloaded from the BigQuery console")
+    ap.add_argument(
+        "--max-gb", type=float, default=None, help="bigquery: refuse queries that would scan more than this (default from settlemark.toml)"
+    )
+    ap.add_argument("--dry-run", action="store_true", help="bigquery: only report how many GB each query would scan")
+    ap.add_argument("--scanned-gb", type=float, default=None, help="bigquery-import: GB the console reported for the run")
+    ap.add_argument("--run-at", default=None, help="bigquery-import: when the console run finished, e.g. 2026-11-15T06:00:00Z")
     ap.add_argument("--freeze", action="store_true", help="predictions: write data/predictions.json once (refuses to overwrite)")
+    ap.add_argument("--set", type=int, default=1, choices=[1, 2], help="predictions: which frozen set (1 or 2)")
     ap.add_argument("--score", action="store_true", help="predictions: score every prediction whose window has closed")
     ap.add_argument("-v", "--verbose", action="store_true")
     ap.add_argument("--no-cache", action="store_true", help="ignore the local HTTP cache")
@@ -101,17 +124,40 @@ def main(argv: list[str] | None = None) -> int:
                 return 1
             logger.info("check passed: committed outputs rebuild byte for byte and every number in THESIS.md is computed")
         if args.command == "bigquery":
-            from .bigquery import run as bq_run
+            from . import bigquery as bq
 
             if not args.query:
-                raise ValueError("bigquery needs a query, e.g. python -m settlemark bigquery 04")
-            logger.info("wrote %s", bq_run(cfg, args.query, args.max_gb))
+                for s in bq.status(cfg):
+                    logger.info(
+                        "%s %-34s %s",
+                        s["key"],
+                        s["csv"],
+                        f"{s['rows']} rows, {s['scanned_gb']} GB" if s["committed"] else "not committed yet",
+                    )
+            else:
+                keys = [q.key for q in bq.queries(cfg)] if args.query == "all" else [args.query]
+                for k in keys:
+                    out = bq.run(cfg, k, args.max_gb, dry_run=args.dry_run)
+                    logger.info("%s: %s", k, f"would scan {out:.1f} GB" if args.dry_run else f"wrote {out}")
+        if args.command == "bigquery-import":
+            from . import bigquery as bq
+
+            if not (args.query and args.csv and args.scanned_gb is not None):
+                raise ValueError("usage: python -m settlemark bigquery-import 05 results.csv --scanned-gb 123.4 [--run-at ...]")
+            logger.info("wrote %s", bq.import_csv(cfg, args.query, args.csv, args.scanned_gb, args.run_at))
+        if args.command == "anchor":
+            from . import anchor
+
+            report = anchor.verify(cfg, live=(args.query == "verify"))
+            print(json.dumps(report, indent=2))
+            if not report["ok"]:
+                return 1
         if args.command == "predictions":
             if args.freeze:
                 R = json.loads((cfg.paths.results / "results.json").read_text())
-                logger.info("froze %s", freeze(cfg, R))
+                logger.info("froze %s", freeze(cfg, R, which=args.set))
             if args.score or not args.freeze:
-                print(json.dumps(score(cfg), indent=2))
+                print(json.dumps(score(cfg, which=args.set), indent=2))
     except (ConfigError, FetchError, SchemaError, StatsError, ValueError, FileExistsError) as e:
         logger.error("%s: %s", type(e).__name__, e)
         return 1

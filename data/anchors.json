@@ -1,0 +1,16 @@
+{
+  "anchors": [
+    {
+      "network": "testnet",
+      "signer": "settlemark-anchor.testnet",
+      "receiver": "settlemark-anchor.testnet",
+      "method": "anchor",
+      "tx_hash": "6TD8srdoYvPsuYohetnnvgcFPt8PdjhyW739wTfpdpqN",
+      "block_hash": "GTT3Q5MFAjyxbTNvFeJsFr3sis9ytPZk6r7ViMyCC5oN",
+      "block_height": 277763882,
+      "block_time_utc": "2026-11-15T05:51:10Z",
+      "explorer_url": "https://testnet.nearblocks.io/txns/6TD8srdoYvPsuYohetnnvgcFPt8PdjhyW739wTfpdpqN",
+      "args": "{\"frozen_utc\":{\"data/predictions.json\":\"2026-11-15T00:24:38Z\",\"data/predictions_2.json\":\"2026-11-15T05:43:57Z\"},\"project\":\"settlemark\",\"repo\":\"https://github.com/henrysammarfo/near-settlement-thesis\",\"sha256\":{\"data/predictions.json\":\"2c2ec155b5202d02bbb5c59f9714dd7b452f4564fd5e38f990c33c16e6136af3\",\"data/predictions_2.json\":\"0d93f3f38b6e04d5bf3fdf7eddff80709568f871e8cdcae60da789dbacbedb3a\"}}"
+    }
+  ]
+}

@@ -32,8 +32,8 @@ def test_outputs_exist(out):
     _cfg, _R, o = out
     pngs = sorted(p.name for p in (o / "charts").glob("*.png"))
     svgs = sorted(p.name for p in (o / "site" / "charts").glob("*.svg"))
-    assert len(pngs) == 9 and len(svgs) == 18
-    assert len(list((o / "site" / "charts").glob("*.png"))) == 9
+    assert len(pngs) == 11 and len(svgs) == 22
+    assert len(list((o / "site" / "charts").glob("*.png"))) == 11
     assert all((o / "charts" / p).stat().st_size > 20000 for p in pngs)
     assert (o / "site" / "index.html").exists() and (o / "site" / "brand" / "mark.svg").exists()
 

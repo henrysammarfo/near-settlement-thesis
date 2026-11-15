@@ -10,3 +10,4 @@ __pycache__/
 *.csv.tmp
 site/.gitignore
 .vercel/
+contracts/anchor/target/

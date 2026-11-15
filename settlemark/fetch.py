@@ -29,6 +29,12 @@ def fetch_all(cfg: Config, use_cache: bool = True, only: list[str] | None = None
             time.sleep(cfg.http.pause_between_coingecko_calls_seconds)
     if not only or "near_rpc" in only:
         counts["near_rpc"] = fetch_chain(cfg, fetched_at, use_cache)
+    if not only or "peers" in only:
+        from .peers import fetch_peers
+
+        counts["peers"] = fetch_peers(cfg, fetched_at, use_cache)
+    # BigQuery is not refetched here: its results are committed (see settlemark/bigquery.py) and
+    # refreshed with `npm run bigquery`, so a rebuild never spends anyone's query allowance.
     return counts
 
 

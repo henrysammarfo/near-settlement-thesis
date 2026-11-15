@@ -81,6 +81,7 @@ class Config:
     robustness: RobustnessConfig
     chain: dict = field(default_factory=dict)
     sources: dict[str, str] = field(default_factory=dict)
+    raw: dict = field(default_factory=dict)  # every table in settlemark.toml, for the newer modules
 
 
 class ConfigError(ValueError):
@@ -119,6 +120,7 @@ def load_config(path: Path = DEFAULT_CONFIG, root: Path | None = None, output_ro
             robustness=RobustnessConfig(**raw["robustness"]),
             chain=dict(raw["chain"]),
             sources=dict(raw["sources"]),
+            raw=raw,
         )
     except (KeyError, TypeError) as e:
         raise ConfigError(f"invalid config {path}: {e}") from e

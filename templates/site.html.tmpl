@@ -13,7 +13,6 @@
 <link rel="icon" href="brand/favicon.svg" type="image/svg+xml">
 <link rel="preload" href="brand/fonts/inter-tight.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="brand/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="data.json" as="fetch" crossorigin>
 <style>
 @font-face{font-family:"Inter";src:url(brand/fonts/inter.woff2) format("woff2");font-weight:100 900;font-display:swap}
 @font-face{font-family:"Inter Tight";src:url(brand/fonts/inter-tight.woff2) format("woff2");font-weight:100 900;font-display:swap}
@@ -205,6 +204,15 @@ table.sens th{color:var(--mute);font-weight:600}
 .prow .pm{grid-area:meta;font:600 15px var(--display);color:var(--ink2)}
 @media (min-width:700px){.prow .pm{text-align:right}}
 .chip.wait{background:var(--accbg);color:var(--acc)}
+table.peers td small{display:block;font:400 13px var(--text);color:var(--mute)}
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.grid2>*{min-width:0}
+@media (max-width:600px){table.peers td small{display:none}}
+table.peers tr.me td{color:var(--acc);font-weight:650}
+table.ll{width:100%;border-collapse:collapse;font-size:14px;margin-top:var(--s2)}
+table.ll th,table.ll td{text-align:right;padding:var(--s1) 10px;border-bottom:1px solid var(--line)}
+table.ll th:first-child,table.ll td:first-child{text-align:left}
+table.ll th{color:var(--mute);font-weight:600}
 
 /* motion */
 .js .r{opacity:0;transform:translate3d(0,24px,0)}
@@ -219,7 +227,7 @@ table.sens th{color:var(--mute);font-weight:600}
 <nav class="nav" aria-label="Main">
   <div class="w in">
     <a class="logo" href="#top"><img src="brand/mark.svg" alt="" width="28" height="28">Settlemark</a>
-    <ul><li><a href="#flow">Flow</a></li><li><a href="#case">The case</a></li><li><a href="#chain">Chain</a></li><li><a href="#tester">Tester</a></li><li><a href="#predictions">Predictions</a></li><li><a href="#tests">Tests</a></li><li><a href="#verdict">Verdict</a></li><li class="k"><a href="$repo" rel="noopener">GitHub</a></li></ul>
+    <ul><li><a href="#flow">Flow</a></li><li><a href="#case">The case</a></li><li><a href="#chain">Chain</a></li><li><a href="#lead">Lead</a></li><li><a href="#routers">Routers</a></li><li><a href="#tester">Tester</a></li><li><a href="#predictions">Predictions</a></li><li><a href="#tests">Tests</a></li><li><a href="#verdict">Verdict</a></li><li class="k"><a href="$repo" rel="noopener">GitHub</a></li></ul>
   </div>
   <div class="prog" id="prog"></div>
 </nav>
@@ -316,15 +324,53 @@ table.sens th{color:var(--mute);font-weight:600}
       <li>Correlation in the first half $c1h, second half $c2h. Without the first 13 weeks $cx13 (90% interval $cx13ci). Spearman $spear.</li>
       <li>The rally: over the latest 13 weeks price moved $pr13 and volume $vr13. That quarter correlates $cl13, above 0.5. Prediction P3 tests whether it lasts.</li>
       <li>RPC supply times price gives $fdv; NearBlocks market cap is $mcfdv of it.</li>
-      <li>BigQuery receipts per NearBlocks transaction: $bqr over $bqd days.</li>
+      <li>BigQuery receipts per NearBlocks transaction: $bqr over $bqd days. $bq_html</li>
       <li>The buyback wallet balance fell in $bbdown sampled weeks, so weekly gains are buybacks, not round trips.</li>
     </ul></details>
   </div>
 </section>
 
+<section id="lead">
+  <div class="w">
+    <div class="kick r">04 · Lead and lag</div>
+    <h2 class="r">Does Intents volume lead network usage? Not on this data.</h2>
+    <p class="lead r">The track&rsquo;s own hypothesis, tested. A Granger style F test asks whether the last $llk weeks of Intents changes improve a forecast of each usage series. A shift test checks the same thing with no distribution assumptions. $lln tests, $llw weeks.</p>
+    <div class="kpis">
+      <div class="kpi bad r"><b class="num">$llmin</b><span>smallest p value for &ldquo;Intents leads usage&rdquo;. A lead would need both p values below $llalpha.</span></div>
+      <div class="kpi r" style="--d:60ms"><b class="num">$llaap</b><span>p for NearBlocks active accounts (shift test $llaaps).</span></div>
+      <div class="kpi r" style="--d:120ms"><b class="num">$llstp</b><span>p for <code>intents.near</code> state growth read from RPC (shift test $llstps).</span></div>
+      <div class="kpi acc r" style="--d:180ms"><b class="num">$llaarev</b><span>p for the reverse: usage leading Intents. Neither way.</span></div>
+    </div>
+    <div class="grid2">
+      <div class="chart r"><h3>Cross correlations by lead</h3>$chart_10<div class="src">Grey band: what noise alone produces 95% of the time.</div></div>
+      <div class="chart r" style="--d:80ms"><h3>What it means</h3><p class="lead" style="font-size:16px">$llverdict. Intents grew while the base chain shrank, and week to week they move independently. That fits part 1, Intents is its own flow, but it is not an early signal of NEAR usage. Two years of weeks gives low power: a modest lead could be missed. Granger tests prediction, not cause.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="routers" style="background:var(--bg2)">
+  <div class="w">
+    <div class="kick r">05 · Against other routers</div>
+    <h2 class="r">The biggest router, mid priced, and the richest token.</h2>
+    <p class="lead r">$pen cross chain routers, one source (DefiLlama), the same $pedays days to $peend. Intents carries $peshare of their combined volume.</p>
+    <div class="kpis">
+      <div class="kpi good r"><b class="num">#$perank</b><span>by volume: $pevol in $pedays days.</span></div>
+      <div class="kpi r" style="--d:60ms"><b class="num">$pefee bps</b><span>fees paid by users, against a peer median of $pefeemed. Cheaper than $pecheap of $peothers.</span></div>
+      <div class="kpi r" style="--d:120ms"><b class="num">$perev bps</b><span>kept as revenue, against a peer median of $perevmed.</span></div>
+      <div class="kpi bad r" style="--d:180ms"><b class="num">$peprem</b><span>richer than router tokens per revenue dollar: NEAR at $pemrev, token peers at a median $petok.</span></div>
+    </div>
+    <div class="grid2">
+      <div class="chart r"><h3>Take rates</h3>$chart_11<div class="src">Fees and revenue over volume, basis points</div></div>
+      <div class="chart r" style="--d:80ms"><h3>Side by side</h3>
+$peers_html
+      <p class="src">NEAR is a whole layer 1, so part of its premium is fair. THORChain fees include LP fees; aggregators can overlap with Intents volume.</p></div>
+    </div>
+  </div>
+</section>
+
 <section id="tester">
   <div class="w">
-    <div class="kick r">04 · Thesis tester</div>
+    <div class="kick r">06 · Thesis tester</div>
     <h2 class="r">Move the assumptions. Watch the token value.</h2>
     <p class="lead r">The same formulas as <code>settlemark/valuation.py</code>, starting from the last 13 weeks. Only buybacks count as holder cash. The defaults reproduce the Python base case.</p>
     <div class="tester r" id="tester-ui" data-ready="0">
@@ -362,8 +408,8 @@ $sens_html
 
 <section id="predictions" style="background:var(--bg2)">
   <div class="w">
-    <div class="kick r">05 · Predictions written in advance</div>
-    <h2 class="r">Eight calls, frozen before the data exists.</h2>
+    <div class="kick r">07 · Predictions written in advance</div>
+    <h2 class="r">Fourteen calls, frozen before the data exists.</h2>
     <p class="lead r">$pred_lead</p>
     <div class="flist r">
 $pred_rows
@@ -374,7 +420,7 @@ $pred_rows
 <section id="tests">
   <div class="w fals">
     <div>
-      <div class="kick r">06 · What would change our mind</div>
+      <div class="kick r">08 · What would change our mind</div>
       <div class="zero num r">$met<small> of $nf</small></div>
       <div class="dots r" aria-hidden="true">$meter</div>
       <p class="lead r">tests that would prove the thesis wrong are met. Thresholds live in <code>settlemark.toml</code> and run on every rebuild.</p>
@@ -387,7 +433,7 @@ $falsifier_rows
 
 <section id="verdict">
   <div class="w">
-    <div class="kick r">07 · Verdict</div>
+    <div class="kick r">09 · Verdict</div>
     <p class="verdict r">The use is real, and buybacks now catch most revenue. <span>They cover $cov13 of new supply, worth $vbase a token against $pxnow.</span> A long term buy only if volume compounds toward $bev a week.</p>
     <div class="method">
       <div class="term r"><button class="copy" type="button" data-copy="git clone $repo && cd near-settlement-thesis && npm run setup && npm run rebuild && npm test">Copy</button><span class="c"># no keys, no accounts, no cost</span>
@@ -395,7 +441,7 @@ $falsifier_rows
 <span class="p">$$ </span>npm run rebuild
 <span class="p">$$ </span>npm test</div>
       <ol class="steps r" style="--d:80ms">
-        <li><span>1</span><div><b>Fetch</b> nine public datasets and one archival RPC block a week, with retries and caching. Every row keeps its source and time.</div></li>
+        <li><span>1</span><div><b>Fetch</b> nine public datasets, fourteen router series and one archival RPC block a week, with retries and caching. BigQuery results are committed with their scan size. Every row keeps its source and time.</div></li>
         <li><span>2</span><div><b>Validate</b> each file against a schema before any maths.</div></li>
         <li><span>3</span><div><b>Analyse</b> weekly changes with bootstrap intervals and a fixed seed.</div></li>
         <li><span>4</span><div><b>Render</b> this page, THESIS.md and every chart. No number typed by hand.</div></li>
@@ -404,7 +450,7 @@ $falsifier_rows
     </div>
     <details class="r" style="margin-top:var(--s5)"><summary>Limits</summary><ul>
       <li>Free public APIs only. The Intents Explorer API needs a partner token and was not used.</li>
-      <li>$bq</li>
+      <li>$bq $bq_html</li>
       <li>Weekly correlations over two years are noisy, and early weeks are tiny.</li>
       <li>NearBlocks can miss signers behind relayers. CoinGecko's free tier gives 365 days, so the Bitcoin test is shorter.</li>
     </ul></details>
@@ -420,6 +466,8 @@ $falsifier_rows
   </div>
 </footer>
 <div class="tip" id="tip"></div>
+<script type="application/json" id="data-json">$inline_data</script>
+<script type="application/json" id="results-json">$inline_results</script>
 <script src="model.js" defer></script>
 <script src="app.js" defer></script>
 </body>

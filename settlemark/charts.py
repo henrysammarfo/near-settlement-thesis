@@ -48,6 +48,8 @@ CHARTS = (
     "07_supply_vs_buybacks",
     "08_rolling_correlation",
     "09_value_per_token",
+    "10_lead_lag",
+    "11_router_take_rates",
 )
 
 
@@ -187,7 +189,7 @@ def draw_deep(S: dict, R: dict, t: Theme, outputs: dict[str, list[Path]]) -> Non
     _style(t)
     fetched, C, V, Rb = R["fetched_at_utc"], R["chain"], R["valuation"], R["robustness"]
     ch = S["chain"]
-    start = S["buyback_start"] - days(7 * 1)
+    start = S["buyback_start"] - days(7)
     seg = ch.loc[start:]
     fig, ax = plt.subplots(figsize=(5.4, 4.1))
     added = (seg.total_supply_near - seg.total_supply_near.iloc[0]) / 1e6
@@ -227,6 +229,54 @@ def draw_deep(S: dict, R: dict, t: Theme, outputs: dict[str, list[Path]]) -> Non
     _finish(fig, t, "Settlemark DCF on RPC buybacks", fetched, outputs["09_value_per_token"])
 
 
+def draw_extra(R: dict, t: Theme, outputs: dict[str, list[Path]]) -> None:
+    """Charts 10 and 11: does Intents lead usage, and Intents against other cross chain routers."""
+    _style(t)
+    fetched, L, P = R["fetched_at_utc"], R["leadlag"], R["peers"]
+
+    fig, ax = plt.subplots(figsize=(5.4, 4.1))
+    done = [x for x in L["tests"] if "xcorr" in x]
+    colors = [t.accent, t.price, t.good, t.neutral, t.bad]
+    width = 0.8 / max(len(done), 1)
+    for i, x in enumerate(done):
+        xs = [k + (i - (len(done) - 1) / 2) * width for k in x["xcorr_lags"]]
+        ax.bar(xs, x["xcorr"], width=width * 0.92, color=colors[i % len(colors)], label=x["label"])
+    n = min(x["weeks"] for x in done)
+    band = 1.96 / n**0.5
+    ax.axhspan(-band, band, color=t.neutral, alpha=0.15, lw=0)
+    ax.axhline(0, color=t.neutral, lw=0.8)
+    ax.axvline(0, color=t.muted, lw=0.8, ls=(0, (2, 2)))
+    ax.set_ylim(-0.6, 0.6)
+    ax.set_xticks(done[0]["xcorr_lags"])
+    ax.set_xlabel("weeks Intents volume leads usage (negative: usage leads)")
+    ax.grid(False, axis="x")
+    ax.legend(loc="lower left", bbox_to_anchor=(0, 1.0), ncol=1, borderaxespad=0.3, handlelength=1.2, fontsize=8)
+    ax.set_title("No lead stands out from noise (grey band)", pad=10 + 13 * len(done), fontsize=11.5)
+    _finish(fig, t, "DefiLlama, NearBlocks, NEAR archival RPC", fetched, outputs["10_lead_lag"])
+
+    fig, ax = plt.subplots(figsize=(5.4, 4.1))
+    rows = sorted(P["rows"], key=lambda r: r["fee_bps"])
+    names = [r["name"] for r in rows]
+    y = range(len(rows))
+    ax.barh([i + 0.2 for i in y], [r["fee_bps"] for r in rows], height=0.38, color=t.neutral, label="All fees")
+    ax.barh([i - 0.2 for i in y], [r["revenue_bps"] for r in rows], height=0.38, color=t.accent, label="Kept as revenue")
+    for i, r in enumerate(rows):
+        c = t.accent if r["slug"] == "near_intents" else t.ink
+        ax.text(r["fee_bps"] + 0.6, i + 0.2, f"{r['fee_bps']:.1f}", va="center", fontsize=8.5, color=t.muted)
+        ax.text(r["revenue_bps"] + 0.6, i - 0.2, f"{r['revenue_bps']:.1f}", va="center", fontsize=8.5, color=c, fontweight="bold")
+    ax.set_yticks(list(y), names)
+    for lbl, r in zip(ax.get_yticklabels(), rows):
+        if r["slug"] == "near_intents":
+            lbl.set_color(t.accent)
+            lbl.set_fontweight("bold")
+    ax.grid(True, axis="x")
+    ax.grid(False, axis="y")
+    ax.set_xlabel("basis points of volume")
+    ax.legend(loc="lower right", fontsize=8.5)
+    ax.set_title(f"Take rates, {P['window_days']} days to {P['window_end']}")
+    _finish(fig, t, "DefiLlama fees and volume APIs", P.get("fetched_at_utc", fetched), outputs["11_router_take_rates"])
+
+
 def draw_all(fr: Frames, R: dict, charts_dir: Path, site_charts_dir: Path, deep_series: dict | None = None) -> list[Path]:
     charts_dir.mkdir(parents=True, exist_ok=True)
     site_charts_dir.mkdir(parents=True, exist_ok=True)
@@ -238,5 +288,8 @@ def draw_all(fr: Frames, R: dict, charts_dir: Path, site_charts_dir: Path, deep_
     if deep_series is not None:
         draw_deep(deep_series, R, LIGHT, light)
         draw_deep(deep_series, R, DARK, dark)
+    if R.get("leadlag") and R.get("peers"):
+        draw_extra(R, LIGHT, light)
+        draw_extra(R, DARK, dark)
     plt.rcdefaults()
     return [p for v in (*light.values(), *dark.values()) for p in v]

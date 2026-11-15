@@ -1,0 +1,10 @@
+{
+  "01": {
+    "csv": "receipt_actions_daily.csv",
+    "sql": "01_receipt_actions_daily.sql",
+    "sql_sha256": "09e17c78b47b0b3c38b4e40b904f6c6853987fcafae8b95858221bd7a4f7840d",
+    "scanned_gb": 174.0,
+    "run_at_utc": "2026-11-14T22:40:00Z",
+    "method": "console"
+  }
+}

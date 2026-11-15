@@ -59,11 +59,43 @@ The thesis tester on the page (`site/index.html`, section 04) runs the same form
 - Every {rw} week window: correlation ranges from {rmin} to {rmax} across {rn} windows; {rabove} are above 0.5. ![chart 8](charts/08_rolling_correlation.png)
 - Latest 13 weeks alone: {cl13}. That window is short, so it is a warning, not a verdict.
 
+## Does Intents volume lead network usage?
+
+The track asks whether cross chain volume through Intents is a better leading indicator of real network usage than the token price. Part 1 already shows price does not lead it. Here we test the leading part directly (`settlemark/leadlag.py`). Weekly log changes over {llw} weeks. For each usage series, a Granger style F test asks whether the last {llk} weeks of Intents changes improve a forecast of usage beyond usage's own past. A second, distribution free p value rotates the Intents series by every shift of at least 8 weeks, which keeps each series' own rhythm but breaks any real timing link. The lag order ({llk}) was fixed in `settlemark.toml` before we looked; orders 1 to 4 are in `results/results.json`.
+
+{lltable}
+
+- **Result: {llverdict} at p below {llalpha}.** The smallest headline p value is {llmin}. For NearBlocks active accounts the strongest lead is {llaak} week at {llaar}, inside the noise band, and the reverse test (usage leading Intents) gives {llaarev}. ![chart 10](charts/10_lead_lag.png)
+- **So the track's hypothesis is not supported by these data.** Intents grew while base chain activity fell, and week to week the two move independently. That fits part 1 (Intents is its own flow), but it means Intents volume is not, on public data, an early signal of NEAR usage.
+- Caveats: {lln} tests were run, so one p value under {llalpha} would be expected by chance; none came out that low. Two years of weekly data has low power, so a modest lead could exist and be missed. NearBlocks counts accounts, and relayers hide signers. A Granger test is about prediction, not cause. When the BigQuery weekly signer series lands (below), the same test runs on it automatically.
+
+## Against other cross chain routers
+
+The same source for everyone (DefiLlama's free fees and volume APIs), the same {pedays} days ({pestart} to {peend}), {pen} routers. Code: `settlemark/peers.py`; data: `data/peers/`.
+
+{petable}
+
+- Intents is the largest of the {pen} by volume ({pevol}, {peshare} of the group). Its users pay {pefee} basis points in fees against a median of {pefeemed} for the other {peothers}; it is cheaper than {pecheap} of them. It keeps {perev} basis points as revenue against a peer median of {perevmed}. ![chart 11](charts/11_router_take_rates.png)
+- **The holder gap is the sharpest number in this note.** NEAR's market cap is {pemrev} annualised Intents revenue; routers with their own token trade at a median {petok}. NEAR is priced {peprem} richer per dollar of Intents revenue. Part of that is fair, since NEAR is a whole layer 1 and not only Intents, but it is the size of the bet a holder makes on Intents growth. Prediction P12 tests whether the gap persists.
+- Caveats: methodologies differ by protocol. THORChain fees include liquidity provider fees; LI.FI and Rango are aggregators that route over other bridges, possibly including NEAR Intents, so volumes can overlap. Only routers with daily volume and fees on the free API are in; Relay, Across and deBridge publish fees there, but their volume needs a paid key.
+
+## Data from the NEAR BigQuery public dataset
+
+BigQuery is a main source, not an add on. Every result is committed in `data/bigquery/` with a manifest recording the bytes scanned, when it ran and a hash of its SQL (`settlemark/bigquery.py`). The rebuild reads the committed files, so a fresh clone with no Google account rebuilds byte for byte; `npm run bigquery` refreshes them with a Google account, dry running first and refusing any query above the limit in `settlemark.toml`. `python -m settlemark check` fails if a required result is missing or if its SQL changed after it ran.
+
+{bqtable}
+
+{bq}
+
 ## Predictions written down in advance
 
-These are frozen in `data/predictions.json` before their data exists, with our own probability for each, and scored by `python -m settlemark predictions --score` after each window closes. Misses will be published like hits.
+These are frozen in `data/predictions.json` (set 1) and `data/predictions_2.json` (set 2, bolder) before their data exists, with our own probability for each, and scored by `python -m settlemark predictions --score` after each window closes. Misses will be published like hits. To be plain about timing: both sets were frozen after the hackathon deadline of 23:59 UTC on 2026-11-14 (set 1 at 00:24 UTC on 2026-11-15, set 2 later that morning), and before the first scored week began on 2026-11-16.
 
 {preds}
+
+{preds2}
+
+{anchors}
 
 ## What would change our mind
 
@@ -77,11 +109,11 @@ We would also change our mind if Intents share of DEX volume falls for two quart
 
 ## Verdict
 
-Part 1 is supported over the full window and in every {rw} week window, but the latest quarter is the weakest evidence yet ({cl13}), and P3 will tell us within 8 weeks. Part 2 is supported and now measured on chain: about {bbshare} of Intents revenue already buys NEAR, yet buybacks cover only {cov13} of new supply, and a buyback valuation gives {vbase} a token in the base case against {pxnow}. The price assumes about {gimp} yearly growth in holder cash. NEAR is a long term buy only if Intents volume keeps compounding toward {bev} a week. Watch chart 7, not the price.
+Part 1 is supported over the full window and in every {rw} week window, but the latest quarter is the weakest evidence yet ({cl13}), and P3 will tell us within 8 weeks. Part 2 is supported and now measured on chain: about {bbshare} of Intents revenue already buys NEAR, yet buybacks cover only {cov13} of new supply, and a buyback valuation gives {vbase} a token in the base case against {pxnow}. The price assumes about {gimp} yearly growth in holder cash. NEAR is a long term buy only if Intents volume keeps compounding toward {bev} a week. Watch chart 7, not the price. The track's own hypothesis, that Intents volume leads network usage, is not supported: {llverdict}. Against other routers, Intents is the biggest and mid priced, and NEAR trades at {peprem} the revenue multiple of router tokens.
 
 ## Limits
 
-- The one command rebuild uses free public APIs only: DefiLlama, NearBlocks, CoinGecko and NEAR archival RPC (FastNEAR first, the NEAR Foundation node as fallback). The Intents Explorer API was not used (it needs a partner token). BigQuery is the optional path, run by hand (see `docs/BIGQUERY.md`). {bq}
+- The one command rebuild uses free public APIs only: DefiLlama, NearBlocks, CoinGecko and NEAR archival RPC (FastNEAR first, the NEAR Foundation node as fallback). The Intents Explorer API was not used (it needs a partner token). BigQuery results are committed and refreshed on demand (section above and `docs/BIGQUERY.md`).
 - Correlations of weekly changes over about two years are noisy. The early Intents weeks are tiny, so log changes there are large.
 - NearBlocks active accounts can miss signers hidden behind relayers.
 - CoinGecko's free tier gives 365 days, so the Bitcoin test covers fewer weeks than the NEAR test.

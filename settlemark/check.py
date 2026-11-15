@@ -51,9 +51,10 @@ def audit_numbers(cfg: Config, thesis: str, filled: dict[str, str]) -> list[str]
 
 def check(cfg: Config) -> list[str]:
     from .__main__ import build
+    from .bigquery import problems as bq_problems
     from .render import thesis_context
 
-    problems: list[str] = []
+    problems: list[str] = list(bq_problems(cfg))
     with tempfile.TemporaryDirectory() as tmp:
         out = Path(tmp)
         tcfg = load_config(root=cfg.paths.root, output_root=out)
